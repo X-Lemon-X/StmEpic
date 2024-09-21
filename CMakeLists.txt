@@ -23,10 +23,6 @@ option(STMEPIC_MOVEMENT "Enable Movement controler module" OFF)
 option(STMEPIC_SENSORS "Enable Sensors module" OFF)
 option(STMEPIC_USB_PROGRAMING "Enable Usb programing module" OFF)
 
-# Add the library target
-
-# find_library(stm32cubemx REQUIRED)
-# find_package(stm32cubemx REQUIRED)
 
 # Add the core modules
 add_subdirectory(Containers)
@@ -34,10 +30,9 @@ add_subdirectory(Timing)
 add_subdirectory(Gpio)
 add_subdirectory(Filters)
 
-# add_subdirectory(../cmake/stm32cubemx)
+
 
 # Add the extra modules
-
 if(STMEPIC_BARD_ID)
   add_subdirectory(BoardId)
 endif()
@@ -48,15 +43,15 @@ endif()
 
 
 if(STMEPIC_ENCODERS)
-add_subdirectory(Encoders)
+  add_subdirectory(Encoders)
 endif()
 
 if(STMEPIC_LOGGER)
-add_subdirectory(Logger)
+  add_subdirectory(Logger)
 endif()
 
 if(STMEPIC_MOVEMENT)
-  add_subdirectory(MovementControl)
+  add_subdirectory(Movement)
   add_subdirectory(SteperMotor)
 endif()
 
@@ -68,9 +63,6 @@ if(STMEPIC_USB_PROGRAMING)
   add_subdirectory(UsbPrograming)
 endif()
 
-link_libraries(${UPPER_PROJECT_NAME}
-  stm32cubemx
-)
 
 
 
