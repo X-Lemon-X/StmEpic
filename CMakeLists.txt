@@ -25,42 +25,42 @@ option(STMEPIC_USB_PROGRAMING "Enable Usb programing module" OFF)
 
 
 # Add the core modules
-add_subdirectory(Containers)
-add_subdirectory(Timing)
-add_subdirectory(Gpio)
-add_subdirectory(Filters)
+add_subdirectory(src/Containers)
+add_subdirectory(src/Timing)
+add_subdirectory(src/Gpio)
+add_subdirectory(src/Filters)
 
 
 
 # Add the extra modules
 if(STMEPIC_BARD_ID)
-  add_subdirectory(BoardId)
+  add_subdirectory(src/BoardId)
 endif()
 
 if(STMEPIC_CAN_CONTROLER)
-  add_subdirectory(CanControl)
+  add_subdirectory(src/CanControl)
 endif()
 
 
 if(STMEPIC_ENCODERS)
-  add_subdirectory(Encoders)
+  add_subdirectory(src/Encoders)
 endif()
 
 if(STMEPIC_LOGGER)
-  add_subdirectory(Logger)
+  add_subdirectory(src/Logger)
 endif()
 
 if(STMEPIC_MOVEMENT)
-  add_subdirectory(Movement)
-  add_subdirectory(SteperMotor)
+  add_subdirectory(src/Movement)
+  add_subdirectory(src/SteperMotor)
 endif()
 
 if(STMEPIC_SENSORS)
-  add_subdirectory(Sensors)
+  add_subdirectory(src/Sensors)
 endif()
 
 if(STMEPIC_USB_PROGRAMING)
-  add_subdirectory(UsbPrograming)
+  add_subdirectory(src/UsbPrograming)
 endif()
 
 
