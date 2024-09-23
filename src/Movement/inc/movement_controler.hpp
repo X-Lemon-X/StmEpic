@@ -69,8 +69,11 @@ public:
   /// @param ticker Ticker object for main system time wity microsecond resolution
   /// @param steper_motor Steper motor object
   /// @param encoder_pos encodere for a position of the arm (probablly mounted on the arm shaft)
-  /// @param encoder_velocity encoder for the velocity of the arm (probablly mounted on the engine shaft)
-  void init(TIMING::Ticker &ticker, STEPER_MOTOR::SteperMotor &steper_motor, ENCODER::Encoder &encoder_pos,ENCODER::Encoder &encoder_velocity, MovementEquation &movement_equation);
+  /// @param movement_equation MovementEquation equasion that will be used to calculate the movement of the arm
+  /// @param encoder_velocity encoder for the velocity of the arm (probablly mounted on the engine shaft), if passed as nullptr the current velocity will be owerriden by the movement equation.
+  /// encoder_velocity was added for super precise velocity control when you have two encoders one on the engine and one on the other shaft. However if second encoder is not used it is recommended to pass
+  // the pass the same encoder_velocity as the encoder_pos.
+  void init(TIMING::Ticker &ticker, STEPER_MOTOR::SteperMotor &steper_motor, ENCODER::Encoder &encoder_pos,MovementEquation &movement_equation,ENCODER::Encoder *encoder_velocity=nullptr);
   
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
   void handle();

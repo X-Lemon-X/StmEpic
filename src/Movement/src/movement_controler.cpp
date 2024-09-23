@@ -25,11 +25,11 @@ MovementControler::~MovementControler(){
   }
 }
 
-void MovementControler::init(TIMING::Ticker &_ticker, STEPER_MOTOR::SteperMotor &_steper_motor, ENCODER::Encoder &_encoder_pos,ENCODER::Encoder &_encoder_velocity, MovementEquation &_movement_equation){
+void MovementControler::init(TIMING::Ticker &_ticker, STEPER_MOTOR::SteperMotor &_steper_motor, ENCODER::Encoder &_encoder_pos, MovementEquation &_movement_equation,ENCODER::Encoder *_encoder_velocity){
   ticker = &_ticker;
   steper_motor = &_steper_motor;
   encoder_pos = &_encoder_pos;
-  encoder_vel = &_encoder_velocity;
+  encoder_vel = _encoder_velocity;
   movement_equation = &_movement_equation;
   initialized = true;
   movement_equation->begin_state(encoder_pos->read_angle(), encoder_pos->get_velocity(), ticker->get_seconds());
@@ -38,10 +38,11 @@ void MovementControler::init(TIMING::Ticker &_ticker, STEPER_MOTOR::SteperMotor 
 void MovementControler::handle(){
   if (!initialized) return;
   current_position = encoder_pos->get_absoulute_angle();
-  // current_velocity = encoder_vel->get_velocity();
+  
+  if(encoder_vel != nullptr)
+    current_velocity = encoder_vel->get_velocity();
   
   float new_velocity = movement_equation->calculate(current_position, target_position, current_velocity, target_velocity);
-  // current_velocity = new_velocity;
   
   if (std::abs(new_velocity) > max_velocity)
     new_velocity = (new_velocity > 0) ? max_velocity : -max_velocity;
@@ -53,7 +54,9 @@ void MovementControler::handle(){
     limit_positon_achieved = false;
   }
 
-  current_velocity = new_velocity;
+  if(encoder_vel != nullptr)
+    current_velocity = new_velocity;
+
   steper_motor->set_enable(enable);
   steper_motor->set_velocity(new_velocity);
 }
