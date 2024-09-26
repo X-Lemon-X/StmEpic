@@ -36,7 +36,7 @@ this->translate_reg_to_angle_function = ENCODER::translate_reg_to_angle_AS5600;
 }
 
 void Encoder::init(I2C_HandleTypeDef &hi2c, TIMING::Ticker &ticker, FILTERS::FilterBase *filter_angle, FILTERS::FilterBase *filter_velocity){
-  if(this->encoder_enabled) return;
+  if(!this->encoder_enabled) return;
   this->hi2c = &hi2c;
   this->ticker = &ticker;
   this->filter_angle = filter_angle;
@@ -46,7 +46,7 @@ void Encoder::init(I2C_HandleTypeDef &hi2c, TIMING::Ticker &ticker, FILTERS::Fil
   this->over_drive_angle = 0;
   this->ratio = 1;
 
-  bool connected = ping_encoder();
+  // bool connected = ping_encoder();
 
   float angle = read_angle_rads();
   // correct the angle begin value to avoid false rotation dircetion 

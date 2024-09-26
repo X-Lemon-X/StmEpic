@@ -12,6 +12,7 @@ uint32_t usb_programer_buffer_len = 0;
 uint8_t usb_programer_data_recived = 0;
 
 UsbProgramer::UsbProgramer(const GpioPin &_boot_device,LOGGER::Logger &_logger): boot_device(_boot_device),logger(_logger){
+  WRITE_GPIO(this->boot_device,GPIO_PIN_RESET);
 }
 
 void UsbProgramer::reset_device(){
