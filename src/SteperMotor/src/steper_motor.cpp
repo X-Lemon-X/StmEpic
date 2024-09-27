@@ -67,7 +67,7 @@ void SteperMotor::set_velocity(float velocity){
 
 
 void SteperMotor::set_enable(bool enable){
-  uint8_t enable_pin_state = enable && !this->enable_reversed;
+  uint8_t enable_pin_state = enable ^ enable_reversed;
   WRITE_GPIO(enable_pin, enable_pin_state);
 }
 
