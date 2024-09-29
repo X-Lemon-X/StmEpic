@@ -62,6 +62,10 @@ public:
   /// @param enable_reversed True if the enable pin is negated, false if not
   void set_enable_reversed(bool enable_reversed);
 
+  /// @brief Set the prescaler of the timer used by the SteperMotor
+  /// if not set the prescaler will be the same as the timer
+  void set_prescaler(uint32_t prescaler);
+
   /// @brief Get the gear ratio of the SteperMotor
   float get_gear_ratio() const;
 };

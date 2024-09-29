@@ -54,7 +54,7 @@ void MovementControler::handle(){
     limit_positon_achieved = false;
   }
 
-  if(encoder_vel != nullptr)
+  if(encoder_vel == nullptr)
     current_velocity = new_velocity;
 
   steper_motor->set_enable(enable);

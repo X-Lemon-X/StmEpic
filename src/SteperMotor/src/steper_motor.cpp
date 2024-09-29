@@ -2,6 +2,7 @@
 #include "steper_motor.hpp"
 #include "stm32f4xx_hal_gpio.h"
 #include <cmath>
+#include <cstdint>
 
 using namespace STEPER_MOTOR;
 
@@ -94,6 +95,10 @@ void SteperMotor::set_reverse(bool reverse){
 
 void SteperMotor::set_enable_reversed(bool enable_reversed){
   this->enable_reversed = enable_reversed;
+}
+
+void SteperMotor::set_prescaler(uint32_t prescaler){
+  htim.Instance->PSC = prescaler;
 }
 
 float SteperMotor::get_gear_ratio() const { 

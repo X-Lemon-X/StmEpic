@@ -1,6 +1,7 @@
 #include "Timing.hpp"
 // #include "main.h"
 #include "stm32f4xx_hal.h"
+#include <memory>
 
 
 using namespace TIMING;
@@ -44,10 +45,20 @@ Timing::Timing(Ticker &_ticker): ticker(_ticker){
   last_time = ticker.get_micros();
   repeat = true;
   timer_enabled=true;
+  function = nullptr;
+  triggered_flag = false;
+}
+
+std::shared_ptr<Timing> Timing::Make(Ticker &ticker, uint32_t period, bool repeat,void (*function)(Timing&) ){
+  auto new_timer = new Timing(ticker);
+  new_timer->set_behaviour(period, repeat);
+  new_timer->function = function;
+  return std::shared_ptr<Timing>(new_timer);
 }
 
 void Timing::reset(){
   this->last_time = ticker.get_micros() - 10;
+  this->triggered_flag = false;
 }
 
 void Timing::enable(bool timer_enabled){
@@ -68,6 +79,38 @@ bool Timing::triggered(){
   // which means that the timer has overflowed and the difference is gretaer than the period
   dif = current_time > this->last_time? current_time - this->last_time : this->last_time - current_time;
   if (dif < this->period) return false;
-  if (repeat) this->last_time = current_time;
+  if (!repeat && triggered_flag) return false;
+  this->triggered_flag = true;
+  this->last_time = current_time;
+  
   return true;
+}
+
+void Timing::run_function(){
+  if(this->function == nullptr) return;
+  this->function(*this);
+}
+
+TimeScheduler::TimeScheduler(Ticker &_ticker): ticker(_ticker){
+}
+
+void TimeScheduler::add_timer(std::shared_ptr<Timing> timer){
+  if(timer == nullptr) return;
+  timers.push_back(timer);
+}
+
+void TimeScheduler::schedules_handle_non_blocking(){
+  for(auto &timer: timers){
+    if(timer->triggered()) timer->run_function();
+  }
+}
+
+void TimeScheduler::schedules_handle_blocking(){
+  while(true){
+    for(auto &timer: timers){
+      if(timer->triggered()) {
+        timer->run_function();
+      }
+    }
+  }
 }
