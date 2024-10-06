@@ -31,6 +31,7 @@ this->enable_filter = false;
 this->enable_velocity = false;
 this->enable_velocity_filter = false;
 this->encoder_enabled = false;
+this->ratio = 1;
 this->dead_zone_correction_angle=0;
 this->translate_reg_to_angle_function = ENCODER::translate_reg_to_angle_AS5600;
 }
@@ -44,7 +45,6 @@ void Encoder::init(I2C_HandleTypeDef &hi2c, TIMING::Ticker &ticker, FILTERS::Fil
   this->last_time = ticker.get_seconds();
   this->current_velocity = 0;
   this->over_drive_angle = 0;
-  this->ratio = 1;
 
   // bool connected = ping_encoder();
 
