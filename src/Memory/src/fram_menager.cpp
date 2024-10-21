@@ -1,6 +1,6 @@
 #include "fram_menager.hpp"
 
-using namespace FRAMM;
+using namespace stmepic;
 
 FRAMfile::FRAMfile(){
   data = nullptr;

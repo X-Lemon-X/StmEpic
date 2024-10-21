@@ -7,7 +7,7 @@
 
 #define FRAM_BASE_NAME_LEN 15
 
-namespace FRAMM{
+namespace stmepic{
 
 class FRAMfile{
   void *data;

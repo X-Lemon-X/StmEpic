@@ -1,13 +1,14 @@
 
 // #include "main.h"
+#include "StmEpic/src/Motor/inc/motor.hpp"
 #include "stm32f4xx_hal.h"
 #include "movement_controler.hpp"
 #include <cmath>
 
-using namespace MOVEMENT_CONTROLER;
+using namespace stmepic;
 
 
-MovementEquation::MovementEquation(TIMING::Ticker &_ticker): ticker(_ticker){}
+MovementEquation::MovementEquation(Ticker &_ticker): ticker(_ticker){}
 
 MovementControler::MovementControler(){
   initialized = false;
@@ -20,14 +21,14 @@ MovementControler::MovementControler(){
 
 MovementControler::~MovementControler(){
   if(initialized){
-    steper_motor->set_velocity(0.0);
-    steper_motor->set_enable(false);
+    motor->set_velocity(0.0);
+    motor->set_enable(false);
   }
 }
 
-void MovementControler::init(TIMING::Ticker &_ticker, STEPER_MOTOR::SteperMotor &_steper_motor, ENCODER::Encoder &_encoder_pos, MovementEquation &_movement_equation,ENCODER::Encoder *_encoder_velocity){
+void MovementControler::init(Ticker &_ticker, MotorBase &_motor, Encoder &_encoder_pos, MovementEquation &_movement_equation,Encoder *_encoder_velocity){
   ticker = &_ticker;
-  steper_motor = &_steper_motor;
+  motor = &_motor;
   encoder_pos = &_encoder_pos;
   encoder_vel = _encoder_velocity;
   movement_equation = &_movement_equation;
@@ -57,8 +58,8 @@ void MovementControler::handle(){
   if(encoder_vel == nullptr)
     current_velocity = new_velocity;
 
-  steper_motor->set_enable(enable);
-  steper_motor->set_velocity(new_velocity);
+  motor->set_enable(enable);
+  motor->set_velocity(new_velocity);
 }
 
 void MovementControler::set_velocity(float velocity){

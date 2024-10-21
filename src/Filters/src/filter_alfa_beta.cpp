@@ -2,9 +2,9 @@
 #include "filter_alfa_beta.hpp"
 #include "Timing.hpp"
 
-using namespace FILTERS;
+using namespace stmepic::filters;
 
-FilterAlfaBeta::FilterAlfaBeta(TIMING::Ticker &_ticker): FilterBase(_ticker){
+FilterAlfaBeta::FilterAlfaBeta(Ticker &_ticker): FilterBase(_ticker){
   alfa =0.2;
   beta = 0.1;
   ypri = 0;

@@ -1,6 +1,6 @@
 #include "board_id.hpp"
 
-using namespace BOARD_ID;
+using namespace stmepic;
 
 Board_id::Board_id(const GpioPin &_id_0,const GpioPin &_id_1,const GpioPin &_id_2): id_0(_id_0), id_1(_id_1), id_2(_id_2){
   this->id_set = false;

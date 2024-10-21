@@ -1,9 +1,9 @@
 #include "movement_controler.hpp"
 
 
-namespace CONTROLER{
+namespace stmepic{
 
-class BasicControler: public MOVEMENT_CONTROLER::MovementEquation{
+class BasicControler: public MovementEquation{
 private:
   float max_acceleration;
   float target_pos_max_error;
@@ -12,7 +12,7 @@ private:
   float previous_time;
   float get_sign(float value);
 public:
-  BasicControler(TIMING::Ticker &ticker);
+  BasicControler(Ticker &ticker);
   
   void begin_state(float current_position, float current_velocity, float current_time) override;
   float calculate(float current_position, float target_position, float current_velocity, float target_velocity) override;

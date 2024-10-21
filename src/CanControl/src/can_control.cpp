@@ -4,7 +4,7 @@
 #include "circular_buffor.hpp"
 #include <cstring>
 
-using namespace CAN_CONTROL;
+using namespace stmepic;
 
 CanControl::CanControl(){
   filter_mask = 0;
@@ -16,14 +16,14 @@ CanControl::~CanControl(){
   delete timing_led_tx;
 }
 
-void CanControl::init(CAN_HandleTypeDef &_can_interface, uint32_t _can_fifo,TIMING::Ticker &_ticker,const GpioPin &_pin_tx_led,const GpioPin &_pin_rx_led){
+void CanControl::init(CAN_HandleTypeDef &_can_interface, uint32_t _can_fifo,Ticker &_ticker,const GpioPin &_pin_tx_led,const GpioPin &_pin_rx_led){
   can_interface = &_can_interface;
   can_fifo = _can_fifo;
   ticker = &_ticker;
   pin_tx_led = &_pin_tx_led;
   pin_rx_led = &_pin_rx_led;
-  timing_led_rx = new TIMING::Timing(*ticker);
-  timing_led_tx = new TIMING::Timing(*ticker);
+  timing_led_rx = new Timing(*ticker);
+  timing_led_tx = new Timing(*ticker);
   timing_led_rx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
   timing_led_tx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
 }

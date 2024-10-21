@@ -3,7 +3,7 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 
-namespace LIST_EMB{
+namespace stmepic{
 
 template <typename T>
 class List{

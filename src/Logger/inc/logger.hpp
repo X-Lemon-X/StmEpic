@@ -6,7 +6,7 @@
 
 #define BOOL_TO_STRING(b) (b ? "1" : "0")
 
-namespace LOGGER {
+namespace stmepic {
 
 enum class LOG_LEVEL {
   LOG_LEVEL_DEBUG=0,

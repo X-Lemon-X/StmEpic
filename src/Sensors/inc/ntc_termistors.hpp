@@ -8,7 +8,7 @@
 #define NTC_TERMISTOR_MIN_TEMPERATURE -40.0f
 #define NTC_TERMISTOR_MAX_TEMPERATURE 150.0f
 
-namespace NTCTERMISTORS{
+namespace stmepic::sensors::NTCTERMISTORS{
 
 class NtcTermistors {
 private:

@@ -10,7 +10,7 @@
 
 
 
-namespace ENCODER {
+namespace stmepic {
 
 /// @brief translates the register data to angle for AS5600 magnetic encoder 
 uint16_t translate_reg_to_angle_AS5600(uint8_t first,uint8_t second);
@@ -22,9 +22,9 @@ uint16_t translate_reg_to_angle_MT6701(uint8_t first,uint8_t second);
 class Encoder {
 private:
   I2C_HandleTypeDef *hi2c;
-  TIMING::Ticker *ticker;
-  FILTERS::FilterBase *filter_angle;
-  FILTERS::FilterBase *filter_velocity;
+  Ticker *ticker;
+  filters::FilterBase *filter_angle;
+  filters::FilterBase *filter_velocity;
 
   bool encoder_connected;
 
@@ -72,7 +72,7 @@ public:
   
   /// @brief Initiates the encoder
   /// should be called after all the settings are set  especially the dead zone correction angle if used
-  void init(I2C_HandleTypeDef &hi2c,TIMING::Ticker &ticker , FILTERS::FilterBase *filter_angle,FILTERS::FilterBase *filter_velocity);
+  void init(I2C_HandleTypeDef &hi2c,Ticker &ticker , filters::FilterBase *filter_angle,filters::FilterBase *filter_velocity);
 
   /// @brief Pings the encoder to check if it is connected
   /// @return true if the encoder is connected

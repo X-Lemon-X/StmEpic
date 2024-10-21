@@ -4,11 +4,11 @@
 
 #include "movement_controler.hpp"
 
-namespace CONTROLER{
+namespace stmepic{
   /// @brief PassThroughControler is a controler that passes the target velocity to the motor without any modification
-  class PassThroughControler: public MOVEMENT_CONTROLER::MovementEquation{
+  class PassThroughControler: public MovementEquation{
   public:
-    PassThroughControler(TIMING::Ticker &ticker);
+    PassThroughControler(Ticker &ticker);
     void begin_state(float current_position, float current_velocity, float current_time) override;
     float calculate(float current_position, float target_position, float current_velocity, float target_velocity) override;
   };

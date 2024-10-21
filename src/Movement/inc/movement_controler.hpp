@@ -6,17 +6,17 @@
 #ifndef MOVE_CONTROLER_HPP
 #define MOVE_CONTROLER_HPP
 
-namespace MOVEMENT_CONTROLER{
+namespace stmepic{
 
 class MovementEquation{
 protected:  
   /// @brief  Ticker object for main clock time with microsecond resolution
   /// you can obatin the current time by calling ticker.get_seconds()
-  TIMING::Ticker &ticker;
+  Ticker &ticker;
 public:
   
   /// @brief Constructor for the MovementEquation class
-  MovementEquation(TIMING::Ticker &ticker);
+  MovementEquation(Ticker &ticker);
 
   /// @brief  Destructor for the MovementEquation class
   virtual ~MovementEquation(){};
@@ -39,10 +39,10 @@ public:
 
 class MovementControler{ 
 private:
-  TIMING::Ticker *ticker;
-  STEPER_MOTOR::SteperMotor *steper_motor;
-  ENCODER::Encoder *encoder_pos;
-  ENCODER::Encoder *encoder_vel;
+  Ticker *ticker;
+  MotorBase *motor;
+  Encoder *encoder_pos;
+  Encoder *encoder_vel;
   MovementEquation *movement_equation;
   bool initialized;
 
@@ -73,7 +73,7 @@ public:
   /// @param encoder_velocity encoder for the velocity of the arm (probablly mounted on the engine shaft), if passed as nullptr the current velocity will be owerriden by the movement equation.
   /// encoder_velocity was added for super precise velocity control when you have two encoders one on the engine and one on the other shaft. However if second encoder is not used it is recommended to pass
   // the pass the same encoder_velocity as the encoder_pos.
-  void init(TIMING::Ticker &ticker, STEPER_MOTOR::SteperMotor &steper_motor, ENCODER::Encoder &encoder_pos,MovementEquation &movement_equation,ENCODER::Encoder *encoder_velocity=nullptr);
+  void init(Ticker &ticker, MotorBase &motor, Encoder &encoder_pos,MovementEquation &movement_equation,Encoder *encoder_velocity=nullptr);
   
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
   void handle();

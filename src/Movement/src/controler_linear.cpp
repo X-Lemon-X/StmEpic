@@ -1,10 +1,10 @@
 #include "controler_linear.hpp"
 #include <cmath>
 
-using namespace CONTROLER;
+using namespace stmepic;
 
 
-BasicControler::BasicControler(TIMING::Ticker &ticker): MOVEMENT_CONTROLER::MovementEquation(ticker){
+BasicControler::BasicControler(Ticker &ticker): MovementEquation(ticker){
   max_acceleration = 0;
   target_pos_max_error = 0;
   previous_velocity = 0;

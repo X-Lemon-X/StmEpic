@@ -1,9 +1,9 @@
 #include "filter_moving_avarage.hpp"
 
-using namespace FILTERS;
+using namespace stmepic::filters;
 
 
-Filter_moving_avarage::Filter_moving_avarage(TIMING::Ticker &ticker): FilterBase(ticker){
+Filter_moving_avarage::Filter_moving_avarage(Ticker &ticker): FilterBase(ticker){
   this->samples = std::deque<float>();
 }
 

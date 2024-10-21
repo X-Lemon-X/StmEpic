@@ -5,7 +5,7 @@
 #ifndef TIMING_HPP
 #define TIMING_HPP
 
-namespace TIMING
+namespace stmepic
 {
 
 /// @brief Convert frequency to period in microseconds

@@ -2,19 +2,19 @@
 #include "encoder.hpp"
 #include <cmath>
 
-using namespace ENCODER;
+using namespace stmepic;
 
 
 #define PI_m2 6.28318530717958647692f
 
 
-uint16_t ENCODER::translate_reg_to_angle_AS5600(uint8_t data1, uint8_t data2){
+uint16_t stmepic::translate_reg_to_angle_AS5600(uint8_t data1, uint8_t data2){
   uint16_t reg = (uint16_t)(data1 & 0x0F) << 8;
   reg |= (uint16_t)(data2);
   return reg;
 }
 
-uint16_t ENCODER::translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2){
+uint16_t stmepic::translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2){
   uint16_t reg = (uint16_t)data1 << 6;
   reg |= (uint16_t)(data2 & 0xfc) >> 2;
   return reg;
@@ -33,10 +33,10 @@ this->enable_velocity_filter = false;
 this->encoder_enabled = false;
 this->ratio = 1;
 this->dead_zone_correction_angle=0;
-this->translate_reg_to_angle_function = ENCODER::translate_reg_to_angle_AS5600;
+this->translate_reg_to_angle_function = translate_reg_to_angle_AS5600;
 }
 
-void Encoder::init(I2C_HandleTypeDef &hi2c, TIMING::Ticker &ticker, FILTERS::FilterBase *filter_angle, FILTERS::FilterBase *filter_velocity){
+void Encoder::init(I2C_HandleTypeDef &hi2c, Ticker &ticker, stmepic::filters::FilterBase *filter_angle, stmepic::filters::FilterBase *filter_velocity){
   if(!this->encoder_enabled) return;
   this->hi2c = &hi2c;
   this->ticker = &ticker;

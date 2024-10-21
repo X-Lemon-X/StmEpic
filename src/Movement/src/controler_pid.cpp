@@ -2,10 +2,10 @@
 #include "controler_pid.hpp"
 #include <cmath>
 
-using namespace CONTROLER;
+using namespace stmepic;
 
 
-PIDControler::PIDControler(TIMING::Ticker &ticker): MOVEMENT_CONTROLER::MovementEquation(ticker){
+PIDControler::PIDControler(Ticker &ticker): MovementEquation(ticker){
   Kp = 0;
   Kd = 0;
   Ki = 0;

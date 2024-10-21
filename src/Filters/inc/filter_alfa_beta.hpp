@@ -5,7 +5,7 @@
 #ifndef FILTER_ALFA_BETA_HPP
 #define FILTER_ALFA_BETA_HPP
 
-namespace FILTERS{
+namespace stmepic::filters{
 
 class FilterAlfaBeta: public FilterBase{
 private:
@@ -17,7 +17,7 @@ private:
 public:
   float alfa;
   float beta;
-FilterAlfaBeta(TIMING::Ticker &ticker);
+FilterAlfaBeta(Ticker &ticker);
  float calculate(float x);
 };
 

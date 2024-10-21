@@ -5,13 +5,13 @@
 #include <string>
 #include "logger.hpp"
 
-using namespace USB_PROGRAMER;
+using namespace stmepic;
 
 uint8_t usb_programer_buffer[USB_PROGRAMER_BUFFER_SIZE];
 uint32_t usb_programer_buffer_len = 0;
 uint8_t usb_programer_data_recived = 0;
 
-UsbProgramer::UsbProgramer(const GpioPin &_boot_device,LOGGER::Logger &_logger): boot_device(_boot_device),logger(_logger){
+UsbProgramer::UsbProgramer(const GpioPin &_boot_device,Logger &_logger): boot_device(_boot_device),logger(_logger){
   WRITE_GPIO(this->boot_device,GPIO_PIN_RESET);
 }
 

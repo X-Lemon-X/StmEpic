@@ -4,9 +4,9 @@
 #include <memory>
 
 
-using namespace TIMING;
+using namespace stmepic;
 
-uint32_t TIMING::frequency_to_period(float frequency){
+uint32_t stmepic::frequency_to_period(float frequency){
   return (uint32_t)(1000000.0f/frequency);
 }
 

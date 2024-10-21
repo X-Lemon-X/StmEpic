@@ -52,7 +52,7 @@ endif()
 
 if(STMEPIC_MOVEMENT)
   add_subdirectory(src/Movement)
-  add_subdirectory(src/SteperMotor)
+  add_subdirectory(src/Motor)
 endif()
 
 if(STMEPIC_SENSORS)

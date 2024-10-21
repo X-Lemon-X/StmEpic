@@ -4,13 +4,13 @@
 #ifndef FILTER_HPP
 #define FILTER_HPP
 
-namespace FILTERS{
+namespace stmepic::filters{
 
 class FilterBase{
 protected:
-  TIMING::Ticker &ticker;
+  Ticker &ticker;
 public:
-  FilterBase(TIMING::Ticker &ticker);
+  FilterBase(Ticker &ticker);
   virtual float calculate(float calculate);
 };
 

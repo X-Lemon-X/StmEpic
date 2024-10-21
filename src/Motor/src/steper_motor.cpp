@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 
-using namespace STEPER_MOTOR;
+using namespace stmepic;
 
 #define PIM2 6.28318530717958647692f
 

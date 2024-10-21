@@ -1,9 +1,9 @@
 #include "logger.hpp"
 #include <string>
 #include "usbd_cdc_if.h"
-using namespace LOGGER;
 
 
+using namespace stmepic;
 
 Logger::Logger(LOG_LEVEL level, bool _print_info, std::string _version): log_level(level),print_info(_print_info),version(_version) {
 

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 
-using namespace NTCTERMISTORS;
+using namespace stmepic::sensors::NTCTERMISTORS;
 
 
 NtcTermistors::NtcTermistors(float termistor_supply_voltage,float termistor_divider_resistance):

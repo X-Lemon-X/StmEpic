@@ -4,7 +4,7 @@
 #include <cstdint>
 
 
-namespace CIRCULAR_BUFFOR{
+namespace stmepic{
 
 enum class circular_buffor_status: uint8_t{
   CIRCULAR_BUFFOR_OK = 0,

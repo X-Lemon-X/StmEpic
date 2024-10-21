@@ -16,7 +16,7 @@
 /// @param gpio_pin  the pin to read the voltage from
 #define VOLTAGE_VALUE(gpio_pin) (float)gpio_pin.analog_value * 0.000805861f
 
-
+namespace stmepic {
 
 struct GpioPin {
   uint16_t pin;
@@ -25,7 +25,7 @@ struct GpioPin {
 };
 
 
-
+}
 
 
 

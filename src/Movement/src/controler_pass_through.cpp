@@ -1,8 +1,9 @@
 #include "controler_pass_through.hpp"
 
 
-namespace CONTROLER{
-  PassThroughControler::PassThroughControler(TIMING::Ticker &ticker): MovementEquation(ticker){
+namespace stmepic{
+
+  PassThroughControler::PassThroughControler(Ticker &ticker): MovementEquation(ticker){
   }
   
   void PassThroughControler::begin_state(float current_position, float current_velocity, float current_time){
