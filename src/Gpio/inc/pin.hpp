@@ -1,4 +1,4 @@
-#include "stm32f4xx_hal.h"
+#include "stmepic.hpp"
 
 #ifndef PIN_HPP
 #define PIN_HPP
@@ -14,7 +14,7 @@
 
 /// @brief  get the voltage value from the analog pin only for 12 bit ADC and 3.3V reference voltage
 /// @param gpio_pin  the pin to read the voltage from
-#define VOLTAGE_VALUE(gpio_pin) (float)gpio_pin.analog_value * 0.000805861f
+#define VOLTAGE_VALUE(gpio_pin) (float)gpio_pin.analog_value * ANALOG_ADC_VAKUE_TO_VOLTAGE
 
 namespace stmepic {
 

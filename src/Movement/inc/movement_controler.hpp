@@ -1,6 +1,7 @@
-#include "stm32f4xx_hal.h"
+
+#include "stmepic.hpp"
 #include "Timing.hpp" 
-#include "steper_motor.hpp"
+#include "motor.hpp"
 #include "encoder.hpp"
 
 #ifndef MOVE_CONTROLER_HPP

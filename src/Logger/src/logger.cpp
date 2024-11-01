@@ -1,6 +1,7 @@
 #include "logger.hpp"
 #include <string>
 #include "usbd_cdc_if.h"
+#include "stmepic.hpp"
 
 
 using namespace stmepic;

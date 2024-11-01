@@ -1,5 +1,5 @@
 #include "pin.hpp"
-#include "stm32f4xx_hal.h"
+#include "stmepic.hpp"
 
 #ifndef BOARD_ID_HPP
 #define BOARD_ID_HPP
@@ -10,12 +10,7 @@
 // #define BOARD_ID_OWERWRITE_ID 2
 
 
-
-
 namespace stmepic{
-
-
-
 
 class Board_id{
 private:

@@ -1,7 +1,7 @@
 #ifndef ENCODERS_H
 #define ENCODERS_H
 
-#include "stm32f4xx_hal.h"
+#include "stmepic.hpp"
 #include "Timing.hpp"
 #include "filter.hpp"
 

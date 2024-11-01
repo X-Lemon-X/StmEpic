@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "stm32f4xx_hal.h"
+#include "stmepic.hpp"
 #include "Timing.hpp"
 #include "pin.hpp"
 #include "motor.hpp"
@@ -36,7 +36,7 @@ public:
   
   /// @brief Initialize the SteperMotor, calcualtes all necessary stuff to avoid calcualting it over again
   /// after the initialization
-  void init();
+  void init() override;
 
   /// @brief Set the current speed of the SteperMotor
   /// @param speed The speed in radians per second, can be negative or positive to change the direction

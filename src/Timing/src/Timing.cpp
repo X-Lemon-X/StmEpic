@@ -1,12 +1,12 @@
 #include "Timing.hpp"
-// #include "main.h"
-#include "stm32f4xx_hal.h"
+#include "stmepic_status.hpp"
 #include <memory>
+#include <string>
 
 
 using namespace stmepic;
 
-uint32_t stmepic::frequency_to_period(float frequency){
+uint32_t stmepic::frequency_to_period_us(float frequency){
   return (uint32_t)(1000000.0f/frequency);
 }
 
@@ -87,6 +87,7 @@ bool Timing::triggered(){
 }
 
 void Timing::run_function(){
+  if(!triggered()) return;
   if(this->function == nullptr) return;
   this->function(*this);
 }
@@ -101,16 +102,13 @@ void TimeScheduler::add_timer(std::shared_ptr<Timing> timer){
 
 void TimeScheduler::schedules_handle_non_blocking(){
   for(auto &timer: timers){
-    if(timer->triggered()) timer->run_function();
+    timer->run_function();
   }
 }
 
 void TimeScheduler::schedules_handle_blocking(){
   while(true){
-    for(auto &timer: timers){
-      if(timer->triggered()) {
-        timer->run_function();
-      }
-    }
+    schedules_handle_non_blocking();
   }
 }
+

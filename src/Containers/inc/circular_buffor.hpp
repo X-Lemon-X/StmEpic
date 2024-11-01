@@ -1,12 +1,13 @@
 #ifndef __CIRCUALR_BUFFOR_HPP__
 #define __CIRCUALR_BUFFOR_HPP__
 
+#include "stmepic_status.hpp"
 #include <cstdint>
 
 
 namespace stmepic{
 
-enum class circular_buffor_status: uint8_t{
+enum class Status_circular_buffor: int{
   CIRCULAR_BUFFOR_OK = 0,
   CIRCULAR_BUFFOR_FULL = 1,
   CIRCULAR_BUFFOR_EMPTY = 2,
@@ -32,37 +33,37 @@ public:
   /// @brief push_back the data to the last element of the buffor
   /// @param data data to be pushed back
   /// @return uint8_t CIRCULAR_BUFFOR_OK if success
-  uint8_t push_back(circualr_buffor_data_type data){
+  Status push_back(circualr_buffor_data_type data){
     if (head == tail && size == buffor_size){
-      return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_FULL;
+      return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_FULL);
     }          
     size++;
     buffor[tail] = data; 
     tail++;
     if(tail == buffor_size)
       tail = 0;
-    return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_OK;
+    return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_OK);
   };
 
   /// @brief get the copy of the front element of the buffor 
   /// @return CIRCULAR_BUFFOR_OK if success, CIRCULAR_BUFFOR_EMPTY if buffor is empty
-  uint8_t get_front(circualr_buffor_data_type* data){
+  Result<circualr_buffor_data_type> get_front(){
     if(head == tail && size == 0)
-      return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_EMPTY;
-    if(data == nullptr)
-      return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_ERROR;
-    *data = buffor[head];
-    return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_OK;
+      return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_EMPTY);
+    // if(data == nullptr)
+    //   return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_ERROR);
+    // *data = buffor[head];
+    return Result<circualr_buffor_data_type>::OK(buffor[head]);
   };
 
-  uint8_t pop_front(){
+  Status pop_front(){
     if(head == tail && size == 0)
-      return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_EMPTY;
+      return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_EMPTY);
     size--;
     head++;
     if(head == buffor_size)
       head = 0;
-    return (uint8_t)circular_buffor_status::CIRCULAR_BUFFOR_OK;
+    return Status::OK();
   };
 
   /// @brief get the size of the buffor
