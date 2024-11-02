@@ -17,7 +17,7 @@ float BasicControler::get_sign(float value){
 }
 
 float BasicControler::calculate(float current_position, float target_position, float current_velocity, float target_velocity){  
-  const float current_time = ticker.get_seconds();
+  float current_time = ticker.get_seconds();
   float dt = current_time - previous_time;
   previous_time = current_time;
 
@@ -38,7 +38,6 @@ float BasicControler::calculate(float current_position, float target_position, f
   previous_velocity = current_velocity;
   return current_velocity;
 }
-
 
 void BasicControler::begin_state(float current_position, float current_velocity, float current_time){
   previous_position = current_position;

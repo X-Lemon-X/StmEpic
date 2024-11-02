@@ -10,6 +10,7 @@ private:
   float previous_velocity;
   float previous_position;
   float previous_time;
+
   float get_sign(float value);
 public:
   BasicControler(Ticker &ticker);
