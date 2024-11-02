@@ -2,7 +2,7 @@
 
 using namespace stmepic;
 
-Status::Status(int status, std::string message): _status(status), _message(message){}
+Status::Status(int status, const char * message): _status(status), _message(message){}
 
 Status::Status(Status &status){
   this->_status = status._status;
@@ -21,11 +21,11 @@ Status Status::ERROR(int status){
   return Status(status,"");
 }
 
-Status Status::ERROR(std::string message){
+Status Status::ERROR(const char * message){
   return Status(1,message);
 }
 
-Status Status::ERROR(int status,std::string message){
+Status Status::ERROR(int status,const char * message){
   return Status(status,message);
 }
 
@@ -34,5 +34,5 @@ bool Status::ok(){
 }
 
 const std::string Status::to_string(){
-  return _message;
+  return std::string(_message);
 }

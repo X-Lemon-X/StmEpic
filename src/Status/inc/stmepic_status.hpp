@@ -15,10 +15,10 @@ public:
   static Status ERROR(int status);
 
   /// @brief Construct a new Status object with ERROR status and message
-  static Status ERROR(const std::string message);
+  static Status ERROR(const char *message);
 
   /// @brief Construct a new Status object with ERROR status and message
-  static Status ERROR(int status,const std::string message);
+  static Status ERROR(int status,const char *message);
   
   /// @brief Construct a new Status object with OK status
   static Status OK();
@@ -36,9 +36,9 @@ public:
   /// @brief get the message of the status
   const std::string to_string();
 private:
-  Status(int status, std::string message);
+  Status(int status, const char *message);
   int _status;
-  std::string _message;
+  const char *_message;
 };
 
 template <typename T> 
