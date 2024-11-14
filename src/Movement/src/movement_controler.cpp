@@ -12,10 +12,12 @@ MovementEquation::MovementEquation(Ticker &_ticker): ticker(_ticker){}
 
 MovementControler::MovementControler(){
   initialized = false;
-  target_position = 0;
-  current_position = 0;
-  target_velocity = 0;
-  current_velocity = 0;
+  current_state.position = 0;
+  current_state.velocity = 0;
+  current_state.torque = 0;
+  target_state.position = 0;
+  target_state.velocity = 0;
+  target_state.torque = 0;
   dont_override_limit_position = true;
 }
 
@@ -26,44 +28,50 @@ MovementControler::~MovementControler(){
   }
 }
 
-void MovementControler::init(Ticker &_ticker, MotorBase &_motor, Encoder &_encoder_pos, MovementEquation &_movement_equation,Encoder *_encoder_velocity){
+void MovementControler::init(Ticker &_ticker, MotorBase &_motor, MovementControlMode _control_mode ,MovementEquation &_movement_equation){
   ticker = &_ticker;
   motor = &_motor;
-  encoder_pos = &_encoder_pos;
-  encoder_vel = _encoder_velocity;
   movement_equation = &_movement_equation;
+  control_mode = _control_mode;
   initialized = true;
-  movement_equation->begin_state(encoder_pos->read_angle(), encoder_pos->get_velocity(), ticker->get_seconds());
+  current_state.position = motor->get_absolute_position();
+  current_state.velocity = motor->get_velocity();
+  current_state.torque = motor->get_torque();
+  movement_equation->begin_state(current_state, ticker->get_seconds());
 }
 
 void MovementControler::handle(){
   if (!initialized) return;
-  current_position = encoder_pos->get_absoulute_angle();
-  
-  if(encoder_vel != nullptr)
-    current_velocity = encoder_vel->get_velocity();
-  
-  float new_velocity = movement_equation->calculate(current_position, target_position, current_velocity, target_velocity);
-  
-  if (std::abs(new_velocity) > max_velocity)
-    new_velocity = (new_velocity > 0) ? max_velocity : -max_velocity;
+  current_state.position = motor->get_absolute_position();
+  current_state.velocity = motor->get_velocity();
+  current_state.torque = motor->get_torque();
 
-  if ( dont_override_limit_position && ( current_position < min_position || current_position > max_position)){
-    new_velocity = 0.0;
+  auto state = movement_equation->calculate(current_state, target_state);
+  
+  state.velocity = overide_limit_abs(state.velocity, max_velocity);
+  state.torque = overide_limit_abs(state.torque, max_torque);
+
+  if ( dont_override_limit_position && ( current_state.position < min_position || current_state.position > max_position)){
+    state.velocity = 0;
+    state.torque = 0;
+    state.position = overide_limit(current_state.position, max_position, min_position);
     limit_positon_achieved = true;
   }else {
     limit_positon_achieved = false;
   }
 
-  if(encoder_vel == nullptr)
-    current_velocity = new_velocity;
-
   motor->set_enable(enable);
-  motor->set_velocity(new_velocity);
+  motor->set_velocity(state.velocity);
+  motor->set_torque(state.torque);
+  motor->set_position(state.position);
+}
+
+void MovementControler::set_torque(float torque){
+  target_state.torque = torque;
 }
 
 void MovementControler::set_velocity(float velocity){
-  target_velocity = velocity;
+  target_state.velocity = velocity;
 }
 
 void MovementControler::set_enable(bool enable){
@@ -75,7 +83,7 @@ void MovementControler::set_position(float position){
     position = min_position;
   if(position > max_position)
     position = max_position;
-  target_position = position;
+  target_state.position = position;
 }
 
 void MovementControler::set_limit_position(float min_position, float max_position){
@@ -87,13 +95,20 @@ void MovementControler::set_max_velocity(float max_velocity){
   this->max_velocity = std::abs(max_velocity);
 }
 
+void MovementControler::set_max_torque(float max_torque){
+  this->max_torque = std::abs(max_torque);
+}
+
+float MovementControler::get_current_torque()const{
+  return current_state.torque;
+}
 
 float MovementControler::get_current_position()const{
-  return current_position;
+  return current_state.position;
 }
 
 float MovementControler::get_current_velocity()const{
-  return current_velocity;
+  return current_state.velocity;
 }
 
 void MovementControler::override_limit_position(bool overide){
@@ -103,3 +118,22 @@ void MovementControler::override_limit_position(bool overide){
 bool MovementControler::get_limit_position_achieved() const{
   return limit_positon_achieved;
 }
+
+float MovementControler::overide_limit_abs(float value,float max, float min){
+  if(std::abs(value) > max)
+    return value > 0 ? max : -max;
+  if(std::abs(value) < min)
+    return value > 0 ? min : -min;
+  else
+    return value;
+}
+
+float MovementControler::overide_limit(float value,float max, float min){
+  if(value > max)
+    return max;
+  if(value < min)
+    return min;
+  else
+    return value;
+}
+

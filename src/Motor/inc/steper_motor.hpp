@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "encoder.hpp"
 #include "stmepic.hpp"
 #include "Timing.hpp"
 #include "pin.hpp"
@@ -42,6 +43,10 @@ public:
   /// @param speed The speed in radians per second, can be negative or positive to change the direction
   void set_velocity(float speed) override;
 
+  /// @brief Set the current torque of the SteperMotor
+  /// @param torque The torque in Nm, can be negative or positive to change the direction
+  void set_torque(float torque) override;
+
   /// @brief enable or disable the SteperMotor, can be used as a break
   /// @param enable True to enable the SteperMotor, false to disable it
   void set_enable(bool enable) override;
@@ -71,6 +76,20 @@ public:
 
   /// @brief Get the gear ratio of the SteperMotor
   float get_gear_ratio() const override;
+
+    /// @brief Get the current speed of the SteperMotor
+  /// @return The speed in radians per second
+  float get_velocity() const override;
+
+  /// @brief Get the current torque of the SteperMotor
+  /// @return The torque in Nm
+  float get_torque() const override;
+
+  /// @brief Get the current position of the SteperMotor
+  /// @return The position in radians
+  float get_position() const override;
+
+
 };
 }
 

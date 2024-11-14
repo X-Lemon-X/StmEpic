@@ -9,6 +9,18 @@
 
 namespace stmepic{
 
+enum class MovementControlMode{
+  POSITION,
+  VELOCITY,
+  TORQUE
+};
+
+struct MovementState{
+  float position;
+  float velocity;
+  float torque;
+};
+
 class MovementEquation{
 protected:  
   /// @brief  Ticker object for main clock time with microsecond resolution
@@ -26,7 +38,7 @@ public:
   /// @param current_position current position of the arm in radians when the controler is initiated
   /// @param current_velocity current velocity of the arm in radians per second when the controler is initiated
   /// @param current_time current time in seconds when the controler is initiated
-  virtual void begin_state(float current_position, float current_velocity, float current_time){};
+  virtual void begin_state(MovementState current_state, float current_time){};
 
   /// @brief This function should will be called in each pass of the MovementControler::handle() function
   /// @param current_position current position of the arm in radians
@@ -35,30 +47,10 @@ public:
   /// @param target_velocity target angualar velocity of the arm in radians per second
   /// @return the angualar velocity of the arm in radians per second. 
   /// Can be positive or negative value (negative value obviously means reverse), 0 will stop the engine)
-  virtual float calculate(float current_position, float target_position, float current_velocity, float target_velocity) {return 0.0f;};
+  virtual MovementState calculate(MovementState  current_state, MovementState target_state) {return MovementState{0,0,0};};
 };
 
 class MovementControler{ 
-private:
-  Ticker *ticker;
-  MotorBase *motor;
-  Encoder *encoder_pos;
-  Encoder *encoder_vel;
-  MovementEquation *movement_equation;
-  bool initialized;
-
-  float max_velocity;
-  float min_position;
-  float max_position;
-
-
-  float target_position;
-  float current_position;
-  float target_velocity;
-  float current_velocity;
-  bool enable;
-  bool dont_override_limit_position;
-  bool limit_positon_achieved;
 public:
 
   /// @brief Arm controler interface
@@ -74,7 +66,7 @@ public:
   /// @param encoder_velocity encoder for the velocity of the arm (probablly mounted on the engine shaft), if passed as nullptr the current velocity will be owerriden by the movement equation.
   /// encoder_velocity was added for super precise velocity control when you have two encoders one on the engine and one on the other shaft. However if second encoder is not used it is recommended to pass
   // the pass the same encoder_velocity as the encoder_pos.
-  void init(Ticker &ticker, MotorBase &motor, Encoder &encoder_pos,MovementEquation &movement_equation,Encoder *encoder_velocity=nullptr);
+  void init(Ticker &ticker, MotorBase &motor, MovementControlMode control_mode ,MovementEquation &movement_equation);
   
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
   void handle();
@@ -82,6 +74,10 @@ public:
   /// @brief Set the target velocity for the engine
   /// @param velocity Target velocity in rad/s
   void set_velocity(float velocity);
+
+  /// @brief Set the target torque for the engine
+  /// @param torque Target torque in Nm
+  void set_torque(float torque);
 
   /// @brief Enable or disable the engine
   /// @param enable True to turn on the endine-brake, false to turn off the engine-brake
@@ -100,6 +96,10 @@ public:
   /// @param max_velocity Maximum velocity in rad/s
   void set_max_velocity(float max_velocity);
 
+  /// @brief Set the max torque for the arm
+  /// @param max_torque Maximum torque in Nm
+  void set_max_torque(float max_torque);
+
   /// @brief Get the current position of the arm
   /// @return Current position in rad
   float get_current_position() const;
@@ -108,12 +108,37 @@ public:
   /// @return Current velocity in rad/s
   float get_current_velocity() const;
 
+  /// @brief Get the current torque of the arm
+  /// @return Current torque in Nm
+  float get_current_torque() const;
+
   bool get_limit_position_achieved() const;
 
   /// @brief ovveride the limit position by turning off the limit position
   /// definitely not recommended to make it true for a regular use since it can damage the arm
   /// @param override True to turn off the limit position, false to turn on the limit position
   void override_limit_position(bool override);
+
+private:
+  Ticker *ticker;
+  MotorBase *motor;
+  MovementEquation *movement_equation;
+  MovementControlMode control_mode;
+  bool initialized;
+
+  float max_velocity;
+  float min_position;
+  float max_position;
+  float max_torque;
+  MovementState current_state;
+  MovementState target_state;
+
+  bool enable;
+  bool dont_override_limit_position;
+  bool limit_positon_achieved;
+
+  float overide_limit_abs(float value, float max, float min=0);
+  float overide_limit(float value, float max, float min=0);
 };
 
 

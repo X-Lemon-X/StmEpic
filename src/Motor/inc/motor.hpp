@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Timing.hpp"
+#include "encoder.hpp"
 #include "pin.hpp"
 
 
@@ -16,9 +17,36 @@ public:
   /// after the initialization
   virtual void init() = 0;
 
+
+  /// @brief Get the current speed of the Motor
+  /// @return The speed in radians per second
+  virtual float get_velocity() const = 0;
+
+  /// @brief Get the current torque of the Motor
+  /// @return The torque in Nm
+  virtual float get_torque() const = 0;
+
+  /// @brief Get the current position of the Motor
+  /// @return The position in radians
+  virtual float get_position() const = 0;
+
+  /// @brief Get the absolute position of the Motor
+  /// @return The position in radians
+  virtual float get_absolute_position() const = 0;
+
+
   /// @brief Set the current speed of the Motor
   /// @param speed The speed in radians per second, can be negative or positive to change the direction
   virtual void set_velocity(float speed) = 0;
+
+  /// @brief Set the current torque of the Motor
+  /// @param torque The torque in Nm, can be negative or positive to change the direction
+  virtual void set_torque(float torque) = 0;
+
+  /// @brief Set the current position of the Motor
+  /// @param position The position in radians
+  virtual void set_position(float position) = 0;
+
 
   /// @brief enable or disable the Motor, can be used as a break
   /// @param enable True to enable the Motor, false to disable it
@@ -47,5 +75,6 @@ public:
   /// @brief Get the gear ratio of the Motor
   virtual float get_gear_ratio() const = 0;
 };
+
 }
 
