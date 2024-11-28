@@ -8,11 +8,13 @@ using namespace stmepic;
 
 #define PIM2 6.28318530717958647692f
 
+
+
 template <typename T> int sgn(T val) {
   return (T(0) < val) - (val < T(0));
 }
 
-SteperMotor::SteperMotor(TIM_HandleTypeDef &_htim,unsigned int _timer_channel,const GpioPin &_direction_pin,const GpioPin &_enable_pin):
+SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef &_htim,unsigned int _timer_channel,const GpioPin &_direction_pin,const GpioPin &_enable_pin):
 htim(_htim),
 direction_pin(_direction_pin),
 timer_channel(_timer_channel),
@@ -23,11 +25,13 @@ enable_pin(_enable_pin){
   this->max_velocity = 0;
   this->min_velocity = 0;
   this->reverse = false;
+  this->enable_reversed = false;
+  this->current_state = MovementState{0,0,0};
   this->init();
 }
 
 
-void SteperMotor::init(){
+void SteperMotorStepDir::init(){
   auto core_freq = (float)HAL_RCC_GetHCLKFreq();
   auto prescaler = (float)htim.Instance->PSC;
 
@@ -38,7 +42,8 @@ void SteperMotor::init(){
 
 }
 
-void SteperMotor::set_velocity(float velocity){
+void SteperMotorStepDir::set_velocity(float velocity){
+
 
   if (std::abs(velocity) > this->max_velocity)
     velocity = sgn(velocity) * this->max_velocity;
@@ -57,50 +62,80 @@ void SteperMotor::set_velocity(float velocity){
     velocity = -velocity;
   }
 
+  current_state.velocity = velocity;
   if(velocity == 0){
     htim.Instance->CCR1 = 0;
     return;
   }
+
   uint32_t counter = (uint32_t)(this->radians_to_frequency / velocity);
   htim.Instance->ARR = counter;
   htim.Instance->CCR1 = counter/2;
 }
 
+void SteperMotorStepDir::set_torque(float torque){
+  // not implemented
+  current_state.torque = torque;
+}
 
-void SteperMotor::set_enable(bool enable){
+void SteperMotorStepDir::set_position(float position){
+  // not implemented
+  current_state.position = position;
+}
+
+float SteperMotorStepDir::get_velocity() const{
+  return current_state.velocity;
+}
+
+float SteperMotorStepDir::get_torque() const{
+  // not implemented
+  return current_state.torque;
+}
+
+float SteperMotorStepDir::get_position() const{
+  // not implemented
+  return  current_state.position;
+}
+
+float SteperMotorStepDir::get_absolute_position() const{
+  // not implemented
+  return current_state.position;
+}
+
+void SteperMotorStepDir::set_enable(bool enable){
   uint8_t enable_pin_state = enable ^ enable_reversed;
   WRITE_GPIO(enable_pin, enable_pin_state);
 }
 
 
-void SteperMotor::set_steps_per_revolution(float steps_per_revolution){
+void SteperMotorStepDir::set_steps_per_revolution(float steps_per_revolution){
   this->steps_per_revolution = steps_per_revolution;
 }
 
-void SteperMotor::set_gear_ratio(float gear_ratio) {
+void SteperMotorStepDir::set_gear_ratio(float gear_ratio) {
   this->gear_ratio = gear_ratio;
 }
 
-void SteperMotor::set_max_velocity(float max_velocity){
+void SteperMotorStepDir::set_max_velocity(float max_velocity){
   this->max_velocity = max_velocity;
 }
 
-void SteperMotor::set_min_velocity(float min_velocity){
+void SteperMotorStepDir::set_min_velocity(float min_velocity){
   this->min_velocity = min_velocity;
 }
 
-void SteperMotor::set_reverse(bool reverse){
+void SteperMotorStepDir::set_reverse(bool reverse){
   this->reverse = reverse;
 }
 
-void SteperMotor::set_enable_reversed(bool enable_reversed){
+void SteperMotorStepDir::set_reversed_enable_pin(bool enable_reversed){
   this->enable_reversed = enable_reversed;
 }
 
-void SteperMotor::set_prescaler(uint32_t prescaler){
+void SteperMotorStepDir::set_prescaler(uint32_t prescaler){
   htim.Instance->PSC = prescaler;
 }
 
-float SteperMotor::get_gear_ratio() const { 
+float SteperMotorStepDir::get_gear_ratio() const { 
   return gear_ratio;
 }

@@ -20,20 +20,22 @@ public:
 
   /// @brief Get the current speed of the Motor
   /// @return The speed in radians per second
-  virtual float get_velocity() const = 0;
+  [[nodiscard]] virtual float get_velocity() const = 0;
 
   /// @brief Get the current torque of the Motor
   /// @return The torque in Nm
-  virtual float get_torque() const = 0;
+  [[nodiscard]] virtual float get_torque() const = 0;
 
   /// @brief Get the current position of the Motor
   /// @return The position in radians
-  virtual float get_position() const = 0;
+  [[nodiscard]] virtual float get_position() const = 0;
 
   /// @brief Get the absolute position of the Motor
   /// @return The position in radians
-  virtual float get_absolute_position() const = 0;
+  [[nodiscard]] virtual float get_absolute_position() const = 0;
 
+  /// @brief Get the gear ratio of the Motor
+  [[nodiscard]] virtual float get_gear_ratio() const = 0;
 
   /// @brief Set the current speed of the Motor
   /// @param speed The speed in radians per second, can be negative or positive to change the direction
@@ -63,17 +65,50 @@ public:
 
   /// @brief Set the reverse of the Motor
   virtual void set_reverse(bool reverse) = 0;
+};
 
-  /// @brief Sometimes enable pin in negated so you can enable the Motor by setting the enable pin to low instead of high
-  /// @param enable_reversed True if the enable pin is negated, false if not
-  virtual void set_enable_reversed(bool enable_reversed) = 0;
 
-  /// @brief Set the prescaler of the timer used by the Motor
-  /// if not set the prescaler will be the same as the timer
-  virtual void set_prescaler(uint32_t prescaler) = 0;
+class MotorBaseClosedLoop: public MotorBase {
+private:
+  MotorBase &motor;
+  Encoder *encoder_pos;
+  Encoder *encoder_vel;
 
-  /// @brief Get the gear ratio of the Motor
-  virtual float get_gear_ratio() const = 0;
+public:
+  /// @brief Constructor for the SteperMotorClosedLoop class taht takes a SteperMotor, and 0 or 1 to 2 encoders
+  /// @param steper_motor The SteperMotor that will be controlled
+  /// @param encoder_pos The encoder that will be used to get position of the SteperMotor
+  /// @param encoder_vel The encoder that will be used to get velocity of the SteperMotor
+  /// The same encoder_pos and encoder_vel can be passed if the SteperMotor has only one encoder
+  MotorBaseClosedLoop(MotorBase &_motor, Encoder *_encoder_pos, Encoder *_encoder_vel);
+
+  void init() override;
+
+  float get_velocity() const override;
+
+  float get_torque() const override;
+
+  float get_position() const override;
+
+  float get_absolute_position() const override;
+
+  float get_gear_ratio() const override;
+
+  void set_velocity(float speed) override;
+
+  void set_torque(float torque) override;
+
+  void set_position(float position) override;
+
+  void set_enable(bool enable) override;
+
+  void set_gear_ratio(float gear_ratio) override;
+
+  void set_max_velocity(float max_velocity) override;
+
+  void set_min_velocity(float min_velocity) override;
+
+  void set_reverse(bool reverse) override;
 };
 
 }

@@ -6,11 +6,11 @@ namespace stmepic{
   PassThroughControler::PassThroughControler(Ticker &ticker): MovementEquation(ticker){
   }
   
-  void PassThroughControler::begin_state(float current_position, float current_velocity, float current_time){
+  void PassThroughControler::begin_state(MovementState current_state, float current_time){
     // do nothing
   }
   
-  float PassThroughControler::calculate(float current_position, float target_position, float current_velocity, float target_velocity){
-    return target_velocity;
+  MovementState PassThroughControler::calculate(MovementState current_state, MovementState target_state){
+    return target_state;
   }
 } // namespace CONTROLER

@@ -1,8 +1,3 @@
-
-
-// #ifndef STEPER_MOTOR_HPP
-// #define STEPER_MOTOR_HPP
-
 #pragma once
 
 #include "encoder.hpp"
@@ -10,11 +5,12 @@
 #include "Timing.hpp"
 #include "pin.hpp"
 #include "motor.hpp"
-
+#include "movement_controler.hpp"
 
 namespace stmepic
 {
-class SteperMotor : public MotorBase{
+
+class SteperMotorStepDir : public MotorBase {
 private:
   float radians_to_frequency;
   float frequency;
@@ -30,12 +26,13 @@ private:
   float min_velocity;
   bool reverse;
   bool enable_reversed;
+
+  MovementState current_state;
+
 public:
+  SteperMotorStepDir(TIM_HandleTypeDef &htim, unsigned int timer_channel, const GpioPin &direction_pin, const GpioPin &enable_pin);
 
-
-  SteperMotor(TIM_HandleTypeDef &htim,unsigned int timer_channel,const GpioPin &direction_pin, const GpioPin &enable_pin);
-  
-  /// @brief Initialize the SteperMotor, calcualtes all necessary stuff to avoid calcualting it over again
+  /// @brief Initialize the SteperMotor, calculates all necessary stuff to avoid calculating it over again
   /// after the initialization
   void init() override;
 
@@ -46,6 +43,10 @@ public:
   /// @brief Set the current torque of the SteperMotor
   /// @param torque The torque in Nm, can be negative or positive to change the direction
   void set_torque(float torque) override;
+
+  /// @brief Set the current position of the SteperMotor
+  /// @param position The position in radians
+  void set_position(float position) override;
 
   /// @brief enable or disable the SteperMotor, can be used as a break
   /// @param enable True to enable the SteperMotor, false to disable it
@@ -68,16 +69,16 @@ public:
 
   /// @brief Sometimes enable pin in negated so you can enable the SteperMotor by setting the enable pin to low instead of high
   /// @param enable_reversed True if the enable pin is negated, false if not
-  void set_enable_reversed(bool enable_reversed) override;
+  void set_reversed_enable_pin(bool enable_reversed);
 
   /// @brief Set the prescaler of the timer used by the SteperMotor
   /// if not set the prescaler will be the same as the timer
-  void set_prescaler(uint32_t prescaler) override;
+  void set_prescaler(uint32_t prescaler);
 
   /// @brief Get the gear ratio of the SteperMotor
   float get_gear_ratio() const override;
 
-    /// @brief Get the current speed of the SteperMotor
+  /// @brief Get the current speed of the SteperMotor
   /// @return The speed in radians per second
   float get_velocity() const override;
 
@@ -89,9 +90,9 @@ public:
   /// @return The position in radians
   float get_position() const override;
 
-
+  /// @brief Get the absolute position of the SteperMotor
+  /// @return The position in radians
+  float get_absolute_position() const override;
 };
+
 }
-
-
-// #endif // STEPER_MOTOR_HPP

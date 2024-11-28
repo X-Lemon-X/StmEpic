@@ -9,8 +9,8 @@ namespace stmepic{
   class PassThroughControler: public MovementEquation{
   public:
     PassThroughControler(Ticker &ticker);
-    void begin_state(float current_position, float current_velocity, float current_time) override;
-    float calculate(float current_position, float target_position, float current_velocity, float target_velocity) override;
+    void begin_state(MovementState current_state, float current_time) override;
+    MovementState calculate(MovementState current_state, MovementState target_state) override;
   };
 } // namespace CONTROLER
 
