@@ -23,7 +23,7 @@ MovementControler::MovementControler(){
 
 MovementControler::~MovementControler(){
   if(initialized){
-    motor->set_velocity(0.0);
+    set_motor_state(MovementState{0,0,motor->get_absolute_position()});
     motor->set_enable(false);
   }
 }
@@ -61,9 +61,22 @@ void MovementControler::handle(){
   }
 
   motor->set_enable(enable);
-  motor->set_velocity(state.velocity);
-  motor->set_torque(state.torque);
-  motor->set_position(state.position);
+  set_motor_state(state);
+}
+
+void MovementControler::set_motor_state(MovementState state){
+  switch (control_mode) {
+    case MovementControlMode::VELOCITY:
+      motor->set_velocity(state.velocity);
+      break;
+    case MovementControlMode::TORQUE:
+      motor->set_torque(state.torque);
+      break;
+    case MovementControlMode::POSITION:
+      motor->set_position(state.position);
+      break;
+  
+  }
 }
 
 void MovementControler::set_torque(float torque){

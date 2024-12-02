@@ -4,51 +4,51 @@
 using namespace stmepic;
 
 
-BasicControler::BasicControler(Ticker &ticker): MovementEquation(ticker){
+BasicLinearPosControler::BasicLinearPosControler(Ticker &ticker): MovementEquation(ticker){
   max_acceleration = 0;
   target_pos_max_error = 0;
-  previous_velocity = 0;
-  previous_position = 0;
+  previous_state = MovementState{0,0,0};
+  current_state = MovementState{0,0,0};
   previous_time = 0;
 }
 
-float BasicControler::get_sign(float value){
+float BasicLinearPosControler::get_sign(float value){
   return value > 0.0f ? 1.0f : -1.0f;
 }
 
-float BasicControler::calculate(float current_position, float target_position, float current_velocity, float target_velocity){  
+MovementState BasicLinearPosControler::calculate(MovementState current_state, MovementState target_state){  
   float current_time = ticker.get_seconds();
   float dt = current_time - previous_time;
   previous_time = current_time;
 
-  current_velocity = previous_velocity; // delete this line after velocity is implemented in the movement controler
+  current_state.velocity = previous_state.velocity; // delete this line after velocity is implemented in the movement controler
 
-  float error_position= target_position - current_position;
-  float deacceleration_time = std::abs(current_velocity / max_acceleration);  
-  float deacceleration_distance = std::abs((current_velocity * deacceleration_time) - (0.5 * max_acceleration * deacceleration_time * deacceleration_time));
+  float error_position= target_state.position - current_state.position;
+  float deacceleration_time = std::abs(current_state.velocity / max_acceleration);  
+  float deacceleration_distance = std::abs((current_state.velocity * deacceleration_time) - (0.5 * max_acceleration * deacceleration_time * deacceleration_time));
 
-  if(std::abs(error_position) > deacceleration_distance) current_velocity += get_sign(error_position) * max_acceleration * dt;
-  else current_velocity -= get_sign(current_velocity) * max_acceleration * dt;
+  if(std::abs(error_position) > deacceleration_distance) current_state.velocity += get_sign(error_position) * max_acceleration * dt;
+  else current_state.velocity -= get_sign(current_state.velocity) * max_acceleration * dt;
 
-  if(current_velocity > target_velocity) current_velocity = target_velocity;
-  else if(current_velocity < -target_velocity) current_velocity = -target_velocity;
+  if(current_state.velocity > target_state.velocity) current_state.velocity = target_state.velocity;
+  else if(current_state.velocity < -target_state.velocity) current_state.velocity = -target_state.velocity;
   
   // if(std::abs(error_position) < target_pos_max_error) current_velocity = 0;
 
-  previous_velocity = current_velocity;
-  return current_velocity;
+  previous_state.velocity = current_state.velocity;
+  return current_state;
 }
 
-void BasicControler::begin_state(float current_position, float current_velocity, float current_time){
-  previous_position = current_position;
+void BasicLinearPosControler::begin_state(MovementState current_state, float current_time){
   previous_time = current_time;
-  current_velocity = current_velocity;
+  current_state = current_state;
+  previous_state = current_state;
 }
 
-void BasicControler::set_max_acceleration(float max_acceleration){
+void BasicLinearPosControler::set_max_acceleration(float max_acceleration){
   this->max_acceleration = max_acceleration;
 };
 
-void BasicControler::set_target_pos_max_error(float target_pos_max_error){
+void BasicLinearPosControler::set_target_pos_max_error(float target_pos_max_error){
   this->target_pos_max_error = target_pos_max_error;
 };

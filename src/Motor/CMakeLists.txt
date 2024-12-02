@@ -7,4 +7,5 @@ target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
 
 target_sources(${UPPER_PROJECT_NAME} PRIVATE
   src/steper_motor.cpp
+  src/motor.cpp
 )

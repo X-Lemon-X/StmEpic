@@ -8,14 +8,13 @@ private:
   float Kp;
   float Kd;
   float Ki;
-  float previous_velocity;
-  float previous_position;
+  MovementState previous_state;
   float previous_time;
 public:
   PIDControler(Ticker &ticker);
   
-  void begin_state(float current_position, float current_velocity, float current_time) override;
-  float calculate(float current_position, float target_position, float current_velocity, float target_velocity) override;
+   void begin_state(MovementState current_state, float current_time) override;
+  MovementState calculate(MovementState  current_state, MovementState target_state) override;
   
   void set_Kp(float Kp){this->Kp = Kp;};
   void set_Kd(float Kd){this->Kd = Kd;};

@@ -35,6 +35,7 @@ public:
 
   /// @brief get the message of the status
   const std::string to_string();
+
 private:
   Status(int status, const char *message);
   int _status;
@@ -46,21 +47,15 @@ struct Result{
 public: 
   
   Result(Status status): _status(status){};
-
-  static Result<T> OK(T value){
-    return Result<T>(value,Status::OK());
-  }
-
-  static Result<T> ERROR(Status status){
-    return Result<T>(status);
-  }
+  static Result<T> OK(T value){ return Result<T>(value,Status::OK());}
+  static Result<T> ERROR(Status status) { return Result<T>(status);}
   
-  T& valueOrDie(){return _value;}
-  Status& status(){return _status;}
-  bool ok(){return _status.ok();}
+  auto valueOrDie() -> T& {return _value;}
+  auto status() -> Status& {return _status;}
+  auto ok() -> bool {return _status.ok();}
+
 private:
   Result(T value, Status status): _value(value), _status(status){};  
-
   T _value;
   Status _status;
 };

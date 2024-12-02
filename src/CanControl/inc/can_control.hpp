@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
+#include <cstring>
+#include <memory> // Add this line
 #include "etl/unordered_map.h"
 
 #ifndef CAN_CONTROL_HPP
@@ -54,11 +56,12 @@ public:
   /// @param ticker  main systeerror ticker object
   /// @param pin_tx_led  pin object for the TX led
   /// @param pin_rx_led  pin object for the RX ledCAN_QUEUE_SIZE
-  void init(CAN_HandleTypeDef &_can_interface,uint32_t _can_fifo,Ticker &_ticker,const GpioPin &_pin_tx_led,const GpioPin &_pin_rx_led){
+  void init(CAN_HandleTypeDef &_can_interface,uint32_t _can_fifo,Ticker &_ticker,GpioPin *_pin_tx_led,GpioPin *_pin_rx_led){
     can_interface = &_can_interface;
     can_fifo = _can_fifo;
     ticker = &_ticker;
-    pin_rx_led = &_pin_rx_led;
+    pin_rx_led = _pin_rx_led;
+    pin_tx_led = _pin_tx_led;
     timing_led_rx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false);
     timing_led_tx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false);
     timing_led_rx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
@@ -69,7 +72,7 @@ public:
   /// @brief  Add a callback function to the CAN interface
   /// @param frame_id  frame id of the message, set to 0 to receive all messages
   /// @param function_pointer  pointer to the function that will be called when the message with the frame_id is received
-  Status add_callback(uint32_t frame_id, function_pointer function){
+  auto add_callback(uint32_t frame_id, function_pointer function){
     if(function == nullptr) return Status::ERROR("function pointer is null");
     callback_map[frame_id] = function;
     return Status::OK();
@@ -85,6 +88,7 @@ public:
 
   /// @brief  Handle the RX interrupt
   void irq_handle_rx(){
+
     blink_rx_led();
     if (HAL_CAN_GetRxMessage(can_interface, can_fifo, &header, data) != HAL_OK) return;
     if (((header.StdId & filter_mask) != filter_base_id) && ((header.ExtId & filter_mask) != filter_base_id)) return;
@@ -93,10 +97,16 @@ public:
       msg.frame_id = header.ExtId;
     else
       msg.frame_id = header.StdId;
+    
     msg.remote_request = header.RTR == CAN_RTR_REMOTE;
     msg.data_size = header.DLC;
     if(!msg.remote_request) memcpy(msg.data,data,msg.data_size);
-    (void)rx_msg_buffor.push_back(msg);
+
+    auto callback = callback_map.find(msg.frame_id);
+    if(callback != callback_map.end()) 
+      callback->second(msg);
+    else
+      callback_map[0](msg);
   };
 
   /// @brief  Handle the TX interrupt
@@ -106,11 +116,23 @@ public:
 
   /// @brief  This function should be called in the main loop of the uc program
   ///         It will handle the RX and TX incoming data, leds and other tasks that require updating
-  void handle(){
+  std::shared_ptr<Timing> handle(){
     handle_leds();
-    handle_receive();
+    // handle_receive();
     handle_send();
   };
+
+  Result<std::shared_ptr<Timing>> GetCanHandlerTask(std::string name, uint32_t period=2000){
+    if(timing_can_task != nullptr) return Result<std::shared_ptr<Timing>>::OK(timing_can_task);
+    
+    timing_can_task = Timing::Make(
+      *ticker,
+      period,
+      true,
+      handle()
+    );
+    return Result<std::shared_ptr<Timing>>::OK(timing_can_task); 
+  }
 
   /// @brief  Adds a message to the queue, the messages will be send only when handle is called
   /// @param msg  CAN_MSG to be sent
@@ -121,15 +143,15 @@ public:
   /// @brief  Get the message from the RX buffer
   /// @param msg  pointer to the CAN_MSG object
   /// @return 0 if success
-  Result<can_msg> get_can_msg_from_queue(){   
-    __disable_irq();
-    auto status = rx_msg_buffor.get_front();
-    if(!status.ok())
-      return status;
-    rx_msg_buffor.pop_front();
-    __enable_irq();
-    return status;
-  };
+  // Result<can_msg> get_can_msg_from_queue(){   
+  //   __disable_irq();
+  //   auto status = rx_msg_buffor.get_front();
+  //   if(!status.ok())
+  //     return status;
+  //   rx_msg_buffor.pop_front();
+  //   __enable_irq();
+  //   return status;
+  // };
 
   /// @brief  Send a message to a CAN bus
   /// @param msg  can_msg to be sent
@@ -155,9 +177,10 @@ private:
   Ticker *ticker;
   std::shared_ptr<Timing> timing_led_rx;
   std::shared_ptr<Timing> timing_led_tx;
+  std::shared_ptr<Timing> timing_can_task;
   uint8_t data[CAN_DATA_FRAME_MAX_SIZE];
   CAN_RxHeaderTypeDef header;
-  static_circular_buffor<can_msg,CAN_QUEUE_SIZE> rx_msg_buffor;
+  // static_circular_buffor<can_msg,CAN_QUEUE_SIZE> rx_msg_buffor;
   static_circular_buffor<can_msg,CAN_QUEUE_SIZE> tx_msg_buffor;
   // std::unordered_map<uint32_t, void (*)(can_msg&)> callback_map;
   etl::unordered_map<uint32_t, function_pointer, CAN_CALLBACK_LIST_SIZE> callback_map;
@@ -171,6 +194,7 @@ private:
 
   /// @brief  Handle the leds
   void handle_leds(){
+    if(pin_rx_led == nullptr || pin_tx_led == nullptr) return;
     if(timing_led_rx->triggered())
       WRITE_GPIO((*pin_rx_led),GPIO_PIN_RESET);
     
@@ -188,17 +212,17 @@ private:
   };
 
   /// @brief  Handle the receive of can messages if callback are used
-  void handle_receive(){
-    // can_msg rx_msg;
-    auto meybe_msg = get_can_msg_from_queue();
-    if(!meybe_msg.ok()) return;
-    auto rx_msg = meybe_msg.valueOrDie();
-    auto callback = callback_map.find(rx_msg.frame_id);
-    if(callback != callback_map.end()) 
-      callback->second(rx_msg);
-    else
-      callback_map[0](rx_msg);
-  };
+  // void handle_receive(){
+  //   // can_msg rx_msg;
+  //   auto meybe_msg = get_can_msg_from_queue();
+  //   if(!meybe_msg.ok()) return;
+  //   auto rx_msg = meybe_msg.valueOrDie();
+  //   auto callback = callback_map.find(rx_msg.frame_id);
+  //   if(callback != callback_map.end()) 
+  //     callback->second(rx_msg);
+  //   else
+  //     callback_map[0](rx_msg);
+  // };
 
   /// @brief  turn on the TX led for a short period
   void blink_tx_led(){
@@ -212,11 +236,11 @@ private:
     timing_led_rx->reset();
   };
 
-  /// @brief  push a message to the RX buffer
-  /// @param msg  CAN_MSG to be pushed to the buffer
-  void push_to_queue(can_msg &msg){
-    (void)rx_msg_buffor.push_back(msg);
-  }
+  // /// @brief  push a message to the RX buffer
+  // /// @param msg  CAN_MSG to be pushed to the buffer
+  // void push_to_queue(can_msg &msg){
+  //   (void)rx_msg_buffor.push_back(msg);
+  // }
 
   static void base_callback(can_msg &msg){
     __NOP();
