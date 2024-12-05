@@ -31,25 +31,41 @@ enum class StatusCode: char{
 
 class Status{
 public:
-  Status(Status &status) : _status(status._status), _message(status._message){};
+  Status(Status &status) = default;
 
-  [[nodiscard]] static auto OK() -> Status {return  Status(StatusCode::OK,nullptr);};
-  [[nodiscard]] static auto OutOfMemory(const char *msg=nullptr) -> Status {return  Status(StatusCode::OutOfMemory,msg);};
-  [[nodiscard]] static auto KeyError(const char *msg=nullptr) -> Status {return  Status(StatusCode::KeyError,msg);};
-  [[nodiscard]] static auto TypeError(const char *msg=nullptr) -> Status {return  Status(StatusCode::TypeError,msg);};
-  [[nodiscard]] static auto Invalid(const char *msg=nullptr) -> Status {return  Status(StatusCode::Invalid,msg);};
-  [[nodiscard]] static auto IOError(const char *msg=nullptr) -> Status {return  Status(StatusCode::IOError,msg);};
-  [[nodiscard]] static auto CapacityError(const char *msg=nullptr) -> Status {return  Status(StatusCode::CapacityError,msg);};
-  [[nodiscard]] static auto IndexError(const char *msg=nullptr) -> Status {return  Status(StatusCode::IndexError,msg);};
-  [[nodiscard]] static auto Cancelled(const char *msg=nullptr) -> Status {return  Status(StatusCode::Cancelled,msg);};
-  [[nodiscard]] static auto UnknownError(const char *msg=nullptr) -> Status {return  Status(StatusCode::UnknownError,msg);};
-  [[nodiscard]] static auto NotImplemented(const char *msg=nullptr) -> Status {return  Status(StatusCode::NotImplemented,msg);};
-  [[nodiscard]] static auto SerializationError(const char *msg=nullptr) -> Status {return  Status(StatusCode::SerializationError,msg);};
-  [[nodiscard]] static auto RError(const char *msg=nullptr) -> Status {return  Status(StatusCode::RError,msg);};
-  [[nodiscard]] static auto CodeGenError(const char *msg=nullptr) -> Status {return  Status(StatusCode::CodeGenError,msg);};
-  [[nodiscard]] static auto ExpressionValidationError(const char *msg=nullptr) -> Status {return  Status(StatusCode::ExpressionValidationError,msg);};
-  [[nodiscard]] static auto ExecutionError(const char *msg=nullptr) -> Status {return  Status(StatusCode::ExecutionError,msg);};
-  [[nodiscard]] static auto AlreadyExists(const char *msg=nullptr) -> Status {return  Status(StatusCode::AlreadyExists,msg);};
+  [[nodiscard]] static Status OK() {return  Status(StatusCode::OK,nullptr);};
+  
+  [[nodiscard]] static Status OutOfMemory(const char *msg=nullptr) {return  Status(StatusCode::OutOfMemory,msg);};
+  
+  [[nodiscard]] static Status KeyError(const char *msg=nullptr) {return  Status(StatusCode::KeyError,msg);};
+  
+  [[nodiscard]] static Status TypeError(const char *msg=nullptr) {return  Status(StatusCode::TypeError,msg);};
+  
+  [[nodiscard]] static Status Invalid(const char *msg=nullptr) {return  Status(StatusCode::Invalid,msg);};
+  
+  [[nodiscard]] static Status IOError(const char *msg=nullptr) {return  Status(StatusCode::IOError,msg);};
+  
+  [[nodiscard]] static Status CapacityError(const char *msg=nullptr) {return  Status(StatusCode::CapacityError,msg);};
+  
+  [[nodiscard]] static Status IndexError(const char *msg=nullptr) {return  Status(StatusCode::IndexError,msg);};
+  
+  [[nodiscard]] static Status Cancelled(const char *msg=nullptr) {return  Status(StatusCode::Cancelled,msg);};
+  
+  [[nodiscard]] static Status UnknownError(const char *msg=nullptr) {return  Status(StatusCode::UnknownError,msg);};
+  
+  [[nodiscard]] static Status NotImplemented(const char *msg=nullptr) {return  Status(StatusCode::NotImplemented,msg);};
+  
+  [[nodiscard]] static Status SerializationError(const char *msg=nullptr) {return  Status(StatusCode::SerializationError,msg);};
+  
+  [[nodiscard]] static Status RError(const char *msg=nullptr) {return  Status(StatusCode::RError,msg);};
+  
+  [[nodiscard]] static Status CodeGenError(const char *msg=nullptr) {return  Status(StatusCode::CodeGenError,msg);};
+  
+  [[nodiscard]] static Status ExpressionValidationError(const char *msg=nullptr) {return  Status(StatusCode::ExpressionValidationError,msg);};
+  
+  [[nodiscard]] static Status ExecutionError(const char *msg=nullptr) {return  Status(StatusCode::ExecutionError,msg);};
+  
+  [[nodiscard]] static Status AlreadyExists(const char *msg=nullptr) {return  Status(StatusCode::AlreadyExists,msg);};
 
 
 
@@ -58,14 +74,14 @@ public:
 
   /// @brief get the status
   /// @return 0 if OK or some error code
-  [[nodiscard]] auto status() -> StatusCode {return _status;};
+  [[nodiscard]] StatusCode status()  {return _status;};
 
   /// @brief get the message of the status
   [[nodiscard]] const std::string to_string() {
     if(_message != nullptr)
       return std::string(_message);
     else
-      return std::string("");
+      return "";
   };
 
 private:
@@ -76,16 +92,13 @@ private:
 
 template <typename T> 
 struct Result{
-public: 
-  
+public:   
   Result(Status status): _status(status){};
   static auto OK(T value) -> Result<T>{ return Result<T>(value,Status::OK());}
-  // static auto ERROR(Status &status) -> Result<T> { return Result<T>(status);}
   
-  auto valueOrDie() -> T& {return _value;}
-  auto status() -> Status& {return _status;}
-  auto ok() -> bool {return _status.ok();}
-
+  [[nodiscard]] auto valueOrDie() -> T& {return _value;}
+  [[nodiscard]] Status& status() {return _status;}
+  [[nodiscard]] bool ok() {return _status.ok();}
 private:
   Result(T value, Status status): _value(value), _status(status){};  
   T _value;

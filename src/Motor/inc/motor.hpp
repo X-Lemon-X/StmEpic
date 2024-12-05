@@ -68,7 +68,7 @@ public:
 };
 
 
-class MotorBaseClosedLoop: public MotorBase {
+class MotorClosedLoop: public MotorBase {
 private:
   MotorBase &motor;
   Encoder *encoder_pos;
@@ -80,19 +80,19 @@ public:
   /// @param encoder_pos The encoder that will be used to get position of the SteperMotor
   /// @param encoder_vel The encoder that will be used to get velocity of the SteperMotor
   /// The same encoder_pos and encoder_vel can be passed if the SteperMotor has only one encoder
-  MotorBaseClosedLoop(MotorBase &_motor, Encoder *_encoder_pos, Encoder *_encoder_vel);
+  MotorClosedLoop(MotorBase &_motor, Encoder *_encoder_pos, Encoder *_encoder_vel);
 
   void init() override;
 
-  float get_velocity() const override;
+  [[nodiscard]] float get_velocity() const override;
 
-  float get_torque() const override;
+  [[nodiscard]] float get_torque() const override;
 
-  float get_position() const override;
+  [[nodiscard]] float get_position() const override;
 
-  float get_absolute_position() const override;
+  [[nodiscard]] float get_absolute_position() const override;
 
-  float get_gear_ratio() const override;
+  [[nodiscard]] float get_gear_ratio() const override;
 
   void set_velocity(float speed) override;
 

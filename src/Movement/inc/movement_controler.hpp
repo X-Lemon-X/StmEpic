@@ -47,7 +47,7 @@ public:
   /// @param target_velocity target angualar velocity of the arm in radians per second
   /// @return the angualar velocity of the arm in radians per second. 
   /// Can be positive or negative value (negative value obviously means reverse), 0 will stop the engine)
-  virtual MovementState calculate(MovementState  current_state, MovementState target_state) {return MovementState{0,0,0};};
+  [[nodiscard]] virtual MovementState calculate(MovementState  current_state, MovementState target_state) {return MovementState{0,0,0};};
 };
 
 class MovementControler{ 
@@ -146,8 +146,8 @@ private:
   bool dont_override_limit_position;
   bool limit_positon_achieved;
 
-  float overide_limit_abs(float value, float max, float min=0);
-  float overide_limit(float value, float max, float min=0);
+  [[nodiscard]] float overide_limit_abs(float value, float max, float min=0);
+  [[nodiscard]]float overide_limit(float value, float max, float min=0);
 
   void set_motor_state(MovementState state);
 };
