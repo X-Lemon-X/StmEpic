@@ -42,10 +42,13 @@ void Logger::transmit(std::string msg,std::string prefix){
     msg += "\n";
   }
   CDC_Transmit_FS((uint8_t*)msg.c_str(), msg.length());
-  // HAL_Delay(1);
 }
 
 std::string Logger::parse_to_json_format(std::string key, std::string value,bool add_coma,bool as_list){
   if(as_list) return "\""+key+"\": {"+value+"}"+(add_coma?",":"");
   else return "\""+key+"\":\""+value+"\""+(add_coma?",":"");
+}
+
+std::string Logger::key_value_to_json(std::string key, std::string value){
+  return "\""+key+"\":\""+value+"\"";
 }
