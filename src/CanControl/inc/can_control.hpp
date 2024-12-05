@@ -73,7 +73,7 @@ public:
   /// @param frame_id  frame id of the message, set to 0 to receive all messages
   /// @param function_pointer  pointer to the function that will be called when the message with the frame_id is received
   auto add_callback(uint32_t frame_id, function_pointer function){
-    if(function == nullptr) return Status::ERROR("function pointer is null");
+    if(function == nullptr) return Status::Invalid("Function pointer is null");
     callback_map[frame_id] = function;
     return Status::OK();
   };
@@ -157,7 +157,7 @@ public:
   /// @param msg  can_msg to be sent
   Status send_can_msg(can_msg &msg){
     if(HAL_CAN_GetTxMailboxesFreeLevel(can_interface)==0) 
-      return Status::ERROR("CAN TX mailboxes are full");
+      return Status::OutOfMemory("CAN TX buffer is full");
 
     CAN_TxHeaderTypeDef tx_header;
     tx_header.StdId = msg.frame_id;
@@ -166,7 +166,7 @@ public:
     tx_header.IDE = CAN_ID_STD;
     tx_header.TransmitGlobalTime = DISABLE;
     if(HAL_CAN_AddTxMessage(can_interface,&tx_header,msg.data,&last_tx_mailbox)!=HAL_OK) 
-      return Status::ERROR("CAN TX failed");
+      return Status::IOError("CAN TX error");
     blink_tx_led();
     return Status::OK();
   };

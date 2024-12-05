@@ -7,13 +7,6 @@
 
 namespace stmepic{
 
-enum class Status_circular_buffor: int{
-  CIRCULAR_BUFFOR_OK = 0,
-  CIRCULAR_BUFFOR_FULL = 1,
-  CIRCULAR_BUFFOR_EMPTY = 2,
-  CIRCULAR_BUFFOR_ERROR = 3
-};
-
 /// @brief a CIrcular buffor class that stores copies of data in a static circualar array
 /// @tparam circualr_buffor_data_type 
 /// @tparam buffor_size 
@@ -35,21 +28,21 @@ public:
   /// @return uint8_t CIRCULAR_BUFFOR_OK if success
   Status push_back(circualr_buffor_data_type data){
     if (head == tail && size == buffor_size){
-      return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_FULL);
+      return Status::CapacityError("Buffer is full");
     }          
     size++;
     buffor[tail] = data; 
     tail++;
     if(tail == buffor_size)
       tail = 0;
-    return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_OK);
+    return Status::OK();
   };
 
   /// @brief get the copy of the front element of the buffor 
   /// @return CIRCULAR_BUFFOR_OK if success, CIRCULAR_BUFFOR_EMPTY if buffor is empty
   Result<circualr_buffor_data_type> get_front(){
     if(head == tail && size == 0)
-      return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_EMPTY);
+      return Status::CapacityError("Buffer is empty");
     // if(data == nullptr)
     //   return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_ERROR);
     // *data = buffor[head];
@@ -58,7 +51,7 @@ public:
 
   Status pop_front(){
     if(head == tail && size == 0)
-      return Status::ERROR((int)Status_circular_buffor::CIRCULAR_BUFFOR_EMPTY);
+      return Status::CapacityError("Buffer is empty");
     size--;
     head++;
     if(head == buffor_size)
