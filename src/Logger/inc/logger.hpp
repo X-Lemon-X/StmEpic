@@ -18,18 +18,19 @@ enum class LOG_LEVEL {
 class JsonParse {
   public:
   
-  template<typename T>
-  [[nodiscard]] JsonParse& AddKeyValue(std::string key, T value){
-    if constexpr (std::is_same<T, const char*>::value)
-      return key_value_to_json(key,std::string(value));
-    else
-      return key_value_to_json(key,std::to_string(value));
-  };
+  // template<typename T>
+  // [[nodiscard]] JsonParse& AddKeyValue(std::string key, T value){
+  //   if constexpr (std::is_same<T, const char*>::value)
+  //     return key_value_to_json(key,std::string(value));
+  //   else
+  //     return key_value_to_json(key,std::to_string(value));
+  // };
 
+  // [[nodiscard]] std::string get_json() const { return _json; }
+  // private:
+  // std::string _json="{";
 
-  [[nodiscard]] std::string get_json() const { return _json; }
-  private:
-  std::string _json="{";
+  // key_value_to_json
 };
 
 class Logger {
