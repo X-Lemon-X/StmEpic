@@ -5,7 +5,7 @@
 
 using namespace stmepic;
 
-MotorClosedLoop::MotorClosedLoop(MotorBase &_motor, Encoder *_encoder_pos, Encoder *_encoder_vel):
+MotorClosedLoop::MotorClosedLoop(MotorBase &_motor, encoders::EncoderBase *_encoder_pos, encoders::EncoderBase *_encoder_vel):
 motor(_motor), encoder_pos(_encoder_pos), encoder_vel(_encoder_vel){}
 
 void MotorClosedLoop::init(){

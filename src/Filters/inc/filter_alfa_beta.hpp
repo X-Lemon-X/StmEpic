@@ -14,6 +14,7 @@ private:
   float vpri;
   float vpost;
   float prev_time;
+  Ticker &ticker;
 public:
   float alfa;
   float beta;

@@ -8,15 +8,22 @@
 
 namespace stmepic::filters{
 
-class Filter_moving_avarage : public FilterBase{
+class FilterMovingAvarage : public FilterBase{
 private:
   std::deque<float> samples;
   uint16_t size;
-public:
-  Filter_moving_avarage(Ticker &ticker);
-  float calculate(float calculate) override;
+  uint32_t sample_count;
+  uint16_t samples_to_skip;
+  float last_value_sample;
+  float last_value;
 
+  float calculate_moving_avarage(float calculate);
+public:
+  FilterMovingAvarage();
+  float calculate(float calculate) override;
   void set_size(uint16_t size);
+  void set_samples_to_skip(uint16_t sample_amount) override;
+  void set_init_value(float value) override;
 
 };
 

@@ -62,8 +62,8 @@ public:
     ticker = &_ticker;
     pin_rx_led = _pin_rx_led;
     pin_tx_led = _pin_tx_led;
-    timing_led_rx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false);
-    timing_led_tx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false);
+    timing_led_rx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false).valueOrDie();
+    timing_led_tx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false).valueOrDie();
     timing_led_rx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
     timing_led_tx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
     add_callback(CAN_DEFAULT_FRAME_ID, base_callback);
@@ -116,7 +116,7 @@ public:
 
   /// @brief  This function should be called in the main loop of the uc program
   ///         It will handle the RX and TX incoming data, leds and other tasks that require updating
-  std::shared_ptr<Timing> handle(){
+  void handle(){
     handle_leds();
     // handle_receive();
     handle_send();

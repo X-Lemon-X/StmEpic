@@ -3,21 +3,47 @@
 using namespace stmepic::filters;
 
 
-Filter_moving_avarage::Filter_moving_avarage(Ticker &ticker): FilterBase(ticker){
-  this->samples = std::deque<float>();
+FilterMovingAvarage::FilterMovingAvarage() {
+  samples = std::deque<float>();
 }
 
-float Filter_moving_avarage::calculate(float calculate){
-  this->samples.push_back(calculate);
-  this->samples.pop_front();
+float FilterMovingAvarage::calculate(float calculate){
+  if(samples_to_skip == 0) return calculate_moving_avarage(calculate);
+  
+  if(++sample_count >= samples_to_skip){
+    sample_count = 0;
+    last_value_sample = calculate;
+  }else {
+    return last_value;
+  }
+
+  last_value = calculate_moving_avarage(last_value_sample);
+  return last_value;
+}
+
+
+void FilterMovingAvarage::set_size(uint16_t size){
+  size = size;
+  samples.clear();
+  for (uint16_t i = 0; i < size; ++i) samples.push_back(0);
+}
+
+void FilterMovingAvarage::set_samples_to_skip(uint16_t sample_amount){
+  samples_to_skip = sample_amount;
+}
+
+void FilterMovingAvarage::set_init_value(float value){
+  samples.clear();
+  for (uint16_t i = 0; i < size; ++i) samples.push_back(value);
+  last_value = calculate_moving_avarage(value);
+  last_value_sample = value;
+}
+
+float FilterMovingAvarage::calculate_moving_avarage(float calculate){
+  samples.push_back(calculate);
+  samples.pop_front();
   float sum = 0;
-  for(int i=0; i < this->samples.size(); ++i) sum += this->samples[i];
-  return (float)sum/this->samples.size();
+  for(int i=0; i < samples.size(); ++i) sum += samples[i];
+  return (float)sum/samples.size();
 }
 
-
-void Filter_moving_avarage::set_size(uint16_t size){
-  this->size = size;
-  this->samples.clear();
-  for (uint16_t i = 0; i < size; ++i) this->samples.push_back(0);
-}

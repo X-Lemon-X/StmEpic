@@ -1,42 +1,50 @@
 
-#include "encoder.hpp"
+#include "encoder_magnetic.hpp"
 #include <cmath>
+#include "stmepic.hpp"
 
-using namespace stmepic;
+
+using namespace stmepic::encoders;
 
 
 #define PI_m2 6.28318530717958647692f
 
 
-uint16_t stmepic::translate_reg_to_angle_AS5600(uint8_t data1, uint8_t data2){
+uint16_t stmepic::encoders::translate_reg_to_angle_AS5600(uint8_t data1,uint8_t data2){
   uint16_t reg = (uint16_t)(data1 & 0x0F) << 8;
   reg |= (uint16_t)(data2);
   return reg;
 }
 
-uint16_t stmepic::translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2){
+uint16_t stmepic::encoders::translate_reg_to_angle_MT6701(uint8_t data1,uint8_t data2){
   uint16_t reg = (uint16_t)data1 << 6;
   reg |= (uint16_t)(data2 & 0xfc) >> 2;
   return reg;
 }
 
-Encoder::Encoder(){
-this->resolution = 4096;
-this->address = 0x36;
-this->reverse = false;
-this->offset = 0;
-this->data[0] = 0;
-this->data[1] = 0;
-this->enable_filter = false;
-this->enable_velocity = false;
-this->enable_velocity_filter = false;
-this->encoder_enabled = false;
-this->ratio = 1;
-this->dead_zone_correction_angle=0;
-this->translate_reg_to_angle_function = translate_reg_to_angle_AS5600;
+EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(){
+  this->resolution = 4096;
+  this->address = 0x36;
+  this->reverse = false;
+  this->offset = 0;
+  this->data[0] = 0;
+  this->data[1] = 0;
+  this->enable_filter = false;
+  this->enable_velocity = false;
+  this->enable_velocity_filter = false;
+  this->encoder_enabled = false;
+  this->ratio = 1;
+  this->dead_zone_correction_angle=0;
+  this->reg_to_angle_function = translate_reg_to_angle_AS5600;
 }
 
-void Encoder::init(I2C_HandleTypeDef &hi2c, Ticker &ticker, stmepic::filters::FilterBase *filter_angle, stmepic::filters::FilterBase *filter_velocity){
+void EncoderAbsoluteMagnetic::init(
+  I2C_HandleTypeDef &hi2c, 
+  Ticker &ticker, 
+  traslate_reg_to_angle _reg_to_angle_function,
+  filters::FilterBase *filter_angle, 
+  filters::FilterBase *filter_velocity)
+{
   if(!this->encoder_enabled) return;
   this->hi2c = &hi2c;
   this->ticker = &ticker;
@@ -45,6 +53,7 @@ void Encoder::init(I2C_HandleTypeDef &hi2c, Ticker &ticker, stmepic::filters::Fi
   this->last_time = ticker.get_seconds();
   this->current_velocity = 0;
   this->over_drive_angle = 0;
+  this->reg_to_angle_function = _reg_to_angle_function;
 
   // bool connected = ping_encoder();
 
@@ -61,12 +70,12 @@ void Encoder::init(I2C_HandleTypeDef &hi2c, Ticker &ticker, stmepic::filters::Fi
   this->prev_angle_velocity = this->absolute_angle;
 }
 
-bool Encoder::ping_encoder(){
+bool EncoderAbsoluteMagnetic::ping_encoder(){
   if(this->encoder_enabled) return false;
   return HAL_I2C_IsDeviceReady(hi2c, address, 1, 100) == HAL_OK;
 }
 
-uint16_t Encoder::read_raw_angle(){
+uint16_t EncoderAbsoluteMagnetic::read_raw_angle(){
   if(!encoder_enabled) return 0;
 
   HAL_StatusTypeDef status = HAL_I2C_Mem_Read(hi2c, address, angle_register, 1, this->data, 2, 5);
@@ -75,18 +84,18 @@ uint16_t Encoder::read_raw_angle(){
     return 0;
   }
   encoder_connected=true;
-  uint16_t reg = translate_reg_to_angle_function(data[0], data[1]);
+  uint16_t reg = reg_to_angle_function(data[0], data[1]);
   // uint16_t reg = (uint16_t)this->data[0] << 6;
   // reg |= (uint16_t)(this->data[1] & 0xfc) >> 2;
   return reg;
 }
 
-float Encoder::calculate_velocity(float angle){
+float EncoderAbsoluteMagnetic::calculate_velocity(float angle){
   float current_tiem = ticker->get_seconds();
   const float dt = current_tiem - last_time;
   float current_velocity = (angle-prev_angle_velocity) / dt;
   last_time = current_tiem;
-  if(this->enable_velocity_filter && this->filter_velocity != nullptr)
+  if(this->filter_velocity != nullptr)
     current_velocity = filter_velocity->calculate(current_velocity);
 
   // log_debug(std::to_string(angle) + ";" + std::to_string(current_tiem));
@@ -94,7 +103,7 @@ float Encoder::calculate_velocity(float angle){
   return current_velocity;
 }
 
-float Encoder::read_angle_rads(){
+float EncoderAbsoluteMagnetic::read_angle_rads(){
   if(!encoder_enabled) return 0;
 
   float angle =  (float)read_raw_angle()*PI_m2 / (float)this->resolution * this->ratio;
@@ -105,7 +114,7 @@ float Encoder::read_angle_rads(){
   return angle;
 }
 
-float Encoder::read_angle(){
+float EncoderAbsoluteMagnetic::read_angle(){
   if(!encoder_enabled) return 0;
 
   float angle = read_angle_rads();
@@ -117,7 +126,7 @@ float Encoder::read_angle(){
   prev_angle = angle;
   absolute_angle = angle + over_drive_angle;
   
-  if(this->enable_filter && this->filter_angle != nullptr)
+  if(this->filter_angle != nullptr)
     absolute_angle = filter_angle->calculate(absolute_angle);
 
   if(this->enable_velocity && ++velocity_sample_count >= velocity_samples_amount){
@@ -127,80 +136,76 @@ float Encoder::read_angle(){
   return angle;
 }
 
-void Encoder::handle(){
+void EncoderAbsoluteMagnetic::handle(){
+  if(!encoder_enabled) return;
+  read_angle();
+}
+
+void EncoderAbsoluteMagnetic::handle_irk(){
   if(!encoder_enabled) return;
   read_angle();
 }
 
 
-float Encoder::get_velocity() const{
+float EncoderAbsoluteMagnetic::get_velocity() const{
   return this->current_velocity;
 }
 
-float Encoder::get_angle() const{
+float EncoderAbsoluteMagnetic::get_angle() const{
   return this->prev_angle;
 }
 
-float Encoder::get_absoulute_angle() const{
+float EncoderAbsoluteMagnetic::get_absoulute_angle() const{
   return this->absolute_angle;
 }
 
-bool Encoder::is_connected() const{
+bool EncoderAbsoluteMagnetic::is_connected() const{
   return this->encoder_connected;
 }
 
-void Encoder::set_resolution(uint16_t resolution){
+void EncoderAbsoluteMagnetic::set_resolution(uint16_t resolution){
   this->resolution = resolution;
 }
   
-void Encoder::set_offset(float offset){
+void EncoderAbsoluteMagnetic::set_offset(float offset){
   this->offset = offset;
 }
 
-void Encoder::set_reverse(bool reverse){
+void EncoderAbsoluteMagnetic::set_reverse(bool reverse){
   this->reverse = reverse;
 }
   
-void Encoder::set_address(uint8_t address){
+void EncoderAbsoluteMagnetic::set_address(uint8_t address){
   this->address = address;
 }
   
-void Encoder::set_angle_register(uint8_t angle_register){
+void EncoderAbsoluteMagnetic::set_angle_register(uint8_t angle_register){
   this->angle_register = angle_register;
 }
   
-void Encoder::set_magnes_detection_register(uint8_t magnes_detection_register){
+void EncoderAbsoluteMagnetic::set_magnes_detection_register(uint8_t magnes_detection_register){
   this->magnes_detection_register = magnes_detection_register;
 }
   
-void Encoder::set_enable_position_filter(bool enable_filter){
-  this->enable_filter = enable_filter;
-}
 
-void Encoder::set_enable_velocity(bool enable_velocity){
-  this->enable_velocity = enable_velocity;
-}
+// void EncoderAbsoluteMagnetic::set_enable_velocity(bool enable_velocity){
+//   this->enable_velocity = enable_velocity;
+// }
   
-void Encoder::set_enable_velocity_filter(bool enable_velocity_filter){
-  this->enable_velocity_filter = enable_velocity_filter;
-}
 
-void Encoder::set_velocity_sample_amount(uint16_t velocity_samples_amount){
-  this->velocity_samples_amount = velocity_samples_amount;
-}
+// void EncoderAbsoluteMagnetic::set_velocity_sample_amount(uint16_t velocity_samples_amount){
+//   this->velocity_samples_amount = velocity_samples_amount;
+// }
 
-void Encoder::set_dead_zone_correction_angle(float dead_zone_correction_angle){
+void EncoderAbsoluteMagnetic::set_dead_zone_correction_angle(float dead_zone_correction_angle){
   this->dead_zone_correction_angle = std::abs(dead_zone_correction_angle);
 }
 
-void Encoder::set_function_to_read_angle(uint16_t (*function)(uint8_t,uint8_t)){
-  this->translate_reg_to_angle_function = function;
-}
 
-void Encoder::set_ratio(float ratio){
+void EncoderAbsoluteMagnetic::set_ratio(float ratio){
   this->ratio = ratio;
 }
 
-void Encoder::set_enable_encoder(bool enable){
+void EncoderAbsoluteMagnetic::set_enable_encoder(bool enable){
   this->encoder_enabled = true;
 }

@@ -4,7 +4,7 @@
 
 using namespace stmepic::filters;
 
-FilterAlfaBeta::FilterAlfaBeta(Ticker &_ticker): FilterBase(_ticker){
+FilterAlfaBeta::FilterAlfaBeta(Ticker &_ticker): ticker(_ticker){
   alfa =0.2;
   beta = 0.1;
   ypri = 0;
@@ -15,7 +15,7 @@ FilterAlfaBeta::FilterAlfaBeta(Ticker &_ticker): FilterBase(_ticker){
 
 
 float FilterAlfaBeta::calculate(float x){
-  float time = FilterBase::ticker.get_seconds();
+  float time = ticker.get_seconds();
   float dt = prev_time - time;
   ypri = ypost + dt*vpost;
   vpri = vpost;

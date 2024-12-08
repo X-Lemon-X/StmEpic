@@ -71,8 +71,8 @@ public:
 class MotorClosedLoop: public MotorBase {
 private:
   MotorBase &motor;
-  Encoder *encoder_pos;
-  Encoder *encoder_vel;
+  encoders::EncoderBase *encoder_pos;
+  encoders::EncoderBase *encoder_vel;
 
 public:
   /// @brief Constructor for the SteperMotorClosedLoop class taht takes a SteperMotor, and 0 or 1 to 2 encoders
@@ -80,7 +80,7 @@ public:
   /// @param encoder_pos The encoder that will be used to get position of the SteperMotor
   /// @param encoder_vel The encoder that will be used to get velocity of the SteperMotor
   /// The same encoder_pos and encoder_vel can be passed if the SteperMotor has only one encoder
-  MotorClosedLoop(MotorBase &_motor, Encoder *_encoder_pos, Encoder *_encoder_vel);
+  MotorClosedLoop(MotorBase &_motor, encoders::EncoderBase *_encoder_pos, encoders::EncoderBase *_encoder_vel);
 
   void init() override;
 

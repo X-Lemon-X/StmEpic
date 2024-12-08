@@ -2,6 +2,7 @@
 #include "stmepic_status.hpp"
 #include <memory>
 #include <string>
+#include "stmepic.hpp"
 
 
 using namespace stmepic;
@@ -49,11 +50,12 @@ Timing::Timing(Ticker &_ticker): ticker(_ticker){
   triggered_flag = false;
 }
 
-std::shared_ptr<Timing> Timing::Make(Ticker &ticker, uint32_t period, bool repeat,void (*function)(Timing&) ){
+Result<std::shared_ptr<Timing>> Timing::Make(Ticker &ticker, uint32_t period, bool repeat,void (*function)(Timing&) ){
   auto new_timer = new Timing(ticker);
   new_timer->set_behaviour(period, repeat);
   new_timer->function = function;
-  return std::shared_ptr<Timing>(new_timer);
+  auto timer = std::shared_ptr<Timing>(new_timer);
+  return Result<decltype(timer)>::OK(timer);
 }
 
 void Timing::reset(){
@@ -95,9 +97,10 @@ void Timing::run_function(){
 TimeScheduler::TimeScheduler(Ticker &_ticker): ticker(_ticker){
 }
 
-void TimeScheduler::add_timer(std::shared_ptr<Timing> timer){
-  if(timer == nullptr) return;
+Status TimeScheduler::add_timer(std::shared_ptr<Timing> timer){
+  if(timer == nullptr) return Status::RError("Timer is nullptr");
   timers.push_back(timer);
+  return Status::OK();
 }
 
 void TimeScheduler::schedules_handle_non_blocking(){
