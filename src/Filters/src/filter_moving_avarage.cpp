@@ -23,7 +23,7 @@ float FilterMovingAvarage::calculate(float calculate){
 
 
 void FilterMovingAvarage::set_size(uint16_t size){
-  size = size;
+  this->size = size;
   samples.clear();
   for (uint16_t i = 0; i < size; ++i) samples.push_back(0);
 }

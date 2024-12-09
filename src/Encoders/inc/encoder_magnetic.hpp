@@ -5,6 +5,7 @@
 #include "Timing.hpp"
 #include "filter.hpp"
 #include "encoder.hpp"
+#include "stmepic_status.hpp"
 
 #define VELOCITY_FILTER_SIZE 6
 #define ANGLE_MAX_DEFFERENCE 2.0f // 1 radian
@@ -89,7 +90,7 @@ public:
 
   /// @brief reads the raw angle from the encoder
   /// @return the raw angle in uint16_t
-  uint16_t read_raw_angle();
+  Result<uint16_t> read_raw_angle();
 
   /// @brief reads the angle from the encoder
   /// @return the angle in radians
@@ -119,15 +120,6 @@ public:
   /// @brief sets the magnes detection register of the encoder (unsuported feature in MT6701)
   /// @param magnes_detection_register the magnes detection register of the encoder 
   void set_magnes_detection_register(uint8_t magnes_detection_register);
-  
-  // /// @brief sets the enable velocity of the encoder 
-  // /// @param enable_velocity true if the you wnat the velocity to be calculated
-  // void set_enable_velocity(bool enable_velocity);
-
-  // /// @brief sets how many smaples will be skipped before calculating the velocity
-  // /// fixes the problem of low velocity readings
-  // /// @param velocity_samples_amount the amount of samples to skip before calculating the velocity
-  // void set_velocity_sample_amount(uint16_t velocity_samples_amount);
 
   /// @brief sets the begin roation dead zone correction angle
   /// The dead zone angle is used to correct initial value of the angle to be eather positive or negative.
@@ -149,6 +141,7 @@ private:
   uint8_t data[2];
   float last_time;
   float prev_angle;
+  float current_angle;
   float current_velocity;
 
   float prev_angle_velocity;
@@ -163,12 +156,7 @@ private:
   uint8_t address;
   uint8_t angle_register;
   uint8_t magnes_detection_register;
-  bool enable_filter;
-  bool enable_velocity;
-  bool enable_velocity_filter;
   bool encoder_enabled;
-  uint16_t velocity_sample_count;
-  uint16_t velocity_samples_amount;
 
 
   
