@@ -4,12 +4,12 @@
 #include "Timing.hpp"
 #include "encoder.hpp"
 #include "pin.hpp"
-
+#include "device.hpp"
 
 
 namespace stmepic
 {
-class MotorBase{
+class MotorBase : public DeviceBase {
 public:
   MotorBase() = default;
   
@@ -109,7 +109,19 @@ public:
   void set_min_velocity(float min_velocity) override;
 
   void set_reverse(bool reverse) override;
-};
+
+  Result<bool> device_is_connected() override;
+
+  bool device_ok() override;
+
+  Result<DeviceStatus> device_get_status() override ;
+
+  Status device_reset() override;
+
+  Status device_start() override;
+
+  Status device_stop() override;
+ };
 
 }
 

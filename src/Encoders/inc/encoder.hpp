@@ -4,6 +4,7 @@
 #include "stmepic.hpp"
 #include "Timing.hpp"
 #include "filter.hpp"
+#include "device.hpp"
 
 #define VELOCITY_FILTER_SIZE 6
 #define ANGLE_MAX_DEFFERENCE 2.0f // 1 radian
@@ -12,7 +13,7 @@
 
 namespace stmepic::encoders {
 
-class EncoderBase {
+class EncoderBase: public DeviceBase {
 public:
   
   /// @brief Init fucnion of the encoder

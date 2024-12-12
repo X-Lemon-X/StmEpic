@@ -129,6 +129,18 @@ public:
   /// @param begin_roation_dead_zone_correction_angle the angle in radians, can be set to 0 if dead zone correction angle shall not be used.
   void set_dead_zone_correction_angle(float begin_roation_dead_zone_correction_angle);
 
+  bool device_ok() override;
+
+  Result<bool> device_is_connected() override;
+
+  Result<DeviceStatus> device_get_status() override;
+
+  Status device_reset() override;
+
+  Status device_start() override;
+
+  Status device_stop() override;
+
 private:
   I2C_HandleTypeDef *hi2c;
   Ticker *ticker;

@@ -192,3 +192,29 @@ void EncoderAbsoluteMagnetic::set_ratio(float ratio){
 void EncoderAbsoluteMagnetic::set_enable_encoder(bool enable){
   this->encoder_enabled = enable;
 }
+
+bool EncoderAbsoluteMagnetic::device_ok(){
+  return encoder_connected;
+}
+
+stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected(){
+  return Result<bool>::OK(encoder_connected);
+}
+
+stmepic::Result<stmepic::DeviceStatus> EncoderAbsoluteMagnetic::device_get_status(){
+  if(encoder_connected) return Result<DeviceStatus>::OK(DeviceStatus::OK);
+  else return Result<DeviceStatus>::OK(DeviceStatus::DEVICE_UNKNOWN_ERROR);
+}
+
+stmepic::Status EncoderAbsoluteMagnetic::device_reset(){
+  return Status::NotImplemented("Reset is not implemented");
+}
+
+stmepic::Status EncoderAbsoluteMagnetic::device_start(){
+  return Status::NotImplemented("Start is not implemented");
+}
+
+
+stmepic::Status EncoderAbsoluteMagnetic::device_stop(){
+  return Status::NotImplemented("Stop is not implemented");
+}

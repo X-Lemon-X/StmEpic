@@ -31,6 +31,7 @@ add_subdirectory(src/Gpio)
 add_subdirectory(src/Filters)
 add_subdirectory(src/config)
 add_subdirectory(src/Status)
+add_subdirectory(src/Device)
 add_subdirectory(etl)
 
 

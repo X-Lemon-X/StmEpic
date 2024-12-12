@@ -66,3 +66,29 @@ void MotorClosedLoop::set_min_velocity(float min_velocity){
 void MotorClosedLoop::set_reverse(bool reverse){
   motor.set_reverse(reverse);
 }
+
+bool MotorClosedLoop::device_ok(){
+  motor.device_ok();
+}
+
+Result<bool> MotorClosedLoop::device_is_connected(){
+  return motor.device_is_connected();
+}
+
+[[nodiscard]] Result<DeviceStatus> MotorClosedLoop::device_get_status() {
+  return motor.device_get_status();
+}
+
+[[nodiscard]] Status MotorClosedLoop::device_reset(){
+  return motor.device_reset();
+}
+
+[[nodiscard]] Status MotorClosedLoop::device_start(){
+  return motor.device_start();
+}
+
+[[nodiscard]] Status MotorClosedLoop::device_stop(){
+  return motor.device_stop();
+}
+
+
