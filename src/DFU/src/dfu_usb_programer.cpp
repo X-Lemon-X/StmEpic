@@ -1,9 +1,11 @@
 
 #include "dfu_usb_programer.hpp"
 #include "pin.hpp"
-#include "usbd_cdc_if.h"
+// #include "usbd_cdc_if.h"
 #include <string>
+#include <cstring>
 #include "logger.hpp"
+#include "stmepic.hpp"
 
 using namespace stmepic;
 

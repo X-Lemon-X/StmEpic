@@ -1,12 +1,16 @@
 #include "logger.hpp"
 #include <string>
-#include "usbd_cdc_if.h"
+// #include "usbd_cdc_if.h"
 #include "stmepic.hpp"
 
 
 using namespace stmepic;
 
-Logger::Logger(LOG_LEVEL level, bool _print_info, std::string _version): log_level(level),print_info(_print_info),version(_version) {
+Logger::Logger(LOG_LEVEL level, bool _print_info,transmit_data_func _transmi_function,  std::string _version): 
+  log_level(level),
+  transmit_function(_transmi_function),
+  print_info(_print_info),
+  version(_version) {
 
 }
 
@@ -41,7 +45,7 @@ void Logger::transmit(std::string msg,std::string prefix){
   }else{
     msg += "\n";
   }
-  CDC_Transmit_FS((uint8_t*)msg.c_str(), msg.length());
+  if(transmit_function) transmit_function((uint8_t*)msg.c_str(), msg.length());
 }
 
 std::string Logger::parse_to_json_format(std::string key, std::string value,bool add_coma,bool as_list){

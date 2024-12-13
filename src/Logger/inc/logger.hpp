@@ -3,6 +3,7 @@
 #define LOGER_H
 
 #include <string>
+#include <stmepic.hpp>
 
 #define BOOL_TO_STRING(b) (b ? "1" : "0")
 
@@ -35,13 +36,16 @@ class JsonParse {
 
 class Logger {
 public:
+  using transmit_data_func = uint8_t (*)(uint8_t*,uint16_t);
+
   /// @brief  initiate the logger
   /// @param level - log level
   /// @param print_info if set to false the loger will simply print log messages with END_OF_LINE sign at the end. 
   /// If set to true then the message will be encapsulated as if it were json format with the message as it fields,
   /// the logger will add aditional info like time stamp, software version, id of the board log_lvl.
   /// and putt user msg as a separet json field in the main json with name "msg" : { user_msg }
-  Logger(LOG_LEVEL level, bool print_info, std::string _version="");
+  /// @param _transmi_function - function that will be used to transmit the data on some interface.
+  Logger(LOG_LEVEL level, bool print_info,transmit_data_func _transmi_function, std::string _version="");
 
   void error(std::string msg);
   void warning(std::string msg);
@@ -63,7 +67,7 @@ private:
   std::string version;
   void transmit(std::string msg, std::string prefix);
   std::string key_value_to_json(std::string key, std::string value);
-
+  transmit_data_func transmit_function;
 };
 
 }

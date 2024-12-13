@@ -1,7 +1,7 @@
 #include <string>
-#include "usb_device.h"
-#include "usbd_cdc_if.h"
-#include "usbd_def.h"
+// #include "usb_device.h"
+// #include "usbd_cdc_if.h"
+// #include "usbd_def.h"
 #include "pin.hpp"
 #include "logger.hpp"
 
@@ -11,6 +11,10 @@
 #define USB_PROGRAMER_REBOOT "SB_reboot\n"
 #define USB_PROGRAMER_PROGRAM "SB_enterdfu\n"
 #define USB_PROGRAMER_INFO "SB_info\n"
+
+#ifndef APP_RX_DATA_SIZE
+  #define APP_RX_DATA_SIZE  512
+#endif
 #define USB_PROGRAMER_BUFFER_SIZE APP_RX_DATA_SIZE
 
 namespace stmepic{
