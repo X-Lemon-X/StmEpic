@@ -15,14 +15,25 @@ enum class LOG_LEVEL {
   LOG_LEVEL_ERROR=3
 };
 
+class JsonParse {
+  public:
+  
+  // template<typename T>
+  // [[nodiscard]] JsonParse& AddKeyValue(std::string key, T value){
+  //   if constexpr (std::is_same<T, const char*>::value)
+  //     return key_value_to_json(key,std::string(value));
+  //   else
+  //     return key_value_to_json(key,std::to_string(value));
+  // };
 
+  // [[nodiscard]] std::string get_json() const { return _json; }
+  // private:
+  // std::string _json="{";
+
+  // key_value_to_json
+};
 
 class Logger {
-private:
-  LOG_LEVEL log_level;
-  bool print_info;
-  std::string version;
-  void transmit(std::string msg, std::string prefix);
 public:
   /// @brief  initiate the logger
   /// @param level - log level
@@ -44,6 +55,15 @@ public:
   /// @param as_list - if set to true the function will add the value as a json field with name "key" : { value }
   /// @return std::string - json field
   std::string parse_to_json_format(std::string key, std::string value,bool add_coma=true, bool as_list=false);
+
+ 
+private:
+  LOG_LEVEL log_level;
+  bool print_info;
+  std::string version;
+  void transmit(std::string msg, std::string prefix);
+  std::string key_value_to_json(std::string key, std::string value);
+
 };
 
 }

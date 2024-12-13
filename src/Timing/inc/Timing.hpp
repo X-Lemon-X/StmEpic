@@ -1,6 +1,7 @@
 #include <vector>
 #include <memory>
 #include "stmepic.hpp"
+#include "stmepic_status.hpp"
 
 #ifndef TIMING_HPP
 #define TIMING_HPP
@@ -61,7 +62,8 @@ public:
   Timing(Ticker &ticker);
 
   /// @brief Make a new Timing object and assign function to be called when the timer triggers
-  static std::shared_ptr<Timing> Make(Ticker &ticker, uint32_t period, bool repeat=true,callback_funciton function = nullptr);
+  /// @return Technicaly it always returns OK so no need to check the status for now.
+  static Result<std::shared_ptr<Timing>> Make(Ticker &ticker, uint32_t period, bool repeat=true,callback_funciton function = nullptr);
 
   /// @brief Set the behaviour of the timer
   /// @param period period of the timer in microseconds [us]
@@ -91,7 +93,7 @@ public:
 
   /// @brief Add a timer to the scheduler
   /// @param timer shared pointer to the timer object
-  void add_timer(std::shared_ptr<Timing> timer);
+  [[nodiscard]] Status add_timer(std::shared_ptr<Timing> timer);
 
   /// @brief Handle all timers
   /// @note this function will never leave the loop and only run the timers

@@ -93,6 +93,18 @@ public:
   /// @brief Get the absolute position of the SteperMotor
   /// @return The position in radians
   float get_absolute_position() const override;
+
+  bool device_ok() override;
+
+  Result<bool> device_is_connected() override;
+
+  Result<DeviceStatus> device_get_status() override;
+
+  Status device_reset() override;
+
+  Status device_start() override;
+
+  Status device_stop() override;
 };
 
 }

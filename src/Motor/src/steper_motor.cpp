@@ -1,6 +1,7 @@
 
 #include "steper_motor.hpp"
 #include "stmepic.hpp"
+#include "stmepic_status.hpp"
 #include <cmath>
 #include <cstdint>
 
@@ -139,3 +140,28 @@ void SteperMotorStepDir::set_prescaler(uint32_t prescaler){
 float SteperMotorStepDir::get_gear_ratio() const { 
   return gear_ratio;
 }
+
+bool SteperMotorStepDir::device_ok() {
+  return true;
+}
+
+Result<bool> SteperMotorStepDir::device_is_connected() {
+  return Result<bool>::OK(true);
+}
+
+Result<DeviceStatus> SteperMotorStepDir::device_get_status() {
+  return Result<DeviceStatus>::OK(DeviceStatus::OK);
+}
+
+Status SteperMotorStepDir::device_reset() {
+  return Status::OK();
+}
+
+Status SteperMotorStepDir::device_start() {
+  return Status::OK();
+}
+
+Status SteperMotorStepDir::device_stop() {
+  return Status::OK();
+}
+

@@ -5,16 +5,18 @@ The library is written in C++ and is designed to be used with the code generatio
 
 
 ## Features
-- Included ***ETL*** library for containers and so on [link](https://github.com/ETLCPP/etl). 
+- Included ***ETL*** library for containers and so on [link](https://github.com/ETLCPP/etl).
+- ***Status*** for proper error handling.
 - **GPIO**: control the GPIO pins on the microcontroller.
 - **BOARD_ID**: Can be used to read the unique ID of the microcontroller from hex-encoder.
-- **CAN_CONTROLLER**: read and write data to the CAN handle incoming data with easy to use callbacks.
-- **Encoders**: interface to read data from I2C magnetic encoders.
+- **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
+- **Encoders**: Interface to read data from different types of encoders.
 - **Filters**: set of filters that can be used to filter data.
 - **Logger**:  Log data to the console via USB in json format with usefull fields like current time or software version and so on (debug,info,warning,and error).
-- **Movement**: The library provides a class that can be used to control the movement of different type of engines (stepers for now).
-- **Sensors**: The library provides a set of classes that can be used to read data from different sensors.
-- **Dfu**: The library provides a class that can be used to enable the USB as programing using DFU.
+- **Movement**: Interface that can be used to control different type of engines STEPERS, BLDC, dc and so on. Using the same control algoritms and interfaces.
+- **Timing**:  Interface to add task that run at very specifi fequency (it's not a replacement for RTOS, it's simple if stemnt replacement with proper time handling).
+- **Sensors**: Set of classes that can be used to read data from different sensors.
+- **Dfu**: Class that can be used to enable the USB as programing using DFU [hardware support required].
 
 ## How to add the library to your project
 1. Clone the repository to your project directory.
