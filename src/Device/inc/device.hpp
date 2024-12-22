@@ -6,10 +6,60 @@
 #include "etl/unordered_map.h"
 #include "etl/vector.h"
 
+/**
+ * @file device.hpp
+ * @brief This file contains the MotorBase class definition.
+ */
+
+
+/**
+ * @defgroup Devices
+ * @brief Functions related to device control.
+ * @{
+ */
 
 namespace stmepic {
+/**
+ * @def DEVICE_MAX_DEVICE_COUNT
+ * @brief Maximum number of devices that can be managed.
+ */
 #define DEVICE_MAX_DEVICE_COUNT (uint32_t)32
 
+
+/**
+ * @enum DeviceStatus
+ * @brief Enumeration representing various statuses of a device.
+ * 
+ * @var DeviceStatus::OK
+ * Device is operating normally.
+ * 
+ * @var DeviceStatus::DEVICE_UNKNOWN_ERROR
+ * Device encountered an unknown error.
+ * 
+ * @var DeviceStatus::DEVICE_NOT_IMPLEMENTED
+ * Device functionality is not implemented.
+ * 
+ * @var DeviceStatus::DEVICE_IO_ERROR
+ * Device encountered an I/O error.
+ * 
+ * @var DeviceStatus::DEVICE_NOT_CONNECTED
+ * Device is not connected.
+ * 
+ * @var DeviceStatus::DEVICE_POWEROFF
+ * Device is powered off.
+ * 
+ * @var DeviceStatus::DEVICE_ALL_ERROR
+ * Device encountered all possible errors.
+ * 
+ * @var DeviceStatus::DEVICE_TIMEOUT
+ * Device operation timed out.
+ * 
+ * @var DeviceStatus::DEVICE_HAL_ERROR
+ * Device encountered a HAL error.
+ * 
+ * @var DeviceStatus::DEVICE_HAL_BUSY
+ * Device HAL is busy.
+ */
 enum class DeviceStatus{
   OK = 0,
   DEVICE_UNKNOWN_ERROR = 1,
@@ -22,6 +72,15 @@ enum class DeviceStatus{
   DEVICE_HAL_ERROR = 8,
   DEVICE_HAL_BUSY = 9,
 };
+
+
+/**
+ * @class DeviceBase
+ * @brief Abstract base class for all devices.
+ * 
+ * This class provides the interface for device operations such as checking connection status, 
+ * getting device status, resetting, starting, and stopping the device.
+ */
 
 class DeviceBase {
 public:
@@ -41,6 +100,13 @@ public:
 
 };
 
+
+/**
+ * @class DeviceTranslateStatus
+ * @brief Utility class for translating HAL status to device status and general status.
+ * 
+ * This class provides static methods to translate HAL_StatusTypeDef to DeviceStatus and Status.
+ */
 class DeviceTranslateStatus {
 public:
   DeviceTranslateStatus() = default;
@@ -77,6 +143,15 @@ public:
 };
 
 
+/**
+ * @class DeviceMenager
+ * @brief Template class for managing multiple devices.
+ * 
+ * This class provides methods to add, remove, reset, start, and stop devices. It also supports 
+ * checking if all devices are connected and if all devices are operating normally.
+ * 
+ * @tparam MaxDeviceCount Maximum number of devices that can be managed.
+ */
 template <uint32_t MaxDeviceCount=DEVICE_MAX_DEVICE_COUNT>
 class DeviceMenager {
 public:
@@ -162,3 +237,6 @@ private:
 };
 
 } // namespace stmepic
+
+
+/** @} */ // end of Encoder group
