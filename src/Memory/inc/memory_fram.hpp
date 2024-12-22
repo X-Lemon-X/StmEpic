@@ -16,24 +16,24 @@
 
 namespace stmepic::memory{
 
-/*
-
-  FRAM DATA STRUCTURE
-  the the first bite of the begining byte is MSB for all fields.
-  | Byte Offset | Field Name       | Size (bytes) | Description                        |
-  |-------------|------------------|--------------|------------------------------------|
-  | 0           | Magic Number 1   | 1            | A unique identifier of all data    |
-  | 1           | Checksum         | 2            | A checksum for data integrity      |
-  | 3           | Encryption Res   | 4            | A data used for encryption algo    |
-  | 7           | Data Size        | 2            | The size of the data               |
-  | 9           | Magic Number 2   | 1            | A unique identifier for the data   |
-  | 10          | Data             | N            | The actual data                    |
-  |-------------|------------------|--------------|------------------------------------|
-  |             | Total            | 10+N         | Total size of the data structure   |
-
-  // the actual size of the key used for encryption is 64 bits
-  // however the key used by the user is 32 bits
-*/
+/**
+*
+*  FRAM DATA STRUCTURE
+*  the the first bite of the begining byte is MSB for all fields.
+*  | Byte Offset | Field Name       | Size (bytes) | Description                        |
+*  |-------------|------------------|--------------|------------------------------------|
+*  | 0           | Magic Number 1   | 1            | A unique identifier of all data    |
+*  | 1           | Checksum         | 2            | A checksum for data integrity      |
+*  | 3           | Encryption Res   | 4            | A data used for encryption algo    |
+*  | 7           | Data Size        | 2            | The size of the data               |
+*  | 9           | Magic Number 2   | 1            | A unique identifier for the data   |
+*  | 10          | Data             | N            | The actual data                    |
+*  |-------------|------------------|--------------|------------------------------------|
+*  |             | Total            | 10+N         | Total size of the data structure   |
+*
+*  // the actual size of the key used for encryption is 64 bits
+*  // however the key used by the user is 32 bits
+**/
 /// @brief The fram module to save data to the fram devices
 class FRAM: public DeviceBase{
   public:
