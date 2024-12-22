@@ -21,7 +21,7 @@ public:
 
   /// @brief Check if the encoder is connected. if encoder don't support the connection check it should will return true
   /// @return true if the encoder is connected.
- [[nodiscard]] virtual bool is_connected() const =0;
+//  [[nodiscard]] virtual bool is_connected() const =0;
 
   /// @brief reads the last calculated velocity
   /// @return the velocity in radians per second 

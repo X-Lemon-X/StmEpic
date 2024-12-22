@@ -6,6 +6,17 @@
 
 namespace stmepic
 {
+class Status;
+
+#define STMEPIC_RETURN_ON_ERROR(x) \
+  do{                              \
+    Status _x = x.status();        \
+    if(!_x.ok()) return _x;        \
+  } while(false)
+
+#define STMEPIC_ASSING_OR_RETURN(assign,result) \
+    STMEPIC_RETURN_ON_ERROR(result);            \
+    auto assign = result.valueOrDie();         
 
 enum class StatusCode: char{
   OK = 0,
@@ -26,7 +37,8 @@ enum class StatusCode: char{
   ExpressionValidationError = 41,
   ExecutionError = 42,
   // Continue generic codes.
-  AlreadyExists = 45
+  AlreadyExists = 45,
+  TimeOut = 46
 };
 
 class Status{
@@ -67,21 +79,23 @@ public:
   
   [[nodiscard]] static Status AlreadyExists(const char *msg=nullptr) {return  Status(StatusCode::AlreadyExists,msg);};
 
+  [[nodiscard]] static Status TimeOut(const char *msg=nullptr) {return  Status(StatusCode::TimeOut,msg);};
 
+
+  /// @brief get the status
+  /// @return 0 if OK or some error code
+  [[nodiscard]] StatusCode status_code()  {return _status;};
 
   /// @brief check if the status is OK
   bool ok() {return _status == StatusCode::OK;};
 
-  /// @brief get the status
-  /// @return 0 if OK or some error code
-  [[nodiscard]] StatusCode status()  {return _status;};
+  /// @brief get status from status
+  [[nodiscard]] Status& status() {return *this;};
 
   /// @brief get the message of the status
   [[nodiscard]] const std::string to_string() {
-    if(_message != nullptr)
-      return std::string(_message);
-    else
-      return "";
+    if(_message != nullptr) return std::string(_message);
+    else return "";
   };
 
 private:

@@ -1,11 +1,12 @@
 
 #include "controler_pid.hpp"
+#include "Timing.hpp"
 #include <cmath>
 
 using namespace stmepic;
 
 
-PIDControler::PIDControler(Ticker &ticker): MovementEquation(ticker){
+PIDControler::PIDControler(): MovementEquation(){
   Kp = 0;
   Kd = 0;
   Ki = 0;
@@ -14,7 +15,7 @@ PIDControler::PIDControler(Ticker &ticker): MovementEquation(ticker){
 }
 
 MovementState PIDControler::calculate(MovementState  current_state, MovementState target_state){  
-  const float current_time = ticker.get_seconds();
+  const float current_time = Ticker::get_instance().get_seconds();
   // const float state_velocity = (previous_position-current_position) / (current_time - previous_time);
   float dt = current_time - previous_time;
   previous_time = current_time;

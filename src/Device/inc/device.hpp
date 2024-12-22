@@ -17,7 +17,10 @@ enum class DeviceStatus{
   DEVICE_IO_ERROR = 3,
   DEVICE_NOT_CONNECTED = 4,
   DEVICE_POWEROFF = 5,
-  DEVICE_ALL_ERROR = 6
+  DEVICE_ALL_ERROR = 6,
+  DEVICE_TIMEOUT = 7,
+  DEVICE_HAL_ERROR = 8,
+  DEVICE_HAL_BUSY = 9,
 };
 
 class DeviceBase {
@@ -35,6 +38,42 @@ public:
   [[nodiscard]] virtual Status device_start() = 0;
 
   [[nodiscard]] virtual Status device_stop() = 0;
+
+};
+
+class DeviceTranslateStatus {
+public:
+  DeviceTranslateStatus() = default;
+
+  static DeviceStatus translate_hal_status_to_device(HAL_StatusTypeDef status) {
+    switch (status) {
+    case HAL_OK:
+      return DeviceStatus::OK;
+    case HAL_ERROR:
+      return DeviceStatus::DEVICE_HAL_ERROR;
+    case HAL_BUSY:
+      return DeviceStatus::DEVICE_HAL_BUSY;
+    case HAL_TIMEOUT:
+      return DeviceStatus::DEVICE_TIMEOUT;
+    default:
+      return DeviceStatus::DEVICE_UNKNOWN_ERROR;
+    }
+  }
+
+  static Status translate_hal_status_to_status(HAL_StatusTypeDef status) {
+    switch (status) {
+    case HAL_OK:
+      return Status::OK();
+    case HAL_ERROR:
+      return Status::IOError("HAL error");
+    case HAL_BUSY:
+      return Status::IOError("HAL busy");
+    case HAL_TIMEOUT:
+      return Status::TimeOut("HAL timeout");
+    default:
+      return Status::UnknownError("HAL unknown error");
+    }
+  }
 };
 
 

@@ -27,9 +27,8 @@ private:
   const GpioPin &boot_device;
   uint8_t buffer[USB_PROGRAMER_BUFFER_SIZE];
   std::string usb_programer_info;
-  Logger &logger;
 public:
-  UsbProgramer(const GpioPin &boot_device, Logger &_logger);
+  UsbProgramer(const GpioPin &boot_device);
 
   /// @brief should be called in the main loop to handle the usb programing
   void handler();

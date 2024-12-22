@@ -22,6 +22,7 @@ option(STMEPIC_LOGGER "Enable LOGGER module" ON)
 option(STMEPIC_MOVEMENT "Enable Movement controler module" ON)
 option(STMEPIC_SENSORS "Enable Sensors module" ON)
 option(STMEPIC_DFU_PROGRAMING "Enable Usb programing module" ON)
+option(STMEPIC_MEMORY "Enable Memory module" ON)
 
 
 # Add the core modules
@@ -32,6 +33,7 @@ add_subdirectory(src/Filters)
 add_subdirectory(src/config)
 add_subdirectory(src/Status)
 add_subdirectory(src/Device)
+add_subdirectory(src/Hash)
 add_subdirectory(etl)
 
 
@@ -65,6 +67,11 @@ endif()
 if(STMEPIC_DFU_PROGRAMING)
   add_subdirectory(src/DFU)
 endif()
+
+if(STMEPIC_MEMORY)
+  add_subdirectory(src/Memory)
+endif()
+
 
 
 

@@ -1,6 +1,7 @@
 
 // #include "main.h"
 #include "StmEpic/src/Motor/inc/motor.hpp"
+#include "Timing.hpp"
 #include "stm32f4xx_hal.h"
 #include "movement_controler.hpp"
 #include <cmath>
@@ -8,7 +9,7 @@
 using namespace stmepic;
 
 
-MovementEquation::MovementEquation(Ticker &_ticker): ticker(_ticker){}
+MovementEquation::MovementEquation(){}
 
 MovementControler::MovementControler(){
   initialized = false;
@@ -28,8 +29,7 @@ MovementControler::~MovementControler(){
   }
 }
 
-void MovementControler::init(Ticker &_ticker, MotorBase &_motor, MovementControlMode _control_mode ,MovementEquation &_movement_equation){
-  ticker = &_ticker;
+void MovementControler::init(MotorBase &_motor, MovementControlMode _control_mode ,MovementEquation &_movement_equation){
   motor = &_motor;
   movement_equation = &_movement_equation;
   control_mode = _control_mode;
@@ -37,7 +37,7 @@ void MovementControler::init(Ticker &_ticker, MotorBase &_motor, MovementControl
   current_state.position = motor->get_absolute_position();
   current_state.velocity = motor->get_velocity();
   current_state.torque = motor->get_torque();
-  movement_equation->begin_state(current_state, ticker->get_seconds());
+  movement_equation->begin_state(current_state, Ticker::get_instance().get_seconds());
 }
 
 void MovementControler::handle(){

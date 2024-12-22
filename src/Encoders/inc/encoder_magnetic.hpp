@@ -35,14 +35,12 @@ public:
   /// @brief Initiates the encoder
   /// should be called after all the settings are set  especially the dead zone correction angle if used
   /// @param hi2c the i2c handler that will be used to communicate with the encoder
-  /// @param ticker the ticker that will be used to calculate the velocity
   /// @param filter_angle the filter that will be used to filter the angle, if nullptr the angle will not be filtered
   /// @param filter_velocity the filter that will be used to filter the velocity if nullptr the velocity will not be filtered
   /// @param _reg_to_angle_function sets the function that will be used to translate register data to angle. It have to return the angle in uint16_t and takes the data from two registers first and second.
   ///  the function that will be used to read the angle, and return the angle in uint16_t in binary format for example 0-4095 or 0-16383
   void init(
     I2C_HandleTypeDef &hi2c,
-    Ticker &ticker , 
     traslate_reg_to_angle _reg_to_angle_function,
     filters::FilterBase *filter_angle = nullptr,
     filters::FilterBase *filter_velocity = nullptr 
@@ -50,13 +48,13 @@ public:
 
   /// @brief Pings the encoder to check if it is connected
   /// @return true if the encoder is connected
-  bool ping_encoder();
+  // bool ping_encoder();
 
   /// @brief Check if last request to the encoder was successful if not the encoder is disconnected,
   /// therefor it requires to be used when handle is called regularly, otherwise the return value will be unreliable.
   /// use ping_encoder() if you want to check if the encoder is connected.
   /// @return true if the encoder is connected.
-  [[nodiscard]] bool is_connected() const override;
+  // [[nodiscard]] bool is_connected() const override;
 
 
   /// @brief reads the last calculated velocity
@@ -143,7 +141,6 @@ public:
 
 private:
   I2C_HandleTypeDef *hi2c;
-  Ticker *ticker;
   filters::FilterBase *filter_angle;
   filters::FilterBase *filter_velocity;
   traslate_reg_to_angle reg_to_angle_function;

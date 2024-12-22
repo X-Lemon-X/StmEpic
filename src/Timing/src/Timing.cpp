@@ -1,5 +1,6 @@
 #include "Timing.hpp"
 #include "stmepic_status.hpp"
+#include <cstdint>
 #include <memory>
 #include <string>
 #include "stmepic.hpp"
@@ -14,6 +15,7 @@ uint32_t stmepic::frequency_to_period_us(float frequency){
 Ticker::Ticker(){
   tick_millis = 0;
   tick_micros = 0;
+  timer = nullptr;
 }
 
 void Ticker::irq_update_ticker(){
@@ -21,9 +23,24 @@ void Ticker::irq_update_ticker(){
   tick_micros = tick_millis*1000;
 }
 
+Ticker& Ticker::get_instance(){
+  static Ticker *ticker;
+  if(ticker == nullptr){
+    ticker = new Ticker();
+  }
+  return *ticker;
+}
+
+void Ticker::init(TIM_HandleTypeDef *_timer){
+  timer = _timer;
+  tick_micros = 0;
+  tick_millis = 0;
+}
+
 uint32_t Ticker::get_micros() {
+  if(timer == nullptr) return 0;
   __disable_irq();
-  uint32_t mic =  (uint32_t)TIM10->CNT + tick_micros;
+  uint32_t mic =  (uint32_t)timer->Instance->CNT + tick_micros;
   __enable_irq();
   return mic;
 }
@@ -50,7 +67,7 @@ Timing::Timing(Ticker &_ticker): ticker(_ticker){
   triggered_flag = false;
 }
 
-Result<std::shared_ptr<Timing>> Timing::Make(Ticker &ticker, uint32_t period, bool repeat,void (*function)(Timing&) ){
+Result<std::shared_ptr<Timing>> Timing::Make(uint32_t period, bool repeat,void (*function)(Timing&),Ticker &ticker ){
   auto new_timer = new Timing(ticker);
   new_timer->set_behaviour(period, repeat);
   new_timer->function = function;
@@ -114,4 +131,3 @@ void TimeScheduler::schedules_handle_blocking(){
     schedules_handle_non_blocking();
   }
 }
-

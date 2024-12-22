@@ -2,6 +2,7 @@
 #ifndef LOGER_H
 #define LOGER_H
 
+#include "stmepic_status.hpp"
 #include <string>
 #include <stmepic.hpp>
 
@@ -45,7 +46,9 @@ public:
   /// the logger will add aditional info like time stamp, software version, id of the board log_lvl.
   /// and putt user msg as a separet json field in the main json with name "msg" : { user_msg }
   /// @param _transmi_function - function that will be used to transmit the data on some interface.
-  Logger(LOG_LEVEL level, bool print_info,transmit_data_func _transmi_function, std::string _version="");
+  Logger();
+
+  Status init(LOG_LEVEL level, bool print_info,transmit_data_func _transmi_function, std::string _version="");
 
   void error(std::string msg);
   void warning(std::string msg);
@@ -58,15 +61,34 @@ public:
   /// @param add_coma - if set to true the function will add coma at the end of the json field
   /// @param as_list - if set to true the function will add the value as a json field with name "key" : { value }
   /// @return std::string - json field
-  std::string parse_to_json_format(std::string key, std::string value,bool add_coma=true, bool as_list=false);
+  template<typename T>
+  static std::string parse_to_json_format(std::string key, T value,bool add_coma=true, bool as_list=false){
+    std::string val;
+    if constexpr (std::is_same<T, const char*>::value)
+      val = std::string(value);
+    else if constexpr (std::is_same<T, std::string>::value)
+      val = value;
+    else
+      val = std::to_string(value);
+    
+    if(as_list) return "\""+key+"\": {"+val+"}"+(add_coma?",":"");
+    else return "\""+key+"\":\""+val+"\""+(add_coma?",":"");
+  }
 
- 
+  // static std::string parse_to_json_format(std::string key, std::string value,bool add_coma=true, bool as_list=false);
+
+
+  /// @brief  global logger instance
+  /// @return Logger& - logger instance
+  static Logger& get_instance();
+
 private:
+  static Logger *logger_instance;
   LOG_LEVEL log_level;
   bool print_info;
   std::string version;
   void transmit(std::string msg, std::string prefix);
-  std::string key_value_to_json(std::string key, std::string value);
+  static std::string key_value_to_json(std::string key, std::string value);
   transmit_data_func transmit_function;
 };
 

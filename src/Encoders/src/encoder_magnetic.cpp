@@ -39,17 +39,15 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(){
 
 void EncoderAbsoluteMagnetic::init(
   I2C_HandleTypeDef &hi2c, 
-  Ticker &ticker, 
   traslate_reg_to_angle _reg_to_angle_function,
   filters::FilterBase *filter_angle, 
   filters::FilterBase *filter_velocity)
 {
   if(!this->encoder_enabled) return;
   this->hi2c = &hi2c;
-  this->ticker = &ticker;
   this->filter_angle = filter_angle;
   this->filter_velocity = filter_velocity;
-  this->last_time = ticker.get_seconds();
+  this->last_time = stmepic::Ticker::get_instance().get_seconds();
   this->current_velocity = 0;
   this->over_drive_angle = 0;
   this->reg_to_angle_function = _reg_to_angle_function;
@@ -69,10 +67,10 @@ void EncoderAbsoluteMagnetic::init(
   this->prev_angle_velocity = this->absolute_angle;
 }
 
-bool EncoderAbsoluteMagnetic::ping_encoder(){
-  if(this->encoder_enabled) return false;
-  return HAL_I2C_IsDeviceReady(hi2c, address, 1, 100) == HAL_OK;
-}
+// bool EncoderAbsoluteMagnetic::ping_encoder(){
+//   if(this->encoder_enabled) return false;
+//   return HAL_I2C_IsDeviceReady(hi2c, address, 1, 100) == HAL_OK;
+// }
 
 stmepic::Result<uint16_t> EncoderAbsoluteMagnetic::read_raw_angle(){
   if(!encoder_enabled) return Status::IOError("Encoder is not enabled");
@@ -88,7 +86,7 @@ stmepic::Result<uint16_t> EncoderAbsoluteMagnetic::read_raw_angle(){
 }
 
 float EncoderAbsoluteMagnetic::calculate_velocity(float angle){
-  float current_tiem = ticker->get_seconds();
+  float current_tiem = stmepic::Ticker::get_instance().get_seconds();
   const float dt = current_tiem - last_time;
   float current_velocity = (angle-prev_angle_velocity) / dt;
   last_time = current_tiem;
@@ -153,9 +151,9 @@ float EncoderAbsoluteMagnetic::get_absoulute_angle() const{
   return this->absolute_angle;
 }
 
-bool EncoderAbsoluteMagnetic::is_connected() const{
-  return this->encoder_connected;
-}
+// bool EncoderAbsoluteMagnetic::is_connected() const{
+//   return this->encoder_connected;
+// }
 
 void EncoderAbsoluteMagnetic::set_resolution(uint16_t resolution){
   this->resolution = resolution;
@@ -202,19 +200,20 @@ stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected(){
 }
 
 stmepic::Result<stmepic::DeviceStatus> EncoderAbsoluteMagnetic::device_get_status(){
-  if(encoder_connected) return Result<DeviceStatus>::OK(DeviceStatus::OK);
-  else return Result<DeviceStatus>::OK(DeviceStatus::DEVICE_UNKNOWN_ERROR);
+  if(hi2c == nullptr) return Status::Invalid("I2C is not initialized");
+  auto status = HAL_I2C_IsDeviceReady(hi2c, address, 1, 100);
+  return Result<DeviceStatus>::OK(DeviceTranslateStatus::translate_hal_status_to_device(status));
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_reset(){
-  return Status::NotImplemented("Reset is not implemented");
+  return Status::OK();
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_start(){
-  return Status::NotImplemented("Start is not implemented");
+  return device_get_status().status();
 }
 
 
 stmepic::Status EncoderAbsoluteMagnetic::device_stop(){
-  return Status::NotImplemented("Stop is not implemented");
+  return Status::OK();
 }

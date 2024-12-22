@@ -1,10 +1,11 @@
 #include "controler_linear.hpp"
+#include "Timing.hpp"
 #include <cmath>
 
 using namespace stmepic;
 
 
-BasicLinearPosControler::BasicLinearPosControler(Ticker &ticker): MovementEquation(ticker){
+BasicLinearPosControler::BasicLinearPosControler(): MovementEquation(){
   max_acceleration = 0;
   target_pos_max_error = 0;
   previous_state = MovementState{0,0,0};
@@ -17,7 +18,7 @@ float BasicLinearPosControler::get_sign(float value){
 }
 
 MovementState BasicLinearPosControler::calculate(MovementState current_state, MovementState target_state){  
-  float current_time = ticker.get_seconds();
+  float current_time = Ticker::get_instance().get_seconds();
   float dt = current_time - previous_time;
   previous_time = current_time;
 

@@ -6,12 +6,20 @@
 
 using namespace stmepic;
 
-Logger::Logger(LOG_LEVEL level, bool _print_info,transmit_data_func _transmi_function,  std::string _version): 
-  log_level(level),
-  transmit_function(_transmi_function),
-  print_info(_print_info),
-  version(_version) {
+Logger::Logger(){
+  log_level = LOG_LEVEL::LOG_LEVEL_WARNING;
+  transmit_function = nullptr;
+  print_info = false;
+  version = "";
+}
 
+Status Logger::init(LOG_LEVEL level, bool _print_info,transmit_data_func _transmi_function, std::string _version){
+  if(transmit_function == nullptr) return Status::ExecutionError("Transmit function is nullptr");
+  log_level = level;
+  transmit_function = _transmi_function;
+  print_info = _print_info;
+  version = _version;
+  return Status::OK();
 }
 
 void Logger::error(std::string msg){
@@ -34,7 +42,6 @@ void Logger::debug(std::string msg){
   transmit(msg,"DEBUG");
 }
 
-
 void Logger::transmit(std::string msg,std::string prefix){
   if(print_info){
     msg = 
@@ -48,11 +55,12 @@ void Logger::transmit(std::string msg,std::string prefix){
   if(transmit_function) transmit_function((uint8_t*)msg.c_str(), msg.length());
 }
 
-std::string Logger::parse_to_json_format(std::string key, std::string value,bool add_coma,bool as_list){
-  if(as_list) return "\""+key+"\": {"+value+"}"+(add_coma?",":"");
-  else return "\""+key+"\":\""+value+"\""+(add_coma?",":"");
-}
-
 std::string Logger::key_value_to_json(std::string key, std::string value){
   return "\""+key+"\":\""+value+"\"";
+}
+
+Logger& Logger::get_instance(){
+  static Logger *logger_instance=nullptr;
+  if(logger_instance == nullptr) logger_instance = new Logger();
+  return *logger_instance;
 }

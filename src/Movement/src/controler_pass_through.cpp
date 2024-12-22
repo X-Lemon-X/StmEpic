@@ -3,7 +3,7 @@
 
 namespace stmepic{
 
-  PassThroughControler::PassThroughControler(Ticker &ticker): MovementEquation(ticker){
+  PassThroughControler::PassThroughControler():MovementEquation(){
   }
   
   void PassThroughControler::begin_state(MovementState current_state, float current_time){

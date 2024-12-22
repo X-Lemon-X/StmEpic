@@ -1,10 +1,12 @@
+#pragma once
+
+
 #include <vector>
 #include <memory>
 #include "stmepic.hpp"
 #include "stmepic_status.hpp"
 
-#ifndef TIMING_HPP
-#define TIMING_HPP
+
 
 namespace stmepic
 {
@@ -15,14 +17,20 @@ namespace stmepic
 uint32_t frequency_to_period_us(float frequency);
 
 class Ticker{
-private:
-  uint32_t tick_millis;
-  uint32_t tick_micros;
 public:
 
 
   /// @brief Construct a new Ticker object
   Ticker();
+
+  /// @brief Init the timer object
+  /// @param timer pointer to the timer object which will be used to count the time 
+  /// it't recommended to use 16 or 32 bit timer with 1us resolution
+  /// the interrupt of the timer should be set to run every 1ms
+  /// and timer COUNT register should represent single microsecond 
+  /// COUNT have to be set to 1000 to represent 1ms
+
+  void init(TIM_HandleTypeDef *timer);
 
   /// @brief this function should be executed once in a timer interrupt for each passing 1ms, therefore the frequency of the imer interrupt shoul dbe set to exactly 1ms 
   void irq_update_ticker(); 
@@ -40,7 +48,16 @@ public:
   /// @brief  get time in seconds with microsecond resolution
   /// @return  current time in seconds [s]
   float get_seconds();
+
+  static Ticker& get_instance();
+
+private:
+  uint32_t tick_millis;
+  uint32_t tick_micros;
+  TIM_HandleTypeDef *timer;
+  static Ticker *ticker;
 };
+
   
 class Timing
 {
@@ -63,7 +80,7 @@ public:
 
   /// @brief Make a new Timing object and assign function to be called when the timer triggers
   /// @return Technicaly it always returns OK so no need to check the status for now.
-  static Result<std::shared_ptr<Timing>> Make(Ticker &ticker, uint32_t period, bool repeat=true,callback_funciton function = nullptr);
+  static Result<std::shared_ptr<Timing>> Make(uint32_t period, bool repeat=true,callback_funciton function = nullptr,Ticker &ticker=Ticker::get_instance());
 
   /// @brief Set the behaviour of the timer
   /// @param period period of the timer in microseconds [us]
@@ -108,7 +125,5 @@ private:
   std::vector<std::shared_ptr<Timing>> timers;
 };
 
+
 } // namespace TIMING
-
-
-#endif // TIMING_HPP

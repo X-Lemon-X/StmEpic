@@ -15,7 +15,7 @@ private:
 
   [[nodiscard]] float get_sign(float value);
 public:
-  BasicLinearPosControler(Ticker &ticker);
+  BasicLinearPosControler();
   
   void begin_state(MovementState current_state, float current_time) override;
   [[nodiscard]] MovementState calculate(MovementState current_state, MovementState target_state) override;

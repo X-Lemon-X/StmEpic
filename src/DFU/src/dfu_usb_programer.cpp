@@ -13,7 +13,7 @@ uint8_t usb_programer_buffer[USB_PROGRAMER_BUFFER_SIZE];
 uint32_t usb_programer_buffer_len = 0;
 uint8_t usb_programer_data_recived = 0;
 
-UsbProgramer::UsbProgramer(const GpioPin &_boot_device,Logger &_logger): boot_device(_boot_device),logger(_logger){
+UsbProgramer::UsbProgramer(const GpioPin &_boot_device): boot_device(_boot_device){
   WRITE_GPIO(this->boot_device,GPIO_PIN_RESET);
 }
 
@@ -43,15 +43,15 @@ void UsbProgramer::handler(){
   uint32_t size = usb_programer_buffer_len;
   usb_programer_buffer_len = 0;
   if(strcmp((char*)usb_programer_buffer, USB_PROGRAMER_REBOOT)==0){
-    logger.info("UsbProgramer:Rebooting device");
+    Logger::get_instance().info("UsbProgramer:Rebooting device");
     reset_device();
   }
   else if(strcmp((char*)usb_programer_buffer, USB_PROGRAMER_PROGRAM)==0){
-    logger.info("UsbProgramer: Entering USB-DFU mode");
+    Logger::get_instance().info("UsbProgramer: Entering USB-DFU mode");
     enter_dfu_mode();
   }else if(strcmp((char*)usb_programer_buffer, USB_PROGRAMER_INFO)==0){
     // HAL_Delay(2000);
-    logger.info("UsbProgramer: Sending info");
-    logger.info(std::string(usb_programer_info));
+    Logger::get_instance().info("UsbProgramer: Sending info");
+    Logger::get_instance().info(std::string(usb_programer_info));
   }
 }

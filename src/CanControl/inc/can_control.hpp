@@ -56,14 +56,13 @@ public:
   /// @param ticker  main systeerror ticker object
   /// @param pin_tx_led  pin object for the TX led
   /// @param pin_rx_led  pin object for the RX ledCAN_QUEUE_SIZE
-  void init(CAN_HandleTypeDef &_can_interface,uint32_t _can_fifo,Ticker &_ticker,GpioPin *_pin_tx_led,GpioPin *_pin_rx_led){
+  void init(CAN_HandleTypeDef &_can_interface,uint32_t _can_fifo,GpioPin *_pin_tx_led,GpioPin *_pin_rx_led){
     can_interface = &_can_interface;
     can_fifo = _can_fifo;
-    ticker = &_ticker;
     pin_rx_led = _pin_rx_led;
     pin_tx_led = _pin_tx_led;
-    timing_led_rx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false).valueOrDie();
-    timing_led_tx = Timing::Make(*ticker,CAN_LED_BLINK_PERIOD_US,false).valueOrDie();
+    timing_led_rx = Timing::Make(CAN_LED_BLINK_PERIOD_US,false).valueOrDie();
+    timing_led_tx = Timing::Make(CAN_LED_BLINK_PERIOD_US,false).valueOrDie();
     timing_led_rx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
     timing_led_tx->set_behaviour(CAN_LED_BLINK_PERIOD_US,false);
     add_callback(CAN_DEFAULT_FRAME_ID, base_callback);
@@ -126,7 +125,6 @@ public:
     if(timing_can_task != nullptr) return Result<std::shared_ptr<Timing>>::OK(timing_can_task);
     
     timing_can_task = Timing::Make(
-      *ticker,
       period,
       true,
       handle()
@@ -174,7 +172,6 @@ public:
 private:
   CAN_HandleTypeDef *can_interface;
   uint32_t can_fifo;
-  Ticker *ticker;
   std::shared_ptr<Timing> timing_led_rx;
   std::shared_ptr<Timing> timing_led_tx;
   std::shared_ptr<Timing> timing_can_task;

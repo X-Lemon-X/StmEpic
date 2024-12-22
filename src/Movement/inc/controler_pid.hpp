@@ -11,7 +11,7 @@ private:
   MovementState previous_state;
   float previous_time;
 public:
-  PIDControler(Ticker &ticker);
+  PIDControler();
   
    void begin_state(MovementState current_state, float current_time) override;
   MovementState calculate(MovementState  current_state, MovementState target_state) override;
