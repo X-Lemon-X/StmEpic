@@ -22,7 +22,6 @@
  * @{
  */
 
-/// @brief Algorithms 
 namespace stmepic::algorithm {
   
 /// @brief Generate sha256 from provided data 
