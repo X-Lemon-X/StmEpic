@@ -7,18 +7,32 @@
 #include "encoder.hpp"
 #include "stmepic_status.hpp"
 
-#define VELOCITY_FILTER_SIZE 6
 #define ANGLE_MAX_DEFFERENCE 2.0f // 1 radian
+
+/**
+ * @file encoder_magnetic.hpp
+ * @brief Base classes for typical magnetic encoders.
+ */
+
+/**
+ * @defgroup Encoders
+ * @{
+ */
 
 
 
 namespace stmepic::encoders {
 
-/// @brief translates the register data to angle for AS5600 magnetic encoder 
-/// 
+/// @brief Translates register data to angle for AS5600 magnetic encoder from ams AG
+/// The encdoer are max 16bit and need some bit shifting. This funciton implement the shifting
+/// @param data1 the value of the first register
+/// @param data2 the value of the second register
 uint16_t translate_reg_to_angle_AS5600(uint8_t data1,uint8_t data2);
 
-/// @brief translates the register data to angle for MT6701 magnetic encoder
+/// @brief translates the register data to angle for MT6701 magnetic encoder from MagnTek
+/// The encdoer are max 16bit and need some bit shifting. This funciton implement the shifting
+/// @param data1 the value of the first register
+/// @param data2 the value of the second register
 uint16_t translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2);
 
 
@@ -61,10 +75,13 @@ public:
   /// @return the velocity in radians per second 
   [[nodiscard]] float get_velocity() const override;
 
+  /// @brief reads the last calculated torque
+  /// @return the torque in Nm
+  [[nodiscard]] float get_torque() const override;
+
   /// @brief gets the last calcualted angle with offset and reverse
   /// @return the angle in radians
   [[nodiscard]] float get_angle() const override;
-
 
   /// @brief gets the latest calculated absolute angle 
   /// absoulte angle includes information how many times the encoder has rotated

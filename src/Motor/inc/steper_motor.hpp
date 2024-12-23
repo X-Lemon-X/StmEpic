@@ -7,30 +7,32 @@
 #include "motor.hpp"
 #include "movement_controler.hpp"
 
-namespace stmepic
+/**
+ * @file steper_motor.hpp
+ * @brief Class definition for contorling steper motors.
+ *  
+ */
+
+/**
+ * @defgroup Motor
+ * @{
+ */
+
+namespace stmepic::motor
 {
 
+/**
+ * @class SteperMotorStepDir
+ * @brief Class for controlling the SteperMotor with step and direction control.
+ * 
+ * This class allows to control the SteperMotor with simple control interface like step, direction and pulse
+ * Mostly used with steper motor drivers like A4988, DRV8825, etc.
+ * 
+ */
 class SteperMotorStepDir : public MotorBase {
-private:
-  float radians_to_frequency;
-  float frequency;
-  float angle;
-  TIM_HandleTypeDef &htim;
-  unsigned int timer_channel;
-  const GpioPin &direction_pin;
-  const GpioPin &enable_pin;
-
-  float steps_per_revolution;
-  float gear_ratio;
-  float max_velocity;
-  float min_velocity;
-  bool reverse;
-  bool enable_reversed;
-
-  MovementState current_state;
-
 public:
-  SteperMotorStepDir(TIM_HandleTypeDef &htim, unsigned int timer_channel, const GpioPin &direction_pin, const GpioPin &enable_pin);
+  /// @brief Constructor for the SteperMotorStepDir class
+  SteperMotorStepDir(TIM_HandleTypeDef &htim, unsigned int timer_channel, const gpio::GpioPin &direction_pin, const gpio::GpioPin &enable_pin);
 
   /// @brief Initialize the SteperMotor, calculates all necessary stuff to avoid calculating it over again
   /// after the initialization
@@ -105,6 +107,25 @@ public:
   Status device_start() override;
 
   Status device_stop() override;
+
+private:
+  float radians_to_frequency;
+  float frequency;
+  float angle;
+  TIM_HandleTypeDef &htim;
+  unsigned int timer_channel;
+  const gpio::GpioPin &direction_pin;
+  const gpio::GpioPin &enable_pin;
+
+  float steps_per_revolution;
+  float gear_ratio;
+  float max_velocity;
+  float min_velocity;
+  bool reverse;
+  bool enable_reversed;
+
+  movement::MovementState current_state;
+
 };
 
 }

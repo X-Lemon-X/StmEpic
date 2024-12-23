@@ -5,6 +5,9 @@
 #include <cmath>
 #include <cstdint>
 
+
+using namespace stmepic::motor;
+using namespace stmepic::gpio;
 using namespace stmepic;
 
 #define PIM2 6.28318530717958647692f
@@ -27,9 +30,10 @@ enable_pin(_enable_pin){
   this->min_velocity = 0;
   this->reverse = false;
   this->enable_reversed = false;
-  this->current_state = MovementState{0,0,0};
+  this->current_state = movement::MovementState{0,0,0};
   this->init();
 }
+
 
 
 void SteperMotorStepDir::init(){

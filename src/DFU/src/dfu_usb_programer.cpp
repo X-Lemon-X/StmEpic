@@ -7,13 +7,14 @@
 #include "logger.hpp"
 #include "stmepic.hpp"
 
+using namespace stmepic::dfu;
 using namespace stmepic;
 
 uint8_t usb_programer_buffer[USB_PROGRAMER_BUFFER_SIZE];
 uint32_t usb_programer_buffer_len = 0;
 uint8_t usb_programer_data_recived = 0;
 
-UsbProgramer::UsbProgramer(const GpioPin &_boot_device): boot_device(_boot_device){
+UsbProgramer::UsbProgramer(const gpio::GpioPin &_boot_device): boot_device(_boot_device){
   WRITE_GPIO(this->boot_device,GPIO_PIN_RESET);
 }
 

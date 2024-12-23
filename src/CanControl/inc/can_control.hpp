@@ -1,3 +1,5 @@
+#pragma once
+
 #include "pin.hpp"
 #include "Timing.hpp"
 #include "circular_buffor.hpp"
@@ -11,8 +13,6 @@
 #include <memory> // Add this line
 #include "etl/unordered_map.h"
 
-#ifndef CAN_CONTROL_HPP
-#define CAN_CONTROL_HPP
 
 #ifndef CAN_DATA_FRAME_MAX_SIZE
 #define CAN_DATA_FRAME_MAX_SIZE 8
@@ -56,7 +56,7 @@ public:
   /// @param ticker  main systeerror ticker object
   /// @param pin_tx_led  pin object for the TX led
   /// @param pin_rx_led  pin object for the RX ledCAN_QUEUE_SIZE
-  void init(CAN_HandleTypeDef &_can_interface,uint32_t _can_fifo,GpioPin *_pin_tx_led,GpioPin *_pin_rx_led){
+  void init(CAN_HandleTypeDef &_can_interface,uint32_t _can_fifo,gpio::GpioPin *_pin_tx_led,gpio::GpioPin *_pin_rx_led){
     can_interface = &_can_interface;
     can_fifo = _can_fifo;
     pin_rx_led = _pin_rx_led;
@@ -182,8 +182,8 @@ private:
   // std::unordered_map<uint32_t, void (*)(can_msg&)> callback_map;
   etl::unordered_map<uint32_t, function_pointer, CAN_CALLBACK_LIST_SIZE> callback_map;
 
-  const GpioPin *pin_tx_led;
-  const GpioPin *pin_rx_led;
+  const gpio::GpioPin *pin_tx_led;
+  const gpio::GpioPin *pin_rx_led;
   uint32_t last_tx_mailbox;
 
   uint32_t filter_mask;
@@ -248,4 +248,3 @@ private:
 
 } // namespace CAN_CONTROL
 
-#endif // CAN_CONTROL_HPP

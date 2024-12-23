@@ -10,16 +10,32 @@
 #include "stmepic.hpp"
 
 
+/**
+ * @file sha256.hpp
+ * @brief SHA256 algoritm implementation.
+ */
+
+/**
+ * @defgroup Hash
+ * @brief Hashing algorithms like SHA256 etc.
+ * 
+ * @{
+ */
+
+/// @brief Algorithms 
 namespace stmepic::algorithm {
   
+/// @brief Generate sha256 from provided data 
 class SHA256 {
   public:
+
+  /// @brief The size of the output of the sha256
   static const uint8_t SHA256_OUTPUT_SIZE = 32;
 
   /// @brief SHA256 generate sha256 from provided data 
   /// @param data the data that will be hashed
   /// @param len the size of the data
-  /// @param output the output buffer that will contain the hash with size SHA256_OUTPUT_SIZE
+  /// @param output the output buffer from uint8_t that will contain the hash with size SHA256_OUTPUT_SIZE
   static void sha256(const void *data, uint64_t len, void *output);
 
   private:

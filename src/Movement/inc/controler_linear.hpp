@@ -1,8 +1,34 @@
 #include "movement_controler.hpp"
 
 
-namespace stmepic{
+/**
+ * @file controler_linear.hpp
+ * @brief Basic linear controler for position control.
+ *  
+ */
 
+/**
+ * @defgroup Movement
+ * @{
+ */
+
+/**
+ * @defgroup Movement_Controler Controlers 
+  * Regualtors
+ * @{
+ */
+
+
+
+namespace stmepic::movement{
+
+/**
+ * @class BasicLinearPosControler
+ * @brief Basic linear controler for position control.
+ * 
+ * This class provides functionalities for controlling the movement of the actuator by position.
+ * 
+ */
 class BasicLinearPosControler: public MovementEquation{
 private:
   float max_acceleration;

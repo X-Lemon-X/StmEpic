@@ -1,11 +1,27 @@
-
-#ifndef __PASS_THROUGH_CONTROLER_HPP
-#define __PASS_THROUGH_CONTROLER_HPP
-
+#pragma once
 #include "movement_controler.hpp"
 
-namespace stmepic{
-  /// @brief PassThroughControler is a controler that passes the target velocity to the motor without any modification
+/**
+ * @file controler_pass_through.hpp
+ * @brief Pass thruht control equasion incase of external controler algoritms or when motor actuator have it's own control algoritm.
+ *  
+ */
+
+/**
+ * @defgroup Movement
+ * @{
+ */
+
+
+/**
+ * @defgroup Movement_Controler Controlers 
+ * Regualtors
+ * @{
+ */
+
+namespace stmepic::movement{
+
+  /// @brief PassThroughControler is a controler that passes the target state without any modification.
   class PassThroughControler: public MovementEquation{
   public:
     PassThroughControler();
@@ -13,5 +29,3 @@ namespace stmepic{
     MovementState calculate(MovementState current_state, MovementState target_state) override;
   };
 } // namespace CONTROLER
-
-#endif // __PASS_THROUGH_CONTROLER_HPP

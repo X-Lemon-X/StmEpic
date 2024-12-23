@@ -7,6 +7,8 @@
 #include <cmath>
 
 using namespace stmepic;
+using namespace stmepic::movement;
+using namespace stmepic::gpio;
 
 
 MovementEquation::MovementEquation(){}
@@ -29,7 +31,7 @@ MovementControler::~MovementControler(){
   }
 }
 
-void MovementControler::init(MotorBase &_motor, MovementControlMode _control_mode ,MovementEquation &_movement_equation){
+void MovementControler::init(motor::MotorBase &_motor, MovementControlMode _control_mode ,MovementEquation &_movement_equation){
   motor = &_motor;
   movement_equation = &_movement_equation;
   control_mode = _control_mode;

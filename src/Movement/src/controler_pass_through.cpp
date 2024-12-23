@@ -1,7 +1,8 @@
 #include "controler_pass_through.hpp"
 
-
-namespace stmepic{
+using namespace stmepic;
+using namespace stmepic::movement;
+using namespace stmepic::gpio;
 
   PassThroughControler::PassThroughControler():MovementEquation(){
   }
@@ -13,4 +14,3 @@ namespace stmepic{
   MovementState PassThroughControler::calculate(MovementState current_state, MovementState target_state){
     return target_state;
   }
-} // namespace CONTROLER

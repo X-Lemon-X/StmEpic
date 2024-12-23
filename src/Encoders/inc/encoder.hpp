@@ -1,6 +1,4 @@
-#ifndef ENCODERS_H
-#define ENCODERS_H
-
+#pragma once
 #include "stmepic.hpp"
 #include "Timing.hpp"
 #include "filter.hpp"
@@ -9,25 +7,43 @@
 #define VELOCITY_FILTER_SIZE 6
 #define ANGLE_MAX_DEFFERENCE 2.0f // 1 radian
 
+/**
+ * @file encoder.hpp
+ * @brief Base classes for all encoders.
+ */
+
+/**
+ * @defgroup Encoders
+ * @brief Encoders module for base encoder interface with encoder implementations. 
+ * For reading data from absolute and incremental encoders. 
+ * @{
+ */
 
 
 namespace stmepic::encoders {
 
+/**
+ * @class EncoderBase
+ * @brief Base Interface for all encoders.
+ *
+*/
 class EncoderBase: public DeviceBase {
 public:
   
-  /// @brief Init fucnion of the encoder
+  /// @brief Construct a new Encoder Base object
   EncoderBase() = default;
-
-  /// @brief Check if the encoder is connected. if encoder don't support the connection check it should will return true
-  /// @return true if the encoder is connected.
-//  [[nodiscard]] virtual bool is_connected() const =0;
 
   /// @brief reads the last calculated velocity
   /// @return the velocity in radians per second 
   [[nodiscard]] virtual float get_velocity() const =0;
 
-  /// @brief gets the last calcualted angle with offset and all other corrections. 
+  /// @brief reads the last calculated torque,
+  /// technically the torque is usually not calculated by the encoder but whatever.
+  /// it't easier to write class tha will inherit from some encoder and add torque reading functionality then add another class for torque reading.
+  /// @return the torque in Nm
+  [[nodiscard]] virtual float get_torque() const =0;
+
+  /// @brief gets the last calcualated angle with offset and all other corrections. 
   /// Only single rotation in two directions form -2pi to  0 to 2pi.
   /// @return the angle in radians
   [[nodiscard]] virtual float get_angle() const = 0;
@@ -62,9 +78,5 @@ public:
   virtual void set_enable_encoder(bool enable) = 0;
 };
 
-
-
 }
 
-
-#endif // ENCODERS_H

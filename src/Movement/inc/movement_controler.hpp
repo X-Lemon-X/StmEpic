@@ -13,11 +13,11 @@
 
 /**
  * @defgroup Movement
- * @brief Functions related to wrapers for actuators, control algorithms, and movement control handlers.
+ * @brief Functions wrapers for actuators, control algorithms, encodrs, and movement control handlers for closed/open loop systems.
  * @{
  */
 
-namespace stmepic{
+namespace stmepic::movement{
 
 /**
  * @enum MovementControlMode
@@ -107,7 +107,7 @@ public:
   /// @param encoder_velocity encoder for the velocity of the arm (probablly mounted on the engine shaft), if passed as nullptr the current velocity will be owerriden by the movement equation.
   /// encoder_velocity was added for super precise velocity control when you have two encoders one on the engine and one on the other shaft. However if second encoder is not used it is recommended to pass
   // the pass the same encoder_velocity as the encoder_pos.
-  void init(MotorBase &motor, MovementControlMode control_mode ,MovementEquation &movement_equation);
+  void init(motor::MotorBase &motor, MovementControlMode control_mode ,MovementEquation &movement_equation);
   
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
   void handle();
@@ -168,7 +168,7 @@ public:
   void override_limit_position(bool override);
 
 private:
-  MotorBase *motor;
+  motor::MotorBase *motor;
   MovementEquation *movement_equation;
   MovementControlMode control_mode;
   bool initialized;

@@ -3,6 +3,8 @@
 #include <cmath>
 
 using namespace stmepic;
+using namespace stmepic::movement;
+using namespace stmepic::gpio;
 
 
 BasicLinearPosControler::BasicLinearPosControler(): MovementEquation(){

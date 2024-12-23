@@ -11,7 +11,6 @@ The library is written in C++ and is designed to be used with the code generatio
 
 ## Features
 - **ETL** Included __Embedded Template Library__ library for containers and so on [link](https://github.com/ETLCPP/etl).
-- **BoardId**: Can be used to read the unique ID of the microcontroller from hex-encoder.
 - **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
 - **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
 - **Dfu**: Class that can be used to enable the USB as programing using DFU [hardware support required].

@@ -143,6 +143,10 @@ float EncoderAbsoluteMagnetic::get_velocity() const{
   return this->current_velocity;
 }
 
+float EncoderAbsoluteMagnetic::get_torque() const{
+  return 0;
+}
+
 float EncoderAbsoluteMagnetic::get_angle() const{
   return this->current_angle;
 }

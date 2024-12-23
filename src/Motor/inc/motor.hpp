@@ -6,9 +6,31 @@
 #include "pin.hpp"
 #include "device.hpp"
 
+/**
+ * @file motor.hpp
+ * @brief Base interface class for all Actuators.
+ *  Base interface for all Actuators, provides basic functionalities for controlling the movement of the actuator.
+ */
 
-namespace stmepic
+/**
+ * @defgroup Motor
+ * @brief Motor control interface.
+ * All kind of motors with different control methods combined into single interface.
+ * Control BLDC motors, Stepper motors, DC motors, etc.
+ * @{
+ */
+
+
+namespace stmepic::motor
 {
+
+/**
+ * @class MotorBase
+ * @brief Base interface class for all Actuators.
+ * 
+ * Base interface for all Actuators, provides basic functionalities for controlling the movement of the actuator.
+ * 
+ */
 class MotorBase : public DeviceBase {
 public:
   MotorBase() = default;
@@ -68,19 +90,21 @@ public:
 };
 
 
+/**
+ * @class MotorClosedLoop
+ * @brief Class for controlling the Motor with closed loop control if the motor don't support its own closed loop.
+ * 
+ * This class allows to combine a Motor with 1, 2 or 3 encoders to create a closed loop control for the Actuator.
+ * 
+ */
 class MotorClosedLoop: public MotorBase {
-private:
-  MotorBase &motor;
-  encoders::EncoderBase *encoder_pos;
-  encoders::EncoderBase *encoder_vel;
-
 public:
   /// @brief Constructor for the SteperMotorClosedLoop class taht takes a SteperMotor, and 0 or 1 to 2 encoders
   /// @param steper_motor The SteperMotor that will be controlled
   /// @param encoder_pos The encoder that will be used to get position of the SteperMotor
   /// @param encoder_vel The encoder that will be used to get velocity of the SteperMotor
   /// The same encoder_pos and encoder_vel can be passed if the SteperMotor has only one encoder
-  MotorClosedLoop(MotorBase &_motor, encoders::EncoderBase *_encoder_pos, encoders::EncoderBase *_encoder_vel);
+  MotorClosedLoop(MotorBase &_motor, encoders::EncoderBase *_encoder_pos, encoders::EncoderBase *_encoder_vel, encoders::EncoderBase *_encoder_torque);
 
   void init() override;
 
@@ -121,6 +145,13 @@ public:
   Status device_start() override;
 
   Status device_stop() override;
+
+private:
+  MotorBase &motor;
+  encoders::EncoderBase *encoder_pos;
+  encoders::EncoderBase *encoder_vel;
+  encoders::EncoderBase *encoder_torque;
+
  };
 
 }

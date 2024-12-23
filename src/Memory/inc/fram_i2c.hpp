@@ -7,6 +7,17 @@
 #include <cstdlib>
 #include <vector>
 
+
+/**
+ * @file fram_i2c.hpp
+ * @brief Base interface class for reading and writing data to FRAM ICs sonnected using I2C.
+ */
+
+/**
+ * @defgroup Memory
+ * @{
+ */
+
 namespace stmepic::memory{
 
 
