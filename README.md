@@ -32,7 +32,7 @@ target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  etl::etl)
 The library is designed to be used with the code generation tool STM32CubeMX.
 1. Create a new project in STM32CubeMX.
 2. In the project settings, set generate code as CMakelist.
-3. And include all source files from the library to the project.
+3. Include all source files from the library to the project.
 4. don't forget to have ARM GCC toolchain installed. You can download it from [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) or get docker image to build the project from [here](https://hub.docker.com/repository/docker/xlemonx/arm-gnu-toolchain).
 
 
