@@ -6,7 +6,18 @@
 #include "stmepic.hpp"
 #include "stmepic_status.hpp"
 
+/**
+ * @file Timing.hpp
+ * @brief  Ticker, Timing, and TimeScheduler classes, which provide
+ * functionalities for handling time-based operations.
+ * 
+ */
 
+/**
+ * @defgroup Timing
+ * @brief Functions to control time-based operations.
+ * @{
+ */
 
 namespace stmepic
 {
@@ -49,6 +60,7 @@ public:
   /// @return  current time in seconds [s]
   float get_seconds();
 
+  /// @brief Get the global instance of the Ticker object
   static Ticker& get_instance();
 
 private:
@@ -59,6 +71,17 @@ private:
 };
 
   
+/**
+ * @class Timing
+ * @brief Class for handling time-based operations.
+ * 
+ * This class provides functionalities for handling time-based operations. 
+ * It can be used to create timers that can be trigered after specified period of time.
+ * Most of the time it will be used with TimeScheduler class.
+ * To creat tasksk that run  with a specific frequency. 
+ * For example, to create a task that reads a sensor every 100ms, or blink an LED every 500ms. 
+ */
+
 class Timing
 {
 private:
@@ -101,6 +124,13 @@ public:
   void enable(bool timer_enabled);
 };
 
+/**
+ * @class TimeScheduler
+ * @brief Class for handling multiple timers.
+ * 
+ * This class provides functionalities for handling multiple timers. 
+ * It can be used to add multiple then the class will handle them in the blocking or non-blocking mode.
+ */
 class TimeScheduler
 {
 public:
@@ -127,3 +157,5 @@ private:
 
 
 } // namespace TIMING
+
+/** @} */

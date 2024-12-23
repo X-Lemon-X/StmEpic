@@ -14,7 +14,7 @@
 
 /**
  * @defgroup Devices
- * @brief Functions related to device control.
+ * @brief Functions related to device control. From sensors to actuators.
  * @{
  */
 

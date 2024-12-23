@@ -1,12 +1,23 @@
+#pragma once
 
-#ifndef __NTC_TERMISTORS_HPP
-#define __NTC_TERMISTORS_HPP
+#include "stmepic.hpp"
 
-#define NTC_TERMISTOR_C1 1.009249522e-03f
-#define NTC_TERMISTOR_C2 2.378405444e-04f
-#define NTC_TERMISTOR_C3 2.019202697e-07f
-#define NTC_TERMISTOR_MIN_TEMPERATURE -40.0f
-#define NTC_TERMISTOR_MAX_TEMPERATURE 150.0f
+/**
+ * @file ntc_termistors.hpp
+ * @brief  NtcTermistors class definition for read temperature from NTC termistors. 
+ */
+
+/**
+ * @defgroup Sensors
+ * @brief Functions related to different sensors.
+ * @{
+ */
+
+/**
+ * @defgroup Temperature_Sensors Temperature Sensors
+ * @brief Functions related to temperature sensors.
+ * @{
+ */
 
 namespace stmepic::sensors::NTCTERMISTORS{
 
@@ -22,5 +33,3 @@ public:
 
 } // namespace NTCTERMISOTRS
 
-
-#endif

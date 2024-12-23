@@ -5,6 +5,12 @@
 
 using namespace stmepic::sensors::NTCTERMISTORS;
 
+const static float NTC_TERMISTOR_C1 = 1.009249522e-03f;
+const static float NTC_TERMISTOR_C2 = 2.378405444e-04f;
+const static float NTC_TERMISTOR_C3 = 2.019202697e-07f;
+const static float NTC_TERMISTOR_MIN_TEMPERATURE = -40.0f;
+const static float NTC_TERMISTOR_MAX_TEMPERATURE = 150.0f;
+
 
 NtcTermistors::NtcTermistors(float termistor_supply_voltage,float termistor_divider_resistance):
   termistor_supply_voltage(termistor_supply_voltage),

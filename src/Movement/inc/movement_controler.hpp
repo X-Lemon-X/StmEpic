@@ -1,32 +1,65 @@
-
+#pragma once
 #include "stmepic.hpp"
 #include "Timing.hpp" 
 #include "motor.hpp"
 #include "encoder.hpp"
 
-#ifndef MOVE_CONTROLER_HPP
-#define MOVE_CONTROLER_HPP
+
+/**
+ * @file movement_controler.hpp
+ * @brief class definition which provides functionalities for controlling the movement of actuators.
+ *  
+ */
+
+/**
+ * @defgroup Movement
+ * @brief Functions related to wrapers for actuators, control algorithms, and movement control handlers.
+ * @{
+ */
 
 namespace stmepic{
 
+/**
+ * @enum MovementControlMode
+ * @brief Enumeration representing various modes of movement control.
+ * 
+ * @var MovementControlMode::POSITION
+ * Control the movement by position.
+ * 
+ * @var MovementControlMode::VELOCITY
+ * Control the movement by velocity.
+ * 
+ * @var MovementControlMode::TORQUE
+ * Control the movement by torque.
+ */
 enum class MovementControlMode{
   POSITION,
   VELOCITY,
   TORQUE
 };
 
+/**
+ * @class MovementState
+ * @brief Class representing the state of the actuator.
+ * 
+ * This class provides functionalities for representing the state of the actuator.
+ * 
+ */
 struct MovementState{
   float position;
   float velocity;
   float torque;
 };
 
+/**
+ * @class MovementEquation
+ * @brief Class representing the movement equation.
+ * 
+ * This class provides interfaces for the equasions used to control the behavior of the actuator.
+ * 
+ */
 class MovementEquation{
-protected:  
-  /// @brief  Ticker object for main clock time with microsecond resolution
-  /// you can obatin the current time by calling ticker.get_seconds()
-public:
-  
+public:  
   /// @brief Constructor for the MovementEquation class
   MovementEquation();
 
@@ -49,6 +82,13 @@ public:
   [[nodiscard]] virtual MovementState calculate(MovementState  current_state, MovementState target_state) {return MovementState{0,0,0};};
 };
 
+/**
+ * @class MovementControler
+ * @brief Class representing the movement controler.
+ * 
+ * This class provides functionalities for controlling the movement of actuators.
+ * 
+ */
 class MovementControler{ 
 public:
 
@@ -122,7 +162,7 @@ public:
   /// @return The torque in Nm
   [[nodiscard]] float get_torque() const;
 
-  /// @brief ovveride the limit position by turning off the limit position
+  /// @brief overide the limit position by turning off the limit position
   /// definitely not recommended to make it true for a regular use since it can damage the arm
   /// @param override True to turn off the limit position, false to turn on the limit position
   void override_limit_position(bool override);
@@ -152,7 +192,4 @@ private:
 
 
 
-
-
 } // namespace ENGINE_CONTROLER
-#endif
