@@ -19,7 +19,7 @@ The library is written in C++ and is designed to be used with the code generatio
 - **Motors**: Interface that can be used to control different type of engines STEPERS, BLDC, DC motors. With the same control algoritms and interfaces.
 - **Movement**: Interface that can be used to control different type of engines STEPERS, BLDC, dc and so on. Using the same control algoritms and interfaces.
 - **Sensors**: Set of classes that can be used to read data from different sensors.
-- ***Status*** Return types for proper error return types from functions.
+- **Status** Return types for proper error return types from functions.
 - **Timing**:  Interface to add task that run at very specifi fequency (it's not a replacement for RTOS, it's simple if stemnt replacement with proper time handling).
 
 ## How to add the library to your project
