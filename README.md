@@ -6,17 +6,21 @@ The library is written in C++ and is designed to be used with the code generatio
 
 ## Features
 - Included ***ETL*** library for containers and so on [link](https://github.com/ETLCPP/etl).
-- ***Status*** for proper error handling.
-- **GPIO**: control the GPIO pins on the microcontroller.
-- **BOARD_ID**: Can be used to read the unique ID of the microcontroller from hex-encoder.
+- **BoardId**: Can be used to read the unique ID of the microcontroller from hex-encoder.
 - **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
-- **Encoders**: Interface to read data from different types of encoders.
-- **Filters**: set of filters that can be used to filter data.
-- **Logger**:  Log data to the console via USB in json format with usefull fields like current time or software version and so on (debug,info,warning,and error).
-- **Movement**: Interface that can be used to control different type of engines STEPERS, BLDC, dc and so on. Using the same control algoritms and interfaces.
-- **Timing**:  Interface to add task that run at very specifi fequency (it's not a replacement for RTOS, it's simple if stemnt replacement with proper time handling).
-- **Sensors**: Set of classes that can be used to read data from different sensors.
+- **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
 - **Dfu**: Class that can be used to enable the USB as programing using DFU [hardware support required].
+- **Encoders**: Interface to read data from different types of encoders.
+- **Filters**: Set of filters that can be used to filter data.
+- **Gpio**: Wraper for the GPIO pins on the microcontroller.
+- **Hash**: Hashing algoritms.
+- **Logger**:  Log data to the console via USB in json format with usefull fields like current time or software version and so on (debug,info,warning,and error).
+- **Memory**: Set of classes that can be used to read and write data to FRAM or FLASH memory.
+- **Motors**: Interface that can be used to control different type of engines STEPERS, BLDC, DC motors. With the same control algoritms and interfaces.
+- **Movement**: Interface that can be used to control different type of engines STEPERS, BLDC, dc and so on. Using the same control algoritms and interfaces.
+- **Sensors**: Set of classes that can be used to read data from different sensors.
+- ***Status*** Return types for proper error return types from functions.
+- **Timing**:  Interface to add task that run at very specifi fequency (it's not a replacement for RTOS, it's simple if stemnt replacement with proper time handling).
 
 ## How to add the library to your project
 1. Clone the repository to your project directory.

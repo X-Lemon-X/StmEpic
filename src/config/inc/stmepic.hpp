@@ -1,4 +1,5 @@
-#include "main.h"
+#pragma once
 
+#include "main.h"
 #include "stmepic_status.hpp"
 
