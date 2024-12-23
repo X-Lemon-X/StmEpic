@@ -1,7 +1,7 @@
 # StmEpic library
 This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers. 
-The library provides a set of classes that can be used to quickly combine bunch of sensors and other devices like motors and so on, in a meaningful way that they can work with each other out of the box. 
-The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup. 
+The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos, and comunication protocols, in a meaningful way that they can work with each other out of the box, with litle to none configuration. 
+The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes. 
 
 
 ## Features
@@ -35,4 +35,6 @@ The library is designed to be used with the code generation tool STM32CubeMX.
 3. Include all source files from the library to the project.
 4. don't forget to have ARM GCC toolchain installed. You can download it from [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) or get docker image to build the project from [here](https://hub.docker.com/repository/docker/xlemonx/arm-gnu-toolchain).
 
+## Documentation
+You can find StmEpic documentation on our [website](https://stmepic.nihilia.xyz).
 

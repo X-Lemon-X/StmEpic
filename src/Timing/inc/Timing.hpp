@@ -16,6 +16,7 @@
 /**
  * @defgroup Timing
  * @brief Functions to control time-based operations.
+ * Schedulers, timers, and tickers.
  * @{
  */
 
