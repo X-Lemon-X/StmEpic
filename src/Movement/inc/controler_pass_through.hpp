@@ -15,7 +15,8 @@
 
 /**
  * @defgroup Movement_Controler Controlers 
- * Regualtors
+ * @brief Control algoritms for movement controler like PID etc..
+ * 
  * @{
  */
 

@@ -14,7 +14,6 @@
 
 /**
  * @defgroup Movement_Controler Controlers 
-  * Regualtors
  * @{
  */
 
