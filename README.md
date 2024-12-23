@@ -1,11 +1,16 @@
-# StmEpic library
+
+<p align="center">
+  <img src="https://stmepic.nihilia.xyz/stmepic-high-resolution-logo-transparent.webp" alt="StmEpic Logo" width="40%"/>
+</p>
+
+## StmEpic library
 This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers. 
 The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos, and comunication protocols, in a meaningful way that they can work with each other out of the box, with litle to none configuration. 
 The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes. 
 
 
 ## Features
-- Included ***ETL*** library for containers and so on [link](https://github.com/ETLCPP/etl).
+- **ETL** Included __Embedded Template Library__ library for containers and so on [link](https://github.com/ETLCPP/etl).
 - **BoardId**: Can be used to read the unique ID of the microcontroller from hex-encoder.
 - **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
 - **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
