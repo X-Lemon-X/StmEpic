@@ -29,10 +29,6 @@
  */
 
 
-/**
- * @namespace stmepic::memory
- * @brief Namespace for memory module.
- */
 namespace stmepic::memory{
   /**
   *

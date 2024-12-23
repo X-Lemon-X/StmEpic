@@ -15,36 +15,57 @@
 
 
 #ifndef CAN_DATA_FRAME_MAX_SIZE
-#define CAN_DATA_FRAME_MAX_SIZE 8
+  #define CAN_DATA_FRAME_MAX_SIZE 8
 #endif
 
 #ifndef CAN_QUEUE_SIZE
-#define CAN_QUEUE_SIZE 128
+  #define CAN_QUEUE_SIZE 128
 #endif
 
 #ifndef CAN_LED_BLINK_PERIOD_US
-#define CAN_LED_BLINK_PERIOD_US 1000
+  #define CAN_LED_BLINK_PERIOD_US 1000
 #endif
 
 #define CAN_CONTROL_CAN_CALLBACK_LIST_SIZE_DEFAULT 64
+
+
 namespace stmepic {
 
 constexpr uint32_t CAN_DEFAULT_FRAME_ID = 0x000;
 
-
-struct can_msg{
+/**
+ * @brief CanMsg struct contains the data of the CAN frame
+ * 
+ */
+struct CanMsg{
+public:
+  /// @brief frame_id of the message
   uint32_t frame_id;
+
+  /// @brief remote request flag
   bool remote_request;
+
+  /// @brief data of the message
   uint8_t data[CAN_DATA_FRAME_MAX_SIZE];
+
+  /// @brief size of the data
   uint8_t data_size;
 };
 
+/**
+ * @brief CanControl class for handling the CAN interface
+ * 
+ * @tparam CAN_CALLBACK_LIST_SIZE size of the callback list
+ * 
+ * This class provides functionalities for handling the CAN interface 
+ * with easy to implement callbacks for each frame id.
+ */
 template <uint32_t CAN_CALLBACK_LIST_SIZE= CAN_CONTROL_CAN_CALLBACK_LIST_SIZE_DEFAULT>
 class CanControl{
 public:
-  using function_pointer = void (*)(can_msg &);
-  /// @brief  Construct a new Can Control object
+  using function_pointer = void (*)(CanMsg &);
   
+  /// @brief  Construct a new Can Control object
   CanControl(){
     filter_mask = 0;
     filter_base_id = 0;
@@ -91,7 +112,7 @@ public:
     blink_rx_led();
     if (HAL_CAN_GetRxMessage(can_interface, can_fifo, &header, data) != HAL_OK) return;
     if (((header.StdId & filter_mask) != filter_base_id) && ((header.ExtId & filter_mask) != filter_base_id)) return;
-    can_msg msg;
+    CanMsg msg;
     if(header.IDE == CAN_ID_EXT)
       msg.frame_id = header.ExtId;
     else
@@ -134,14 +155,14 @@ public:
 
   /// @brief  Adds a message to the queue, the messages will be send only when handle is called
   /// @param msg  CAN_MSG to be sent
-  Status send_can_msg_to_queue(can_msg &msg){
+  Status send_can_msg_to_queue(CanMsg &msg){
     return tx_msg_buffor.push_back(msg);
   };
   
   /// @brief  Get the message from the RX buffer
   /// @param msg  pointer to the CAN_MSG object
   /// @return 0 if success
-  // Result<can_msg> get_can_msg_from_queue(){   
+  // Result<CanMsg> get_can_msg_from_queue(){   
   //   __disable_irq();
   //   auto status = rx_msg_buffor.get_front();
   //   if(!status.ok())
@@ -152,8 +173,8 @@ public:
   // };
 
   /// @brief  Send a message to a CAN bus
-  /// @param msg  can_msg to be sent
-  Status send_can_msg(can_msg &msg){
+  /// @param msg  CanMsg to be sent
+  Status send_can_msg(CanMsg &msg){
     if(HAL_CAN_GetTxMailboxesFreeLevel(can_interface)==0) 
       return Status::OutOfMemory("CAN TX buffer is full");
 
@@ -177,9 +198,9 @@ private:
   std::shared_ptr<Timing> timing_can_task;
   uint8_t data[CAN_DATA_FRAME_MAX_SIZE];
   CAN_RxHeaderTypeDef header;
-  // static_circular_buffor<can_msg,CAN_QUEUE_SIZE> rx_msg_buffor;
-  static_circular_buffor<can_msg,CAN_QUEUE_SIZE> tx_msg_buffor;
-  // std::unordered_map<uint32_t, void (*)(can_msg&)> callback_map;
+  // static_circular_buffor<CanMsg,CAN_QUEUE_SIZE> rx_msg_buffor;
+  static_circular_buffor<CanMsg,CAN_QUEUE_SIZE> tx_msg_buffor;
+  // std::unordered_map<uint32_t, void (*)(CanMsg&)> callback_map;
   etl::unordered_map<uint32_t, function_pointer, CAN_CALLBACK_LIST_SIZE> callback_map;
 
   const gpio::GpioPin *pin_tx_led;
@@ -210,7 +231,7 @@ private:
 
   /// @brief  Handle the receive of can messages if callback are used
   // void handle_receive(){
-  //   // can_msg rx_msg;
+  //   // CanMsg rx_msg;
   //   auto meybe_msg = get_can_msg_from_queue();
   //   if(!meybe_msg.ok()) return;
   //   auto rx_msg = meybe_msg.valueOrDie();
@@ -235,11 +256,11 @@ private:
 
   // /// @brief  push a message to the RX buffer
   // /// @param msg  CAN_MSG to be pushed to the buffer
-  // void push_to_queue(can_msg &msg){
+  // void push_to_queue(CanMsg &msg){
   //   (void)rx_msg_buffor.push_back(msg);
   // }
 
-  static void base_callback(can_msg &msg){
+  static void base_callback(CanMsg &msg){
     __NOP();
   };
 

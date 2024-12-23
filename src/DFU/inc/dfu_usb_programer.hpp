@@ -21,7 +21,10 @@
 namespace stmepic::dfu{
 
 
-
+/**
+ * @brief Class for handling the USB programing of the stm32 uC using DFU mode over USB
+ * 
+ */
 class UsbProgramer
 {
 private:

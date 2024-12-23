@@ -28,6 +28,13 @@ namespace stmepic
 /// @param frequency frequency in Hz
 uint32_t frequency_to_period_us(float frequency);
 
+/**
+ * @brief Tick class for time tracking.
+ *
+ * Used as a base Clock for all time-based operations, with 1us resolution.
+ * The Ticer is used globally by multiple classes.
+ * There fore it's important to initalise the static instance of the Ticker class.
+ */
 class Ticker{
 public:
 
@@ -62,6 +69,7 @@ public:
   float get_seconds();
 
   /// @brief Get the global instance of the Ticker object
+  /// This shoule be initated otherwise bunch of other relying classes will not work
   static Ticker& get_instance();
 
 private:

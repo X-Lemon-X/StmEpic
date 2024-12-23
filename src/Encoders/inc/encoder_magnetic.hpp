@@ -35,7 +35,10 @@ uint16_t translate_reg_to_angle_AS5600(uint8_t data1,uint8_t data2);
 /// @param data2 the value of the second register
 uint16_t translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2);
 
-
+/**
+ * @brief Interface for I2C absolute magnetic encoders.
+ * 
+ */
 class EncoderAbsoluteMagnetic: public EncoderBase {
 public:
 

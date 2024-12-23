@@ -17,17 +17,25 @@
  */
 
 
-namespace stmepic::sensors::MCP9700AT
+namespace stmepic::sensors::temperature
 {
-static const float MCP9700AT_V0 = 0.54f;
-static const float MCP9700AT_revTC = 100.0f;
+
 
 /**
   * @brief Get the temperature from the MCP9700AT sensor
   * 
-  * @param adc_value the value read from the ADC
   * @return float the temperature in Celsius
-  */
-float get_temperature(float adc_value);
+*/
+
+class MCP9700AT
+{
+  static const float MCP9700AT_V0;
+  static const float MCP9700AT_revTC;
+  public:
   
+  /// @brief Get the temperature from the MCP9700AT sensor
+  /// @param sensor_voltage the voltage output from the sensor
+  static float get_temperature(float sensor_voltage);
+};
+
 } // namespace MCP9700AT
