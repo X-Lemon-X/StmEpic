@@ -10,11 +10,13 @@ set(UPPER_PROJECT_NAME ${CMAKE_PROJECT_NAME})
 
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(EXPORT_COMPILE_COMMANDS ON)
 
 cmake_policy(SET CMP0076 NEW)
 
+option(STMEPIC_GENERATE_DOCS "Enable documentaion genration" OFF)
 option(STMEPIC_CAN_CONTROLER "Enable CAN Controler" ON)
 option(STMEPIC_ENCODERS "Enable Encoders module" ON)
 option(STMEPIC_LOGGER "Enable LOGGER module" ON)
@@ -69,25 +71,19 @@ if(STMEPIC_MEMORY)
 endif()
 
 
-
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-    # set input and output files
-    # set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
-    # set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-
-    # request to configure the file
-    # configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+if(STMEPIC_GENERATE_DOCS)
+  find_package(Doxygen)
+  if (DOXYGEN_FOUND)
     message("Doxygen build started in: ${CMAKE_CURRENT_SOURCE_DIR}")
-
-    # note the option ALL which allows to build the docs together with the application
     add_custom_target( doc_doxygen ALL
-        COMMAND ${DOXYGEN_EXECUTABLE}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Generating API documentation with Doxygen ${CMAKE_CURRENT_SOURCE_DIR}"
-        VERBATIM )
-else (DOXYGEN_FOUND)
-  message("Doxygen need to be installed to generate the doxygen documentation")
-endif (DOXYGEN_FOUND)
+      COMMAND ${DOXYGEN_EXECUTABLE}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      COMMENT "Generating API documentation with Doxygen ${CMAKE_CURRENT_SOURCE_DIR}"
+      VERBATIM 
+    )
 
+  else (DOXYGEN_FOUND)
+    message("Doxygen need to be installed to generate the doxygen documentation")
+  endif (DOXYGEN_FOUND)
+endif()
 
