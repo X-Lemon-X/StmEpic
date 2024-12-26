@@ -14,9 +14,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Run clang-format
-      run: find src -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
+      run: |
+        pwd
+        clang-format --version
+        xargs --version
+        find src -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
 
     - name: Commit changes
       run: |
