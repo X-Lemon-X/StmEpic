@@ -1,0 +1,25 @@
+name: CI
+
+on: [push]
+
+jobs:
+  clang-format:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install clang-format
+      run: sudo apt-get install -y clang-format
+
+    - name: Run clang-format
+      run: find src -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
+
+    - name: Commit changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add .
+        git commit -m 'Apply clang-format changes' || echo "No changes to commit"
+        git push

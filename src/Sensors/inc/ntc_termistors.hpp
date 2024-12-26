@@ -4,7 +4,7 @@
 
 /**
  * @file ntc_termistors.hpp
- * @brief  NtcTermistors class definition for read temperature from NTC termistors. 
+ * @brief  NtcTermistors class definition for read temperature from NTC termistors.
  */
 
 /**
@@ -19,15 +19,14 @@
  * @{
  */
 
-namespace stmepic::sensors::temperature{
+namespace stmepic::sensors::temperature {
 
 /**
  * @brief Get the temperature from the NTC termistor
  * Like 10k or 100k or any other NTC termistor
  */
 class NtcTermistors {
-public:
-
+  public:
   /**
    * @brief Construct a new NtcTermistors object
    * Vcc |------[R1]----------[NTC]--------------|| GND
@@ -35,13 +34,13 @@ public:
    * @param termistor_supply_voltage the supply voltage of the termistor
    * @param termistor_divider_resistance the resistance of the divider Resistor R1
    */
-  NtcTermistors(float termistor_supply_voltage,float termistor_divider_resistance);
-  float get_temperature(float voltage_value);
+  NtcTermistors (float termistor_supply_voltage, float termistor_divider_resistance);
+  float get_temperature (float voltage_value);
 
-private:
+  private:
   const float termistor_supply_voltage;
   const float termistor_divider_resisitor;
-  
+
   const static float NTC_TERMISTOR_C1;
   const static float NTC_TERMISTOR_C2;
   const static float NTC_TERMISTOR_C3;
@@ -50,5 +49,4 @@ private:
 };
 
 
-} // namespace NTCTERMISOTRS
-
+} // namespace stmepic::sensors::temperature

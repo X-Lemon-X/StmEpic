@@ -1,6 +1,6 @@
 #pragma once
-#include "filter.hpp"
 #include "Timing.hpp"
+#include "filter.hpp"
 #include <deque>
 
 
@@ -15,27 +15,27 @@
  */
 
 
-namespace stmepic::filters{
+namespace stmepic::filters {
 
 /**
  * @class FilterMovingAvarage
  * @brief Moving avarage filter implementation.
- * 
+ *
  * Moving avarage filter implementation.
  * For simple data filtration with super simple setup.
  */
-class FilterMovingAvarage : public FilterBase{
+class FilterMovingAvarage : public FilterBase {
 
-public:
-  FilterMovingAvarage();
-  float calculate(float calculate) override;
-  void set_size(uint16_t size);
-  void set_samples_to_skip(uint16_t sample_amount) override;
-  void set_init_value(float value) override;
+  public:
+  FilterMovingAvarage ();
+  float calculate (float calculate) override;
+  void set_size (uint16_t size);
+  void set_samples_to_skip (uint16_t sample_amount) override;
+  void set_init_value (float value) override;
 
-private:
-  float calculate_moving_avarage(float calculate);
-  
+  private:
+  float calculate_moving_avarage (float calculate);
+
   std::deque<float> samples;
   uint16_t size;
   uint32_t sample_count;
@@ -44,4 +44,4 @@ private:
   float last_value;
 };
 
-} // namespace FILTERS
+} // namespace stmepic::filters

@@ -1,6 +1,6 @@
 #pragma once
-#include "filter.hpp"
 #include "Timing.hpp"
+#include "filter.hpp"
 
 
 /**
@@ -13,32 +13,32 @@
  * @{
  */
 
-namespace stmepic::filters{
+namespace stmepic::filters {
 
 /**
  * @class FilterAlfaBeta
  * @brief Simple alfa beta filter implementation.
- * 
+ *
  * Simple alfa beta filter implementation.
  * For simple data filtration with super simple setup.
  */
-class FilterAlfaBeta: public FilterSampleSkip{
-public:
-  FilterAlfaBeta();
-  
-  float calculate(float x) override;
-  
-  void set_init_value(float value) override;
+class FilterAlfaBeta : public FilterSampleSkip {
+  public:
+  FilterAlfaBeta ();
+
+  float calculate (float x) override;
+
+  void set_init_value (float value) override;
 
   /// @brief Set the alfa value for the filter
   /// @param alfa the alfa value
-  void set_alfa(float alfa);
+  void set_alfa (float alfa);
 
   /// @brief Set the beta value for the filter
   /// @param beta the beta value
-  void set_beta(float beta);
+  void set_beta (float beta);
 
-private:
+  private:
   float alfa;
   float beta;
   float ypri;
@@ -48,4 +48,4 @@ private:
   float prev_time;
 };
 
-} // namespace FILTERS
+} // namespace stmepic::filters

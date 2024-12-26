@@ -109,9 +109,9 @@ class Timing {
   /// @brief Make a new Timing object and assign function to be called when the timer triggers
   /// @return Technicaly it always returns OK so no need to check the status for now.
   static Result<std::shared_ptr<Timing>> Make (uint32_t period,
-  bool repeat                = true,
-  callback_funciton function = nullptr,
-  Ticker& ticker             = Ticker::get_instance ());
+                                               bool repeat                = true,
+                                               callback_funciton function = nullptr,
+                                               Ticker& ticker = Ticker::get_instance ());
 
   /// @brief Set the behaviour of the timer
   /// @param period period of the timer in microseconds [us]

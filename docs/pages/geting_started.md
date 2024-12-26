@@ -1,85 +1,103 @@
 # Getting started
+
 This page will guide you through the process of setting up the project for STM32 microcontrollers with:
-- C++, 
-- Cmake 
-- StmEpic libary 
-- STM32CubeMX code generation tool 
+
+- C++,
+- Cmake
+- StmEpic libary
+- STM32CubeMX code generation tool
 
 ## Requirements
 
 ### Compiler:
+
 Building the project requires GNU Arm Embedded Toolchain to be installed.
-1. Download it from this site [GNU Arm Embedded Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) or directly from this [link](https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz) 
-2. Move the extracted files in some directory for example "$HOME/.local/share/gccarm", 
-3. Add this in your ___.profile___ file 
+
+1. Download it from this site [GNU Arm Embedded Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) or directly from this [link](https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz)
+2. Move the extracted files in some directory for example "$HOME/.local/share/gccarm",
+3. Add this in your **_.profile_** file
+
 ```bash
 # Add the arm-none-aebi to the path
 if [ -d "$HOME/.local/share/gccarm/bin" ]; then
-    PATH="$HOME/.local/share/gccarm/bin:$PATH" 
+    PATH="$HOME/.local/share/gccarm/bin:$PATH"
 fi
 ```
+
 4. restart the pc or run source ~/.profile
 
 ### Software:
+
 1. You will most likely need to install the following packages:
+
 ```bash
-sudo apt-get install -y cmake ninja-build clang ccache build-essential dfu-util stlink-tools python3-pip python3-venv
-``` 
+sudo apt-get install -y cmake ninja-build clang ccache dfu-util stlink-tools python3-pip python3-venv
+```
+
 2. Install StmCubeIDE you can install it from [official site](https://www.st.com/en/development-tools/stm32cubeide.html).
 3. Install StmCubeMX you can install it from [official site](https://www.st.com/en/development-tools/stm32cubemx.html).
 
-
 # How to add the library to your project
+
 1. Clone the repository to your project directory as submodule:
+
 ```bash
 git submodule add https://github.com/X-Lemon-X/StmEpic.git
 ```
+
 2. Add the following line to your CMakeLists.txt file:
+
 ```cmake
 add_subdirectory(StmEpic)
 target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  etl::etl)
 ```
+
 3. Now you can simply include header files.
 
-
 ## How to use the library
+
 The library is designed to be used with the code generation tool STM32CubeMX.
+
 1. Create a new project in STM32CubeMX.
 2. In the project settings, set generate code as CMakelist.
 3. Include all source files from the library to the project.
 4. don't forget to have ARM GCC toolchain installed. You can download it from [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) or get docker image to build the project from [here](https://hub.docker.com/repository/docker/xlemonx/arm-gnu-toolchain).
 
-
-
 # Generating the project from scratch
-We won't go into may details since there is many tutorials on how to use STM32CubeMX.
+
+We won't go into many details since there is many guides on how to use STM32CubeMX.
 In this example we asume that the you project name is the same as the folder where the project is located.
+
 1. Open the StmCubeMX click File->New Project
-2. Select appropriate microcontroller, in this case [for this example] it is ***STM32F446RET***
+2. Select appropriate microcontroller, in this case [for this example] it is **_STM32F446RET_**
 3. Configure the peripherals and their pinout in Pinout & Configuration tab
 4. Clock configuration can be done in Clock Configuration tab
 5. In Project Manager tab set:
-   Toolchain/IDE to ***CMake***
-   Project Name to ***project_name***.
-   Project location to ***The path where you repo is***. 
-   The CubeMX IDE doesn't allow relative paths, so if you set something incorrectly you might have to copy the project ___*.ioc___ file in to the project root directory and open direclty from there.Otherwise the files genrated by CubeMX will we genrated in some other location.
+   Toolchain/IDE to **_CMake_**
+   Project Name to **_project_name_**.
+   Project location to **_The path where you repo is_**.
+   The CubeMX IDE doesn't allow relative paths, so if you set something incorrectly you might have to copy the project **_\*.ioc_** file in to the project root directory and open direclty from there.Otherwise the files genrated by CubeMX will we genrated in some other location.
 6. Save the project and generate the code using the GENERATE CODE button
 7. In you repo folder there should be bunch of new folders and files like:
-``` 
-- CMakeLists.txt 
-- cmake/ 
-- Core/ 
+
+```
+- CMakeLists.txt
+- cmake/
+- Core/
 - Drivers/
 - project_name.ioc
 - startup_stm32xxx.s
 ...
 ```
+
 8. The project is configured to be built with CMake, However the C++ language is not enabled yet
-so We still have to add our libraries and source files to the project.
+   so We still have to add our libraries and source files to the project.
 
 ## Adding C++ support
+
 1. In cmake/stm32cubemx/CMakeLists.txt find main.c and replace it with main.cpp
 2. Create some heder file that will have single function that will be called in the main.cpp file to enter our part of the program. For example:
+
 ```cpp
 //creat file main_prog.hpp with content:
 #pragma once
@@ -91,7 +109,9 @@ void main_prog(){
   // Your code here
 }
 ```
+
 2. in main.cpp add the following code:
+
 ```cpp
 // in include section
 #include "main_prog.hpp"
@@ -100,8 +120,10 @@ void main_prog(){
 // call the function to enter your part of the program
 main_prog();
 ```
-3. Now you can add your source files and libraries to the project. And we don't have to wory witl files generated by CubeMX since they are separated from our code.
-4. Since the StmEpic library requires interface provided by the HAl library. If you generate minimalistic projecty you might not be able to build it, since not all HAL library components are enabled by default. To fix this you have to enable the HAL library in the ***Core/Inc/stm32f4xx_hal_conf.h*** file (or somethin similar). The file should look like this:
+
+3. Now you can add your source files and libraries to the project. Since the generated fiels and outr code is separated We don't have to wory with StmCubeMX messing with our files.
+4. Since the StmEpic library requires interface provided by the HAl library. If you generate minimalistic projecty you might not be able to build it, since not all HAL library components are enabled by default. To fix this you have to enable the HAL library in the **_Core/Inc/stm32f4xx_hal_conf.h_** file (or somethin similar). The file should look like this:
+
 ```c
   /* #define HAL_CRYP_MODULE_ENABLED */
 /* #define HAL_ADC_MODULE_ENABLED */
@@ -124,13 +146,16 @@ main_prog();
 //...
 
 ```
+
 5. Now you should be able to build the project with CMake
+
 ```bash
 cmake -B build -G Ninja
 cmake --build build
 ```
 
 ## Adding source files and libraries in CMakeLists.txt
+
 There are highlihgted section in the CMakeLists.txt file where you can add your source files and libraries.
 
 ```cmake
@@ -208,7 +233,7 @@ add_subdirectory(cmake/stm32cubemx)
 ############################################################################################################
 # Add sources subdirectory and include directories link libriries  [3/4]
 # congigure the project here
-add_subdirectory(src/StmEpic)
+add_subdirectory(StmEpic)
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
@@ -220,7 +245,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
   # Add user defined include paths
   "src"
-  "src/ariadna_constants/can_messages/output"
 )
 
 # Add project symbols (macros)
@@ -257,5 +281,6 @@ endif()
 ```
 
 # Example project using the StmEpic library
+
 - [StmEpic blank example project](https://github.com/KoNarRobotics/embeded_stmepic_base_project)
 - [StmEpic used in drivers for 6dof manipualotor ](https://github.com/KoNarRobotics/konarm_software_low)

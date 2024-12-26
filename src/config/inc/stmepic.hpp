@@ -5,6 +5,4 @@
 
 
 /// @brief stmepic namespace
-namespace stmepic {
-
-}
+namespace stmepic {}

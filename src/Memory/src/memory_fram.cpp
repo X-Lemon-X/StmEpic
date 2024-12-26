@@ -80,7 +80,7 @@ Result<std::vector<uint8_t>> FRAM::decode_data (const std::vector<uint8_t>& data
   encrypted_encres[3] = data[6];
   STMEPIC_ASSING_OR_RETURN (decrypted_encres, decrypt_data (encrypted_encres, encryption_key));
   uint32_t encres = (decrypted_encres[0] << 24) | (decrypted_encres[1] << 16) |
-  (decrypted_encres[2] << 8) | decrypted_encres[3];
+                    (decrypted_encres[2] << 8) | decrypted_encres[3];
   std::string key = std::to_string (encres) + encryption_key;
 
   auto data_data = std::vector<uint8_t> (data.begin () + frame_size, data.end ());
@@ -98,8 +98,7 @@ uint16_t FRAM::calculate_checksum (const std::vector<uint8_t>& data) {
   return checksum;
 }
 
-Result<std::vector<uint8_t>>
-FRAM::encrypt_data (const std::vector<uint8_t>& data, std::string key) {
+Result<std::vector<uint8_t>> FRAM::encrypt_data (const std::vector<uint8_t>& data, std::string key) {
   if (data.size () == 0)
     return Status::CapacityError ("Size of the data is 0");
   if (key == base_encryption_key)
@@ -113,8 +112,7 @@ FRAM::encrypt_data (const std::vector<uint8_t>& data, std::string key) {
   return Result<std::vector<uint8_t>>::OK (encrypted_data);
 }
 
-Result<std::vector<uint8_t>>
-FRAM::decrypt_data (const std::vector<uint8_t>& data, std::string key) {
+Result<std::vector<uint8_t>> FRAM::decrypt_data (const std::vector<uint8_t>& data, std::string key) {
   if (data.size () == 0)
     return Status::CapacityError ("Size of the data is 0");
   if (key == base_encryption_key)
