@@ -4,6 +4,8 @@
 </p>
 
 ## StmEpic library
+![GitHub Actions](https://github.com/X-Lemon-X/StmEpic/actions/workflows/formater.yml/badge.svg)
+
 This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers. 
 The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos, and comunication protocols, in a meaningful way that they can work with each other out of the box, with litle to none configuration. 
 The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes. 
