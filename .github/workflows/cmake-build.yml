@@ -32,3 +32,5 @@ jobs:
         git add .
         git commit -m 'Apply clang-format changes' || echo "No changes to commit"
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
