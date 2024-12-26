@@ -14,10 +14,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Install clang-format
-      run: sudo apt-get install -y clang-format
-
+      
     - name: Run clang-format
       run: find src -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
 
