@@ -21,8 +21,8 @@ class static_circular_buffor {
   public:
   static_assert (buffor_size > 0, "Buffor size must be greater than 0");
 
-  static_circular_buffor () : head (0), tail (0), size (0) {};
-  ~static_circular_buffor () {};
+  static_circular_buffor () : head (0), tail (0), size (0){};
+  ~static_circular_buffor (){};
 
   /// @brief push_back the data to the last element of the buffor
   /// @param data data to be pushed back
