@@ -5,10 +5,15 @@ on: [push]
 jobs:
   clang-format:
     runs-on: self-hosted
+    container:
+      image: xlemonx/arm-gnu-toolchain:13.3.1
+      volumes:
+        - builds:/builds
+      options: --user root
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Install clang-format
       run: sudo apt-get install -y clang-format
