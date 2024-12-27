@@ -31,7 +31,6 @@
 
 namespace stmepic {
 
-constexpr uint32_t CAN_DEFAULT_FRAME_ID = 0x000;
 
 /**
  * @brief CanMsg struct contains the data of the CAN frame
@@ -64,6 +63,8 @@ template <uint32_t CAN_CALLBACK_LIST_SIZE = CAN_CONTROL_CAN_CALLBACK_LIST_SIZE_D
 class CanControl {
   public:
   using function_pointer = void (*) (CanMsg&);
+
+  static const uint32_t CAN_DEFAULT_FRAME_ID = 0x0;
 
   /// @brief  Construct a new Can Control object
   CanControl () {
