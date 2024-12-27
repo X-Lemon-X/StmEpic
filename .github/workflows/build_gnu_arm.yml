@@ -1,0 +1,85 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build-gnu-arm11:
+    runs-on: self-hosted
+    container:
+      image: xlemonx/arm-gnu-toolchain:11.3.1
+      volumes:
+        - builds:/builds
+      options: --user root
+
+    steps:
+      - name: Init environment
+        run: git config --global --add safe.directory "*"
+
+      - name: Pull test repo
+        run: |
+          rm -rf tests_stmepic
+          git clone https://github.com/X-Lemon-X/tests_stmepic.git
+          cd tests_stmepic
+          git submodule update --init --recursive
+
+      - name: Build test repo
+        run: |
+          cd tests_stmepic
+          cmake -B build -G "Ninja" -DCOPY_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-gnu-arm12:
+    runs-on: self-hosted
+    container:
+      image: xlemonx/arm-gnu-toolchain:12.3.1
+      volumes:
+        - builds:/builds
+      options: --user root
+
+    steps:
+      - name: Init environment
+        run: git config --global --add safe.directory "*"
+
+      - name: Pull test repo
+        run: |
+          rm -rf tests_stmepic
+          git clone https://github.com/X-Lemon-X/tests_stmepic.git
+          cd tests_stmepic
+          git submodule update --init --recursive
+
+      - name: Build test repo
+        run: |
+          cd tests_stmepic
+          cmake -B build -G "Ninja" -DCOPY_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-gnu-arm13:
+    runs-on: self-hosted
+    container:
+      image: xlemonx/arm-gnu-toolchain:13.3.1
+      volumes:
+        - builds:/builds
+      options: --user root
+
+    steps:
+      - name: Init environment
+        run: git config --global --add safe.directory "*"
+
+      - name: Pull test repo
+        run: |
+          rm -rf tests_stmepic
+          git clone https://github.com/X-Lemon-X/tests_stmepic.git
+          cd tests_stmepic
+          git submodule update --init --recursive
+
+      - name: Build test repo
+        run: |
+          cd tests_stmepic
+          cmake -B build -G "Ninja" -DCOPY_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
