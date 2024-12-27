@@ -18,6 +18,8 @@ jobs:
       - name: Pull test repo
         run: |
           git clone https://github.com/X-Lemon-X/tests_stmepic.git
+          cd tests_stmepic
+          git submodule update --init --recursive
 
       - name: Build test repo
         run: |
