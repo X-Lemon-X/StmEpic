@@ -4,7 +4,15 @@
 
 ## StmEpic library
 
-![formater](https://github.com/X-Lemon-X/StmEpic/actions/workflows/formater.yml/badge.svg)
+<p align="center">
+  <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/formater.yml/badge.svg?branch=ci" alt="formater"/>
+  <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm13.yml/badge.svg?branch=ci" alt="gnu13"/>
+  <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm12.yml/badge.svg?branch=ci" alt="gnu12"/>
+  <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm11.yml/badge.svg?branch=ci" alt="gnu11"/>
+</p>
+
+![build-gnu-arm11](https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm11.yml/badge.svg?branch=ci)
+![build_gnu_arm12](https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm12.yml/badge.svg?branch=ci)
 
 This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers.
 The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos, and comunication protocols, in a meaningful way that they can work with each other out of the box, with litle to none configuration.

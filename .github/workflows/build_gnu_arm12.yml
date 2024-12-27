@@ -1,5 +1,4 @@
-name: CI
-
+name: gnu-arm12
 on: [push]
 
 jobs:

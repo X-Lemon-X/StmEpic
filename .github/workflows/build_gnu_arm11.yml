@@ -1,4 +1,4 @@
-name: CI
+name: gnu-arm11
 
 on: [push]
 
