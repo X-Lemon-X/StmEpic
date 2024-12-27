@@ -3,7 +3,7 @@ name: CI
 on: [push]
 
 jobs:
-  clang-format:
+  build-gnu-arm13:
     runs-on: self-hosted
     container:
       image: xlemonx/arm-gnu-toolchain:13.3.1
