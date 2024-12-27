@@ -60,13 +60,13 @@ class MovementEquation {
   MovementEquation();
 
   /// @brief  Destructor for the MovementEquation class
-  virtual ~MovementEquation() {};
+  virtual ~MovementEquation(){};
 
   /// @brief initiates the begining state of the controler
   /// @param current_position current position of the arm in radians when the controler is initiated
   /// @param current_velocity current velocity of the arm in radians per second when the controler is initiated
   /// @param current_time current time in seconds when the controler is initiated
-  virtual void begin_state(MovementState current_state, float current_time) {};
+  virtual void begin_state(MovementState current_state, float current_time){};
 
   /// @brief This function should will be called in each pass of the MovementControler::handle() function
   /// @param current_position current position of the arm in radians

@@ -110,7 +110,7 @@ void SHA256::sha256(const void* data, uint64_t len, void* output) {
     for(int j = 16; j < 64; j++) {
       uint32_t s1 = sha256_ror(w[j - 2], 17) ^ sha256_ror(w[j - 2], 19) ^ (w[j - 2] >> 10);
       uint32_t s0 = sha256_ror(w[j - 15], 7) ^ sha256_ror(w[j - 15], 18) ^ (w[j - 15] >> 3);
-      w[j] = s1 + w[j - 7] + s0 + w[j - 16];
+      w[j]        = s1 + w[j - 7] + s0 + w[j - 16];
     }
 
     for(int j = 0; j < 64; j++) {
