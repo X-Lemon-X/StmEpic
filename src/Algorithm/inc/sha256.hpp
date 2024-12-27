@@ -34,13 +34,13 @@ class SHA256 {
   /// @param data the data that will be hashed
   /// @param len the size of the data
   /// @param output the output buffer from uint8_t that will contain the hash with size SHA256_OUTPUT_SIZE
-  static void sha256 (const void* data, uint64_t len, void* output);
+  static void sha256(const void* data, uint64_t len, void* output);
 
   private:
-  static void sha256_endian_reverse64 (uint64_t input, uint8_t* output);
-  static uint32_t sha256_endian_read32 (uint8_t* input);
-  static void sha256_endian_reverse32 (uint32_t input, uint8_t* output);
-  static uint32_t sha256_ror (uint32_t input, uint32_t by);
+  static void sha256_endian_reverse64(uint64_t input, uint8_t* output);
+  static uint32_t sha256_endian_read32(uint8_t* input);
+  static void sha256_endian_reverse32(uint32_t input, uint8_t* output);
+  static uint32_t sha256_ror(uint32_t input, uint32_t by);
 
 
   static const uint32_t sha256_initial_h[8];

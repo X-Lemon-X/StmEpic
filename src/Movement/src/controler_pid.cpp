@@ -8,7 +8,7 @@ using namespace stmepic::movement;
 using namespace stmepic::gpio;
 
 
-PIDControler::PIDControler () : MovementEquation () {
+PIDControler::PIDControler() : MovementEquation() {
   Kp             = 0;
   Kd             = 0;
   Ki             = 0;
@@ -16,8 +16,8 @@ PIDControler::PIDControler () : MovementEquation () {
   previous_time  = 0;
 }
 
-MovementState PIDControler::calculate (MovementState current_state, MovementState target_state) {
-  const float current_time = Ticker::get_instance ().get_seconds ();
+MovementState PIDControler::calculate(MovementState current_state, MovementState target_state) {
+  const float current_time = Ticker::get_instance().get_seconds();
   // const float state_velocity = (previous_position-current_position) / (current_time - previous_time);
   float dt      = current_time - previous_time;
   previous_time = current_time;
@@ -35,7 +35,7 @@ MovementState PIDControler::calculate (MovementState current_state, MovementStat
 }
 
 
-void PIDControler::begin_state (MovementState current_state, float current_time) {
+void PIDControler::begin_state(MovementState current_state, float current_time) {
   previous_state = current_state;
   previous_time  = current_time;
 }

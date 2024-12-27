@@ -55,20 +55,20 @@ namespace stmepic::memory {
 class FRAM : public DeviceBase {
 
   public:
-  FRAM ();
+  FRAM();
   /// @brief Init the FRAM device
-  virtual Status init () = 0;
+  virtual Status init() = 0;
 
   /// @brief Write data to the FRAM device
   /// @param address the address where the data will be written
   /// @param data the data that will be written
   /// @return the status of the write operation
-  virtual Status write (uint32_t address, const std::vector<uint8_t>& data) = 0;
+  virtual Status write(uint32_t address, const std::vector<uint8_t>& data) = 0;
 
   /// @brief Read data from the FRAM device
   /// @param address the address where the data will be read
   /// @return the data that was read or error if the data was not read
-  virtual Result<std::vector<uint8_t>> read (uint32_t address) = 0;
+  virtual Result<std::vector<uint8_t>> read(uint32_t address) = 0;
 
 
   /// @brief Read a struct from the FRAM
@@ -76,16 +76,16 @@ class FRAM : public DeviceBase {
   /// if the struct has pointers or dynamic data it will cause a memory leak if read
   /// @param address the address where the struct will be read from
   /// @return the struct that was read or error if the struct was not read
-  template <typename T> Result<T> readStruct (uint32_t address) {
-    auto mayby_data = read (address);
-    if (!mayby_data.ok ())
-      return mayby_data.status ();
-    auto decoded_data = mayby_data.valueOrDie ();
-    if (decoded_data.size () != sizeof (T))
-      return Status::CapacityError ("Data size is not the same as the struct size");
+  template <typename T> Result<T> readStruct(uint32_t address) {
+    auto mayby_data = read(address);
+    if(!mayby_data.ok())
+      return mayby_data.status();
+    auto decoded_data = mayby_data.valueOrDie();
+    if(decoded_data.size() != sizeof(T))
+      return Status::CapacityError("Data size is not the same as the struct size");
     T data;
-    std::memcpy ((uint8_t*)(&data), decoded_data.data (), sizeof (T));
-    return Result<T>::OK (data);
+    std::memcpy((uint8_t*)(&data), decoded_data.data(), sizeof(T));
+    return Result<T>::OK(data);
   }
 
   /// @brief Write a struct to the FRAM
@@ -93,11 +93,11 @@ class FRAM : public DeviceBase {
   /// if the struct has pointers or dynamic data it will cause a memory leak if read
   /// @param address the address where the struct will be written
   /// @param data the struct that will be written
-  template <typename T> Status writeStruct (uint32_t address, T& data) {
+  template <typename T> Status writeStruct(uint32_t address, T& data) {
     std::vector<uint8_t> data_vec;
-    data_vec.resize (sizeof (T));
-    std::memcpy (data_vec.data (), (uint8_t*)(&data), sizeof (T));
-    return write (address, data_vec);
+    data_vec.resize(sizeof(T));
+    std::memcpy(data_vec.data(), (uint8_t*)(&data), sizeof(T));
+    return write(address, data_vec);
   }
 
   /// @brief Write a vector of structs to the FRAM
@@ -106,17 +106,16 @@ class FRAM : public DeviceBase {
   /// @param address the address where the vector will be written
   /// @param data the vector that will be written
   /// @return the status of the write operation
-  template <typename T>
-  Status writeVector (uint32_t address, const std::vector<T>& data) {
+  template <typename T> Status writeVector(uint32_t address, const std::vector<T>& data) {
     std::vector<uint8_t> data_vec;
-    uint32_t vector_size = (uint32_t)data.size ();
-    STMEPIC_RETURN_ON_ERROR (writeStruct (address, vector_size));
-    address += sizeof (uint32_t) + frame_size;
-    for (auto& d : data) {
-      STMEPIC_RETURN_ON_ERROR (writeStruct (address, d));
-      address += sizeof (T) + frame_size;
+    uint32_t vector_size = (uint32_t)data.size();
+    STMEPIC_RETURN_ON_ERROR(writeStruct(address, vector_size));
+    address += sizeof(uint32_t) + frame_size;
+    for(auto& d : data) {
+      STMEPIC_RETURN_ON_ERROR(writeStruct(address, d));
+      address += sizeof(T) + frame_size;
     }
-    return Status::OK ();
+    return Status::OK();
   }
 
   /// @brief Read a vector of structs from the FRAM
@@ -124,40 +123,40 @@ class FRAM : public DeviceBase {
   /// the vector can be any size and the size of the vector will be read from the FRAM
   /// @param address the address where the vector will be read
   /// @return the vector that was read or error if the vector was not read
-  template <typename T> Result<std::vector<T>> readVector (uint32_t address) {
-    STMEPIC_ASSING_OR_RETURN (size, readStruct<uint32_t> (address));
+  template <typename T> Result<std::vector<T>> readVector(uint32_t address) {
+    STMEPIC_ASSING_OR_RETURN(size, readStruct<uint32_t>(address));
     std::vector<T> data;
-    data.resize (size);
-    address += sizeof (uint32_t) + frame_size;
-    for (size_t i = 0; i < size; i++) {
-      STMEPIC_ASSING_OR_RETURN (str, readStruct<T> (address));
+    data.resize(size);
+    address += sizeof(uint32_t) + frame_size;
+    for(size_t i = 0; i < size; i++) {
+      STMEPIC_ASSING_OR_RETURN(str, readStruct<T>(address));
       data[i] = str;
-      address += sizeof (T) + frame_size;
+      address += sizeof(T) + frame_size;
     }
-    return Result<std::vector<T>>::OK (data);
+    return Result<std::vector<T>>::OK(data);
   }
 
 
   /// @brief Set the encryption key
   /// @param key the key that will be used for encrypting data
-  void set_encryption_key (std::string key);
+  void set_encryption_key(std::string key);
 
   /// @brief Get the encryption key
   /// @return the key that is used for encryption
-  std::string get_encryption_key ();
+  std::string get_encryption_key();
 
   protected:
   /// @brief encodes the data to be written to the FRAM device
   /// @param data the data that will be encoded only Data part of the FRAM data structure
   /// @param key the key that will be used to encode the data
   /// @return the encoded data with additionjal parameters from the FRAM data structure
-  Result<std::vector<uint8_t>> encode_data (const std::vector<uint8_t>& data);
+  Result<std::vector<uint8_t>> encode_data(const std::vector<uint8_t>& data);
 
   /// @brief decodes the data that expects FRAM data structure
   /// @param data the data that will be decoded should be in FRAM data structure format
   /// @param key the key that will be used to decode the data
   /// @return the decoded data only the Data part of the FRAM data structure
-  Result<std::vector<uint8_t>> decode_data (const std::vector<uint8_t>& data);
+  Result<std::vector<uint8_t>> decode_data(const std::vector<uint8_t>& data);
 
   /// @brief the base encryption key if used no encryption will be used
   static const std::string base_encryption_key;
@@ -171,9 +170,9 @@ class FRAM : public DeviceBase {
 
 
   private:
-  uint16_t calculate_checksum (const std::vector<uint8_t>& data);
-  Result<std::vector<uint8_t>> encrypt_data (const std::vector<uint8_t>& data, std::string key);
-  Result<std::vector<uint8_t>> decrypt_data (const std::vector<uint8_t>& data, std::string key);
+  uint16_t calculate_checksum(const std::vector<uint8_t>& data);
+  Result<std::vector<uint8_t>> encrypt_data(const std::vector<uint8_t>& data, std::string key);
+  Result<std::vector<uint8_t>> decrypt_data(const std::vector<uint8_t>& data, std::string key);
   // uint8_t encryption_key[encryption_key_size];
   std::string encryption_key;
 };

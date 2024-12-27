@@ -33,7 +33,7 @@ class MCP9700AT {
   public:
   /// @brief Get the temperature from the MCP9700AT sensor
   /// @param sensor_voltage the voltage output from the sensor
-  static float get_temperature (float sensor_voltage);
+  static float get_temperature(float sensor_voltage);
 };
 
 } // namespace stmepic::sensors::temperature

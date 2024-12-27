@@ -5,7 +5,7 @@
 
 using namespace stmepic::filters;
 
-FilterAlfaBeta::FilterAlfaBeta () {
+FilterAlfaBeta::FilterAlfaBeta() {
   alfa  = 0.2;
   beta  = 0.1;
   ypri  = 0;
@@ -15,9 +15,9 @@ FilterAlfaBeta::FilterAlfaBeta () {
 }
 
 
-float FilterAlfaBeta::calculate (float x) {
-  x          = FilterSampleSkip::calculate (x);
-  float time = Ticker::get_instance ().get_seconds ();
+float FilterAlfaBeta::calculate(float x) {
+  x          = FilterSampleSkip::calculate(x);
+  float time = Ticker::get_instance().get_seconds();
   float dt   = prev_time - time;
   ypri       = ypost + dt * vpost;
   vpri       = vpost;
@@ -27,8 +27,8 @@ float FilterAlfaBeta::calculate (float x) {
   return ypost;
 }
 
-void FilterAlfaBeta::set_init_value (float value) {
-  FilterSampleSkip::set_init_value (value);
+void FilterAlfaBeta::set_init_value(float value) {
+  FilterSampleSkip::set_init_value(value);
   ypri  = value;
   ypost = value;
   vpri  = 0;

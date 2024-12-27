@@ -61,28 +61,28 @@ enum class LOG_LEVEL {
  */
 class Logger {
   public:
-  using transmit_data_func = uint8_t (*) (uint8_t*, uint16_t);
+  using transmit_data_func = uint8_t (*)(uint8_t*, uint16_t);
 
   /// @brief Constructor for the Logger class, However it won't do much until the init function is called.
-  Logger ();
+  Logger();
 
   /// @brief  Initiate the logger with transmit daat interface and log level.
   /// @param level - log level
   /// @param print_info if set to false the loger will simply print log messages with END_OF_LINE sign at the end.
   /// If set to true then the message will be encapsulated as if it were json format with the message as it fields,
-  Status init (LOG_LEVEL level, bool print_info, transmit_data_func _transmi_function, std::string _version = "");
+  Status init(LOG_LEVEL level, bool print_info, transmit_data_func _transmi_function, std::string _version = "");
 
   /// @brief  log the ERROR message
-  void error (std::string msg);
+  void error(std::string msg);
 
   /// @brief  log the WARNING message
-  void warning (std::string msg);
+  void warning(std::string msg);
 
   /// @brief  log the INFO message
-  void info (std::string msg);
+  void info(std::string msg);
 
   /// @brief  log the DEBUG message
-  void debug (std::string msg);
+  void debug(std::string msg);
 
   /// @brief  parse the key value pair to json format
   /// @param key - key of the json field
@@ -92,16 +92,16 @@ class Logger {
   /// @return std::string - json field
   template <typename T>
   static std::string
-  parse_to_json_format (std::string key, T value, bool add_coma = true, bool as_list = false) {
+  parse_to_json_format(std::string key, T value, bool add_coma = true, bool as_list = false) {
     std::string val;
-    if constexpr (std::is_same<T, const char*>::value)
-      val = std::string (value);
-    else if constexpr (std::is_same<T, std::string>::value)
+    if constexpr(std::is_same<T, const char*>::value)
+      val = std::string(value);
+    else if constexpr(std::is_same<T, std::string>::value)
       val = value;
     else
-      val = std::to_string (value);
+      val = std::to_string(value);
 
-    if (as_list)
+    if(as_list)
       return "\"" + key + "\": {" + val + "}" + (add_coma ? "," : "");
     else
       return "\"" + key + "\":\"" + val + "\"" + (add_coma ? "," : "");
@@ -113,15 +113,15 @@ class Logger {
   /// @brief  Get global logger instance
   /// If not initiated the logger won't log anything
   /// @return Logger& - logger instance
-  static Logger& get_instance ();
+  static Logger& get_instance();
 
   private:
   static Logger* logger_instance;
   LOG_LEVEL log_level;
   bool print_info;
   std::string version;
-  void transmit (std::string msg, std::string prefix);
-  static std::string key_value_to_json (std::string key, std::string value);
+  void transmit(std::string msg, std::string prefix);
+  static std::string key_value_to_json(std::string key, std::string value);
   transmit_data_func transmit_function;
 };
 

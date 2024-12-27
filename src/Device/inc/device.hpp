@@ -84,19 +84,19 @@ enum class DeviceStatus {
 
 class DeviceBase {
   public:
-  DeviceBase () = default;
+  DeviceBase() = default;
 
-  [[nodiscard]] virtual Result<bool> device_is_connected () = 0;
+  [[nodiscard]] virtual Result<bool> device_is_connected() = 0;
 
-  [[nodiscard]] virtual bool device_ok () = 0;
+  [[nodiscard]] virtual bool device_ok() = 0;
 
-  [[nodiscard]] virtual Result<DeviceStatus> device_get_status () = 0;
+  [[nodiscard]] virtual Result<DeviceStatus> device_get_status() = 0;
 
-  [[nodiscard]] virtual Status device_reset () = 0;
+  [[nodiscard]] virtual Status device_reset() = 0;
 
-  [[nodiscard]] virtual Status device_start () = 0;
+  [[nodiscard]] virtual Status device_start() = 0;
 
-  [[nodiscard]] virtual Status device_stop () = 0;
+  [[nodiscard]] virtual Status device_stop() = 0;
 };
 
 
@@ -108,10 +108,10 @@ class DeviceBase {
  */
 class DeviceTranslateStatus {
   public:
-  DeviceTranslateStatus () = default;
+  DeviceTranslateStatus() = default;
 
-  static DeviceStatus translate_hal_status_to_device (HAL_StatusTypeDef status) {
-    switch (status) {
+  static DeviceStatus translate_hal_status_to_device(HAL_StatusTypeDef status) {
+    switch(status) {
     case HAL_OK: return DeviceStatus::OK;
     case HAL_ERROR: return DeviceStatus::DEVICE_HAL_ERROR;
     case HAL_BUSY: return DeviceStatus::DEVICE_HAL_BUSY;
@@ -120,13 +120,13 @@ class DeviceTranslateStatus {
     }
   }
 
-  static Status translate_hal_status_to_status (HAL_StatusTypeDef status) {
-    switch (status) {
-    case HAL_OK: return Status::OK ();
-    case HAL_ERROR: return Status::IOError ("HAL error");
-    case HAL_BUSY: return Status::IOError ("HAL busy");
-    case HAL_TIMEOUT: return Status::TimeOut ("HAL timeout");
-    default: return Status::UnknownError ("HAL unknown error");
+  static Status translate_hal_status_to_status(HAL_StatusTypeDef status) {
+    switch(status) {
+    case HAL_OK: return Status::OK();
+    case HAL_ERROR: return Status::IOError("HAL error");
+    case HAL_BUSY: return Status::IOError("HAL busy");
+    case HAL_TIMEOUT: return Status::TimeOut("HAL timeout");
+    default: return Status::UnknownError("HAL unknown error");
     }
   }
 };
@@ -143,84 +143,84 @@ class DeviceTranslateStatus {
  */
 template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager {
   public:
-  using device_status_callback = void (*) (DeviceBase*, DeviceStatus);
+  using device_status_callback = void (*)(DeviceBase*, DeviceStatus);
 
-  DeviceMenager () = default;
+  DeviceMenager() = default;
 
-  Status add_device (DeviceBase* device) {
-    if (etl::find (devices.begin (), devices.end (), device) != devices.end ()) {
-      return Status::AlreadyExists ();
+  Status add_device(DeviceBase* device) {
+    if(etl::find(devices.begin(), devices.end(), device) != devices.end()) {
+      return Status::AlreadyExists();
     }
-    devices.push_back (device);
-    return Status::OK ();
+    devices.push_back(device);
+    return Status::OK();
   }
 
-  Status remove_device (DeviceBase* device) {
-    auto dev = etl::find (devices.begin (), devices.end (), device);
-    if (dev == devices.end ()) {
-      return Status::KeyError ();
+  Status remove_device(DeviceBase* device) {
+    auto dev = etl::find(devices.begin(), devices.end(), device);
+    if(dev == devices.end()) {
+      return Status::KeyError();
     }
-    (void)remove_callback (device);
-    devices.erase (dev);
-    return Status::OK ();
+    (void)remove_callback(device);
+    devices.erase(dev);
+    return Status::OK();
   }
 
-  Status reset_all () {
+  Status reset_all() {
     Status status;
-    for (auto& device : devices) {
-      status = device->device_reset ();
-      if (!status.ok ())
+    for(auto& device : devices) {
+      status = device->device_reset();
+      if(!status.ok())
         return status;
     }
   };
 
-  Status start_all () {
+  Status start_all() {
     Status status;
     ;
-    for (auto& device : devices) {
-      status = device->device_start ();
-      if (status.ok ())
+    for(auto& device : devices) {
+      status = device->device_start();
+      if(status.ok())
         return status;
     };
   };
 
-  Status stop_all () {
+  Status stop_all() {
     Status status;
-    for (auto& device : devices) {
-      status = device->device_stop ();
-      if (status.ok ())
+    for(auto& device : devices) {
+      status = device->device_stop();
+      if(status.ok())
         return status;
     };
   };
 
-  void add_callback (DeviceBase* device, device_status_callback callback) {
-    add_device (device);
+  void add_callback(DeviceBase* device, device_status_callback callback) {
+    add_device(device);
     device_callbacks[device] = callback;
   }
 
-  Status remove_callback (DeviceBase* device) {
-    auto devcall = device_callbacks.find (device);
-    if (devcall != device_callbacks.end ()) {
-      device_callbacks.erase (devcall);
-      return Status::OK ();
+  Status remove_callback(DeviceBase* device) {
+    auto devcall = device_callbacks.find(device);
+    if(devcall != device_callbacks.end()) {
+      device_callbacks.erase(devcall);
+      return Status::OK();
     }
-    return Status::KeyError ();
+    return Status::KeyError();
   }
 
-  [[nodiscard]] Result<bool> is_all_connected () {
-    for (auto& device : devices) {
-      auto result = device->device_is_connected ();
-      if (!result.ok ())
+  [[nodiscard]] Result<bool> is_all_connected() {
+    for(auto& device : devices) {
+      auto result = device->device_is_connected();
+      if(!result.ok())
         return result;
-      if (!result.valueOrDie ())
-        return Result<bool>::OK (false);
+      if(!result.valueOrDie())
+        return Result<bool>::OK(false);
     }
-    return Result<bool>::OK (true);
+    return Result<bool>::OK(true);
   }
 
-  [[nodiscard]] bool is_all_ok () {
-    for (auto& device : devices) {
-      if (!device->device_ok ())
+  [[nodiscard]] bool is_all_ok() {
+    for(auto& device : devices) {
+      if(!device->device_ok())
         return false;
     }
     return true;

@@ -34,8 +34,8 @@ class NtcTermistors {
    * @param termistor_supply_voltage the supply voltage of the termistor
    * @param termistor_divider_resistance the resistance of the divider Resistor R1
    */
-  NtcTermistors (float termistor_supply_voltage, float termistor_divider_resistance);
-  float get_temperature (float voltage_value);
+  NtcTermistors(float termistor_supply_voltage, float termistor_divider_resistance);
+  float get_temperature(float voltage_value);
 
   private:
   const float termistor_supply_voltage;

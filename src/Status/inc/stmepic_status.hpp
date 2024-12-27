@@ -28,10 +28,10 @@ class Status;
  */
 #define STMEPIC_RETURN_ON_ERROR(x) \
   do {                             \
-    Status _x = x.status ();       \
-    if (!_x.ok ())                 \
+    Status _x = x.status();        \
+    if(!_x.ok())                   \
       return _x;                   \
-  } while (false)
+  } while(false)
 
 /**
  * @brief  Macro for assigning a value from a result and returning on error in a single line.
@@ -39,8 +39,8 @@ class Status;
  * This macro is used to assign a value from a result and return from a function if the result is not OK.
  */
 #define STMEPIC_ASSING_OR_RETURN(assign, result) \
-  STMEPIC_RETURN_ON_ERROR (result);              \
-  auto assign = result.valueOrDie ();
+  STMEPIC_RETURN_ON_ERROR(result);               \
+  auto assign = result.valueOrDie();
 
 /**
  * @enum StatusCode
@@ -132,108 +132,107 @@ enum class StatusCode : char {
  */
 class Status {
   public:
-  Status (Status& status) = default;
+  Status(Status& status) = default;
 
-  [[nodiscard]] static Status OK () {
-    return Status (StatusCode::OK, nullptr);
+  [[nodiscard]] static Status OK() {
+    return Status(StatusCode::OK, nullptr);
   };
 
-  [[nodiscard]] static Status OutOfMemory (const char* msg = nullptr) {
-    return Status (StatusCode::OutOfMemory, msg);
+  [[nodiscard]] static Status OutOfMemory(const char* msg = nullptr) {
+    return Status(StatusCode::OutOfMemory, msg);
   };
 
-  [[nodiscard]] static Status KeyError (const char* msg = nullptr) {
-    return Status (StatusCode::KeyError, msg);
+  [[nodiscard]] static Status KeyError(const char* msg = nullptr) {
+    return Status(StatusCode::KeyError, msg);
   };
 
-  [[nodiscard]] static Status TypeError (const char* msg = nullptr) {
-    return Status (StatusCode::TypeError, msg);
+  [[nodiscard]] static Status TypeError(const char* msg = nullptr) {
+    return Status(StatusCode::TypeError, msg);
   };
 
-  [[nodiscard]] static Status Invalid (const char* msg = nullptr) {
-    return Status (StatusCode::Invalid, msg);
+  [[nodiscard]] static Status Invalid(const char* msg = nullptr) {
+    return Status(StatusCode::Invalid, msg);
   };
 
-  [[nodiscard]] static Status IOError (const char* msg = nullptr) {
-    return Status (StatusCode::IOError, msg);
+  [[nodiscard]] static Status IOError(const char* msg = nullptr) {
+    return Status(StatusCode::IOError, msg);
   };
 
-  [[nodiscard]] static Status CapacityError (const char* msg = nullptr) {
-    return Status (StatusCode::CapacityError, msg);
+  [[nodiscard]] static Status CapacityError(const char* msg = nullptr) {
+    return Status(StatusCode::CapacityError, msg);
   };
 
-  [[nodiscard]] static Status IndexError (const char* msg = nullptr) {
-    return Status (StatusCode::IndexError, msg);
+  [[nodiscard]] static Status IndexError(const char* msg = nullptr) {
+    return Status(StatusCode::IndexError, msg);
   };
 
-  [[nodiscard]] static Status Cancelled (const char* msg = nullptr) {
-    return Status (StatusCode::Cancelled, msg);
+  [[nodiscard]] static Status Cancelled(const char* msg = nullptr) {
+    return Status(StatusCode::Cancelled, msg);
   };
 
-  [[nodiscard]] static Status UnknownError (const char* msg = nullptr) {
-    return Status (StatusCode::UnknownError, msg);
+  [[nodiscard]] static Status UnknownError(const char* msg = nullptr) {
+    return Status(StatusCode::UnknownError, msg);
   };
 
-  [[nodiscard]] static Status NotImplemented (const char* msg = nullptr) {
-    return Status (StatusCode::NotImplemented, msg);
+  [[nodiscard]] static Status NotImplemented(const char* msg = nullptr) {
+    return Status(StatusCode::NotImplemented, msg);
   };
 
-  [[nodiscard]] static Status SerializationError (const char* msg = nullptr) {
-    return Status (StatusCode::SerializationError, msg);
+  [[nodiscard]] static Status SerializationError(const char* msg = nullptr) {
+    return Status(StatusCode::SerializationError, msg);
   };
 
-  [[nodiscard]] static Status RError (const char* msg = nullptr) {
-    return Status (StatusCode::RError, msg);
+  [[nodiscard]] static Status RError(const char* msg = nullptr) {
+    return Status(StatusCode::RError, msg);
   };
 
-  [[nodiscard]] static Status CodeGenError (const char* msg = nullptr) {
-    return Status (StatusCode::CodeGenError, msg);
+  [[nodiscard]] static Status CodeGenError(const char* msg = nullptr) {
+    return Status(StatusCode::CodeGenError, msg);
   };
 
-  [[nodiscard]] static Status ExpressionValidationError (const char* msg = nullptr) {
-    return Status (StatusCode::ExpressionValidationError, msg);
+  [[nodiscard]] static Status ExpressionValidationError(const char* msg = nullptr) {
+    return Status(StatusCode::ExpressionValidationError, msg);
   };
 
-  [[nodiscard]] static Status ExecutionError (const char* msg = nullptr) {
-    return Status (StatusCode::ExecutionError, msg);
+  [[nodiscard]] static Status ExecutionError(const char* msg = nullptr) {
+    return Status(StatusCode::ExecutionError, msg);
   };
 
-  [[nodiscard]] static Status AlreadyExists (const char* msg = nullptr) {
-    return Status (StatusCode::AlreadyExists, msg);
+  [[nodiscard]] static Status AlreadyExists(const char* msg = nullptr) {
+    return Status(StatusCode::AlreadyExists, msg);
   };
 
-  [[nodiscard]] static Status TimeOut (const char* msg = nullptr) {
-    return Status (StatusCode::TimeOut, msg);
+  [[nodiscard]] static Status TimeOut(const char* msg = nullptr) {
+    return Status(StatusCode::TimeOut, msg);
   };
 
 
   /// @brief get the status
   /// @return 0 if OK or some error code
-  [[nodiscard]] StatusCode status_code () {
+  [[nodiscard]] StatusCode status_code() {
     return _status;
   };
 
   /// @brief check if the status is OK
-  bool ok () {
+  bool ok() {
     return _status == StatusCode::OK;
   };
 
   /// @brief get status from status
-  [[nodiscard]] Status& status () {
+  [[nodiscard]] Status& status() {
     return *this;
   };
 
   /// @brief get the message of the status
-  [[nodiscard]] const std::string to_string () {
-    if (_message != nullptr)
-      return std::string (_message);
+  [[nodiscard]] const std::string to_string() {
+    if(_message != nullptr)
+      return std::string(_message);
     else
       return "";
   };
 
   private:
-  Status (StatusCode status, const char* message)
-  : _status (status), _message (message){};
+  Status(StatusCode status, const char* message) : _status(status), _message(message) {};
   StatusCode _status;
   const char* _message;
 };
@@ -248,31 +247,31 @@ class Status {
 template <typename T> struct Result {
   public:
   /// @brief Create a new Result from status for clean return from functions when error occurs.
-  Result (Status status) : _status (status){};
+  Result(Status status) : _status(status) {};
 
   /// @brief Return a new Result with value and status OK.
-  static auto OK (T value) -> Result<T> {
-    return Result<T> (value, Status::OK ());
+  static auto OK(T value) -> Result<T> {
+    return Result<T>(value, Status::OK());
   }
 
   /// @brief Get the value of the result or weard error if the status is not OK.
   /// You should check if the status is ok before calling this function.
-  [[nodiscard]] auto valueOrDie () -> T& {
+  [[nodiscard]] auto valueOrDie() -> T& {
     return _value;
   }
 
   /// @brief Get the status of the result.
-  [[nodiscard]] Status& status () {
+  [[nodiscard]] Status& status() {
     return _status;
   }
 
   /// @brief Check if the status is OK.
-  [[nodiscard]] bool ok () {
-    return _status.ok ();
+  [[nodiscard]] bool ok() {
+    return _status.ok();
   }
 
   private:
-  Result (T value, Status status) : _value (value), _status (status){};
+  Result(T value, Status status) : _value(value), _status(status) {};
   T _value;
   Status _status;
 };

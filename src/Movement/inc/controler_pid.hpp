@@ -36,16 +36,16 @@ class PIDControler : public MovementEquation {
   float previous_time;
 
   public:
-  PIDControler ();
+  PIDControler();
 
-  void begin_state (MovementState current_state, float current_time) override;
-  MovementState calculate (MovementState current_state, MovementState target_state) override;
+  void begin_state(MovementState current_state, float current_time) override;
+  MovementState calculate(MovementState current_state, MovementState target_state) override;
 
   /**
    * @brief Set the Kp value for the PID controler
    * @param Kp Kp value
    */
-  void set_Kp (float Kp) {
+  void set_Kp(float Kp) {
     this->Kp = Kp;
   };
 
@@ -53,7 +53,7 @@ class PIDControler : public MovementEquation {
    * @brief Set the Kd value for the PID controler
    * @param Kd Kd value
    */
-  void set_Kd (float Kd) {
+  void set_Kd(float Kd) {
     this->Kd = Kd;
   };
 
@@ -61,7 +61,7 @@ class PIDControler : public MovementEquation {
    * @brief Set the Ki value for the PID controler
    * @param Ki Ki value
    */
-  void set_Ki (float Ki) {
+  void set_Ki(float Ki) {
     this->Ki = Ki;
   };
 };

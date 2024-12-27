@@ -24,19 +24,19 @@ namespace stmepic::filters {
  */
 class FilterAlfaBeta : public FilterSampleSkip {
   public:
-  FilterAlfaBeta ();
+  FilterAlfaBeta();
 
-  float calculate (float x) override;
+  float calculate(float x) override;
 
-  void set_init_value (float value) override;
+  void set_init_value(float value) override;
 
   /// @brief Set the alfa value for the filter
   /// @param alfa the alfa value
-  void set_alfa (float alfa);
+  void set_alfa(float alfa);
 
   /// @brief Set the beta value for the filter
   /// @param beta the beta value
-  void set_beta (float beta);
+  void set_beta(float beta);
 
   private:
   float alfa;

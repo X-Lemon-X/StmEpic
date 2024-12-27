@@ -31,84 +31,84 @@ namespace stmepic::motor {
 class SteperMotorStepDir : public MotorBase {
   public:
   /// @brief Constructor for the SteperMotorStepDir class
-  SteperMotorStepDir (TIM_HandleTypeDef& htim,
-                      unsigned int timer_channel,
-                      const gpio::GpioPin& direction_pin,
-                      const gpio::GpioPin& enable_pin);
+  SteperMotorStepDir(TIM_HandleTypeDef& htim,
+                     unsigned int timer_channel,
+                     const gpio::GpioPin& direction_pin,
+                     const gpio::GpioPin& enable_pin);
 
   /// @brief Initialize the SteperMotor, calculates all necessary stuff to avoid
   /// calculating it over again after the initialization
-  void init () override;
+  void init() override;
 
   /// @brief Set the current speed of the SteperMotor
   /// @param speed The speed in radians per second, can be negative or positive to change the direction
-  void set_velocity (float speed) override;
+  void set_velocity(float speed) override;
 
   /// @brief Set the current torque of the SteperMotor
   /// @param torque The torque in Nm, can be negative or positive to change the direction
-  void set_torque (float torque) override;
+  void set_torque(float torque) override;
 
   /// @brief Set the current position of the SteperMotor
   /// @param position The position in radians
-  void set_position (float position) override;
+  void set_position(float position) override;
 
   /// @brief enable or disable the SteperMotor, can be used as a break
   /// @param enable True to enable the SteperMotor, false to disable it
-  void set_enable (bool enable) override;
+  void set_enable(bool enable) override;
 
   /// @brief Set the steps per revolution of the SteperMotor
-  void set_steps_per_revolution (float steps_per_revolution);
+  void set_steps_per_revolution(float steps_per_revolution);
 
   /// @brief Set the gear ratio of the SteperMotor
-  void set_gear_ratio (float gear_ratio) override;
+  void set_gear_ratio(float gear_ratio) override;
 
   /// @brief Set the max velocity of the SteperMotor
-  void set_max_velocity (float max_velocity) override;
+  void set_max_velocity(float max_velocity) override;
 
   /// @brief Set the min velocity of the SteperMotor
-  void set_min_velocity (float min_velocity) override;
+  void set_min_velocity(float min_velocity) override;
 
   /// @brief Set the reverse of the SteperMotor
-  void set_reverse (bool reverse) override;
+  void set_reverse(bool reverse) override;
 
   /// @brief Sometimes enable pin in negated so you can enable the SteperMotor by setting the enable pin to low instead of high
   /// @param enable_reversed True if the enable pin is negated, false if not
-  void set_reversed_enable_pin (bool enable_reversed);
+  void set_reversed_enable_pin(bool enable_reversed);
 
   /// @brief Set the prescaler of the timer used by the SteperMotor
   /// if not set the prescaler will be the same as the timer
-  void set_prescaler (uint32_t prescaler);
+  void set_prescaler(uint32_t prescaler);
 
   /// @brief Get the gear ratio of the SteperMotor
-  float get_gear_ratio () const override;
+  float get_gear_ratio() const override;
 
   /// @brief Get the current speed of the SteperMotor
   /// @return The speed in radians per second
-  float get_velocity () const override;
+  float get_velocity() const override;
 
   /// @brief Get the current torque of the SteperMotor
   /// @return The torque in Nm
-  float get_torque () const override;
+  float get_torque() const override;
 
   /// @brief Get the current position of the SteperMotor
   /// @return The position in radians
-  float get_position () const override;
+  float get_position() const override;
 
   /// @brief Get the absolute position of the SteperMotor
   /// @return The position in radians
-  float get_absolute_position () const override;
+  float get_absolute_position() const override;
 
-  bool device_ok () override;
+  bool device_ok() override;
 
-  Result<bool> device_is_connected () override;
+  Result<bool> device_is_connected() override;
 
-  Result<DeviceStatus> device_get_status () override;
+  Result<DeviceStatus> device_get_status() override;
 
-  Status device_reset () override;
+  Status device_reset() override;
 
-  Status device_start () override;
+  Status device_start() override;
 
-  Status device_stop () override;
+  Status device_stop() override;
 
   private:
   float radians_to_frequency;

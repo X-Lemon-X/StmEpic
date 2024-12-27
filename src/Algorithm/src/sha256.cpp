@@ -32,7 +32,7 @@ const uint32_t SHA256::sha256_round_k[64] = {
   0xc67178f2
 };
 
-void SHA256::sha256_endian_reverse64 (uint64_t input, uint8_t* output) {
+void SHA256::sha256_endian_reverse64(uint64_t input, uint8_t* output) {
   output[7] = (input >> 0) & 0xff;
   output[6] = (input >> 8) & 0xff;
   output[5] = (input >> 16) & 0xff;
@@ -43,7 +43,7 @@ void SHA256::sha256_endian_reverse64 (uint64_t input, uint8_t* output) {
   output[0] = (input >> 56) & 0xff;
 }
 
-uint32_t SHA256::sha256_endian_read32 (uint8_t* input) {
+uint32_t SHA256::sha256_endian_read32(uint8_t* input) {
   uint32_t output = 0;
   output |= (input[0] << 24);
   output |= (input[1] << 16);
@@ -53,18 +53,18 @@ uint32_t SHA256::sha256_endian_read32 (uint8_t* input) {
   return output;
 }
 
-void SHA256::sha256_endian_reverse32 (uint32_t input, uint8_t* output) {
+void SHA256::sha256_endian_reverse32(uint32_t input, uint8_t* output) {
   output[3] = (input >> 0) & 0xff;
   output[2] = (input >> 8) & 0xff;
   output[1] = (input >> 16) & 0xff;
   output[0] = (input >> 24) & 0xff;
 }
 
-uint32_t SHA256::sha256_ror (uint32_t input, uint32_t by) {
+uint32_t SHA256::sha256_ror(uint32_t input, uint32_t by) {
   return (input >> by) | (((input & ((1 << by) - 1))) << (32 - by));
 }
 
-void SHA256::sha256 (const void* data, uint64_t len, void* output) {
+void SHA256::sha256(const void* data, uint64_t len, void* output) {
   uint8_t padding[80];
   uint64_t current = (len + 1) % 64;
   // want to be == 56 % 64.
@@ -72,52 +72,52 @@ void SHA256::sha256 (const void* data, uint64_t len, void* output) {
   uint64_t extra  = needed + 9;
   uint64_t total  = len + extra;
 
-  for (int i = 1; i < 80; i++)
+  for(int i = 1; i < 80; i++)
     padding[i] = 0;
   padding[0] = 0x80;
-  sha256_endian_reverse64 (len * 8, padding + total - len - 8);
+  sha256_endian_reverse64(len * 8, padding + total - len - 8);
 
   uint32_t v[8];
-  for (int i = 0; i < 8; i++)
+  for(int i = 0; i < 8; i++)
     v[i] = sha256_initial_h[i];
 
-  for (uint64_t cursor = 0; cursor * 64 < total; cursor++) {
+  for(uint64_t cursor = 0; cursor * 64 < total; cursor++) {
     uint32_t t[8];
-    for (int i = 0; i < 8; i++)
+    for(int i = 0; i < 8; i++)
       t[i] = v[i];
 
     uint32_t w[64];
-    if (cursor * 64 + 64 <= len) {
-      for (int j = 0; j < 16; j++) {
-        w[j] = sha256_endian_read32 ((uint8_t*)data + cursor * 64 + j * 4);
+    if(cursor * 64 + 64 <= len) {
+      for(int j = 0; j < 16; j++) {
+        w[j] = sha256_endian_read32((uint8_t*)data + cursor * 64 + j * 4);
       }
     } else {
-      if (cursor * 64 < len) {
+      if(cursor * 64 < len) {
         uint64_t size = len - cursor * 64;
-        if (size > 0)
-          std::memcpy (w, (uint8_t*)data + cursor * 64, size);
-        std::memcpy ((uint8_t*)w + size, padding, 64 - size);
+        if(size > 0)
+          std::memcpy(w, (uint8_t*)data + cursor * 64, size);
+        std::memcpy((uint8_t*)w + size, padding, 64 - size);
       } else {
         uint64_t off = (cursor * 64 - len) % 64;
-        std::memcpy ((uint8_t*)w, padding + off, 64);
+        std::memcpy((uint8_t*)w, padding + off, 64);
       }
 
-      for (int j = 0; j < 16; j++) {
-        w[j] = sha256_endian_read32 ((uint8_t*)&w[j]);
+      for(int j = 0; j < 16; j++) {
+        w[j] = sha256_endian_read32((uint8_t*)&w[j]);
       }
     }
 
-    for (int j = 16; j < 64; j++) {
-      uint32_t s1 = sha256_ror (w[j - 2], 17) ^ sha256_ror (w[j - 2], 19) ^ (w[j - 2] >> 10);
-      uint32_t s0 = sha256_ror (w[j - 15], 7) ^ sha256_ror (w[j - 15], 18) ^ (w[j - 15] >> 3);
-      w[j]        = s1 + w[j - 7] + s0 + w[j - 16];
+    for(int j = 16; j < 64; j++) {
+      uint32_t s1 = sha256_ror(w[j - 2], 17) ^ sha256_ror(w[j - 2], 19) ^ (w[j - 2] >> 10);
+      uint32_t s0 = sha256_ror(w[j - 15], 7) ^ sha256_ror(w[j - 15], 18) ^ (w[j - 15] >> 3);
+      w[j] = s1 + w[j - 7] + s0 + w[j - 16];
     }
 
-    for (int j = 0; j < 64; j++) {
+    for(int j = 0; j < 64; j++) {
       uint32_t ch  = (t[4] & t[5]) ^ (~t[4] & t[6]);
       uint32_t maj = (t[0] & t[1]) ^ (t[0] & t[2]) ^ (t[1] & t[2]);
-      uint32_t S0  = sha256_ror (t[0], 2) ^ sha256_ror (t[0], 13) ^ sha256_ror (t[0], 22);
-      uint32_t S1  = sha256_ror (t[4], 6) ^ sha256_ror (t[4], 11) ^ sha256_ror (t[4], 25);
+      uint32_t S0  = sha256_ror(t[0], 2) ^ sha256_ror(t[0], 13) ^ sha256_ror(t[0], 22);
+      uint32_t S1  = sha256_ror(t[4], 6) ^ sha256_ror(t[4], 11) ^ sha256_ror(t[4], 25);
 
       uint32_t t1 = t[7] + S1 + ch + sha256_round_k[j] + w[j];
       uint32_t t2 = S0 + maj;
@@ -132,10 +132,10 @@ void SHA256::sha256 (const void* data, uint64_t len, void* output) {
       t[0] = t1 + t2;
     }
 
-    for (int i = 0; i < 8; i++)
+    for(int i = 0; i < 8; i++)
       v[i] += t[i];
   }
 
-  for (int i = 0; i < 8; i++)
-    sha256_endian_reverse32 (v[i], (uint8_t*)output + i * 4);
+  for(int i = 0; i < 8; i++)
+    sha256_endian_reverse32(v[i], (uint8_t*)output + i * 4);
 }
