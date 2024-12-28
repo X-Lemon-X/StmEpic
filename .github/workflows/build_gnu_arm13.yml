@@ -20,7 +20,6 @@ jobs:
           rm -rf tests_stmepic
           git clone https://github.com/X-Lemon-X/tests_stmepic.git
           cd tests_stmepic
-          git submodule update --init --recursive
 
       - name: Build test repo
         run: |
