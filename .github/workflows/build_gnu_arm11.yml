@@ -12,6 +12,11 @@ jobs:
       options: --user root
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Init environment
         run: git config --global --add safe.directory "*"
 
@@ -19,7 +24,6 @@ jobs:
         run: |
           rm -rf tests_stmepic
           git clone https://github.com/X-Lemon-X/tests_stmepic.git
-          cd tests_stmepic
 
       - name: Build test repo
         run: |
