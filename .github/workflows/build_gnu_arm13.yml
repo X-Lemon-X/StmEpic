@@ -14,11 +14,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Init environment
         run: |
           git config --global --add safe.directory "*"
-          git submodule update --init --recursive
 
       - name: Pull test repo
         run: |
