@@ -17,8 +17,8 @@ jobs:
 
       - name: Init environment
         run: |
-          git submodule update --init --recursive
           git config --global --add safe.directory "*"
+          git submodule update --init --recursive
 
       - name: Pull test repo
         run: |
