@@ -78,7 +78,7 @@ Timing::Make(uint32_t period, bool repeat, void (*function)(Timing&), Ticker& ti
 }
 
 void Timing::reset() {
-  this->last_time      = ticker.get_micros() - 10;
+  this->last_time      = ticker.get_micros() - 1001;
   this->triggered_flag = false;
 }
 

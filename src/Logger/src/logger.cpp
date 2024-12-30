@@ -14,7 +14,7 @@ Logger::Logger() {
 }
 
 Status Logger::init(LOG_LEVEL level, bool _print_info, transmit_data_func _transmi_function, std::string _version) {
-  if(transmit_function == nullptr)
+  if(_transmi_function == nullptr)
     return Status::ExecutionError("Transmit function is nullptr");
   log_level         = level;
   transmit_function = _transmi_function;
