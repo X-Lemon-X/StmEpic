@@ -3,9 +3,11 @@
 This page will guide you through the process of setting up the project for STM32 microcontrollers with:
 
 - C++,
+- FreeRTOS,
 - Cmake
 - StmEpic libary
 - STM32CubeMX code generation tool
+- ccach
 
 ## Requirements
 
@@ -42,15 +44,25 @@ sudo apt-get install -y cmake ninja-build clang ccache dfu-util stlink-tools pyt
 1. Clone the repository to your project directory as submodule:
 
 ```bash
-git submodule add https://github.com/X-Lemon-X/StmEpic.git
+git submodule add https://github.com/X-Lemon-X/StmEpic.git StmEpic
+git submodule update --init --recursive
 ```
 
 2. Add the following line to your CMakeLists.txt file:
 
 ```cmake
+set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
+set(FREERTOS_HEAP_IMPL 4 CACHE STRING "") # set appropriate heap implementation
+set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
+# set appropriate path to FreeRTOSConfig.h config file
+# for more information about the FreeRTOS configuration see StmEpic/examples or below
 add_subdirectory(StmEpic)
-target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  etl::etl)
+target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  stmepic)
 ```
+
+**_FreeRTOSConfig.h_**
+You can use StmCubeMX to generate the FreeRTOSConfig.h file by enabling FreeRTOS in the project settings. However this would also add FreeRTOS source files to the project whitch we want to avoid.
+So you can generate it add only the FreeRTOSConfig.h file to the project then to disable FreeRTOS in the StmCubeMX project settings and generate the project again.
 
 3. Now you can simply include header files.
 
@@ -81,13 +93,15 @@ In this example we asume that the you project name is the same as the folder whe
 7. In you repo folder there should be bunch of new folders and files like:
 
 ```
+
 - CMakeLists.txt
 - cmake/
 - Core/
 - Drivers/
 - project_name.ioc
 - startup_stm32xxx.s
-...
+  ...
+
 ```
 
 8. The project is configured to be built with CMake, However the C++ language is not enabled yet
@@ -233,6 +247,9 @@ add_subdirectory(cmake/stm32cubemx)
 ############################################################################################################
 # Add sources subdirectory and include directories link libriries  [3/4]
 # congigure the project here
+set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
+set(FREERTOS_HEAP_IMPL 4 CACHE STRING "") # set appropriate heap implementation
+set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src") # set appropriate path to FreeRTOSConfig.h config file
 add_subdirectory(StmEpic)
 
 # Add sources to executable
@@ -255,7 +272,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
   stm32cubemx
-  etl::etl
+  stmepic
     # Add user defined libraries
 )
 ############################################################################################################

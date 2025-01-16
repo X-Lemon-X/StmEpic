@@ -11,12 +11,13 @@
   <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm11.yml/badge.svg?branch=main" alt="gnu11"/>
 </p>
 
-This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers.
+This library is a collection of algoritms and interfaces to be used in robotics projects with FreeRtos as operating system. The library is designed to be used with the STM32 series of microcontrollers.
 The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos, and comunication protocols, in a meaningful way that they can work with each other out of the box, with litle to none configuration.
 The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes.
 
 ## Features
 
+- **FreeRTOS** embeded FreeRTOS as task scheduler.
 - **ETL** Included **Embedded Template Library** library for containers and so on [link](https://github.com/ETLCPP/etl).
 - **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
 - **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
@@ -35,12 +36,15 @@ The library is written in C++ and is designed to be used with the code generatio
 
 ## How to add the library to your project
 
-1. Clone the repository to your project directory.
+1. Clone the repository to your project directory **DON'T FORGET TO INITIALIZE SUBMODULES**.
 2. Add the following line to your CMakeLists.txt file:
 
 ```cmake
+set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
+set(FREERTOS_HEAP_IMPL 4 CACHE STRING "") # set appropriate heap implementation
+set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src") # set appropriate path to FreeRTOSConfig.h config file
 add_subdirectory(StmEpic)
-target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  etl::etl)
+target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  stmepic)
 ```
 
 3. Now you can simply include header files.
