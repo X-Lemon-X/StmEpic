@@ -41,7 +41,7 @@ The library is written in C++ and is designed to be used with the code generatio
 
 ```cmake
 set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
-set(FREERTOS_HEAP_IMPL 4 CACHE STRING "") # set appropriate heap implementation
+set(FREERTOS_HEAP 4 CACHE STRING "") # set appropriate heap implementation
 set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src") # set appropriate path to FreeRTOSConfig.h config file
 add_subdirectory(StmEpic)
 target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  stmepic)

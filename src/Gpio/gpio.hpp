@@ -4,7 +4,7 @@
 
 
 /**
- * @file pin.hpp
+ * @file gpio.hpp
  * @brief Gpio pin definitions for quicker implementation.
  */
 

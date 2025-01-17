@@ -78,9 +78,9 @@ if(NOT FREERTOS_PORT)
     "Please set the FREERTOS_PORT variable this will set the port of the FreeRTOS like GCC_ARM_CM4F or GCC_ARM_CM7")
 endif()
 
-if(NOT FREERTOS_HEAP_IMPL)
+if(NOT FREERTOS_HEAP)
   message(FATAL_ERROR 
-    "Please set the FREERTOS_HEAP_IMPL variable this will set the heap implementation of the FreeRTOS like 1-4 ")
+    "Please set the FREERTOS_HEAP variable this will set the heap implementation of the FreeRTOS like 1-5 ")
 endif()
 
 if(NOT FREERTOS_CONFIG_FILE_DIRECTORY)

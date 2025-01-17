@@ -52,7 +52,7 @@ git submodule update --init --recursive
 
 ```cmake
 set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
-set(FREERTOS_HEAP_IMPL 4 CACHE STRING "") # set appropriate heap implementation
+set(FREERTOS_HEAP 4 CACHE STRING "") # set appropriate heap implementation
 set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src")
 # set appropriate path to FreeRTOSConfig.h config file
 # for more information about the FreeRTOS configuration see StmEpic/examples or below
@@ -248,7 +248,7 @@ add_subdirectory(cmake/stm32cubemx)
 # Add sources subdirectory and include directories link libriries  [3/4]
 # congigure the project here
 set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
-set(FREERTOS_HEAP_IMPL 4 CACHE STRING "") # set appropriate heap implementation
+set(FREERTOS_HEAP 4 CACHE STRING "") # set appropriate heap implementation
 set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src") # set appropriate path to FreeRTOSConfig.h config file
 add_subdirectory(StmEpic)
 

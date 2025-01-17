@@ -4,7 +4,7 @@
 #include "Timing.hpp"
 #include "device.hpp"
 #include "encoder.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 
 /**
  * @file motor.hpp

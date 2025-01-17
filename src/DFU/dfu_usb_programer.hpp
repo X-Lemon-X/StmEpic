@@ -5,7 +5,7 @@
 // #include "usbd_cdc_if.h"
 // #include "usbd_def.h"
 #include "logger.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 
 
 #define USB_PROGRAMER_REBOOT "SB_reboot\n"

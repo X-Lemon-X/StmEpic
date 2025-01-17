@@ -1,7 +1,7 @@
 #pragma once
 
 #include "device.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 #include "stmepic.hpp"
 #include "vectors3d.hpp"
 

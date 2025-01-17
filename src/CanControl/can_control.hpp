@@ -2,7 +2,7 @@
 
 #include "Timing.hpp"
 #include "circular_buffor.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 #include "stmepic.hpp"
 #include "stmepic_status.hpp"
 #include <cstddef>

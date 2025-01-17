@@ -4,7 +4,7 @@
 #include "encoder.hpp"
 #include "motor.hpp"
 #include "movement_controler.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 #include "stmepic.hpp"
 
 /**

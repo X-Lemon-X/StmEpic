@@ -1,6 +1,6 @@
 
 #include "dfu_usb_programer.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 // #include "usbd_cdc_if.h"
 #include "logger.hpp"
 #include "stmepic.hpp"

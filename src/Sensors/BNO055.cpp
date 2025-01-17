@@ -1,7 +1,7 @@
 
 #include "BNO055.hpp"
 #include "device.hpp"
-#include "pin.hpp"
+#include "gpio.hpp"
 #include "stmepic.hpp"
 
 using namespace stmepic::sensors::imu;
