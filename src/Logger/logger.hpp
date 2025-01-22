@@ -59,6 +59,9 @@ enum class LOG_LEVEL {
  * The logger print usefull data like time stamp, log level, software version
  * However the user can configure the logger to print only the message provided by the user.
  */
+
+// __FILE_NAME__
+// __func__
 class Logger {
   public:
   using transmit_data_func = uint8_t (*)(uint8_t*, uint16_t);
