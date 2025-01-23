@@ -5,6 +5,6 @@ target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include/${UPPER_PROJECT_NAME}> 
 )
 
-# target_sources(${UPPER_PROJECT_NAME} PRIVATE
-#   src/dfu_usb_programer.cpp
-# )
+target_sources(${UPPER_PROJECT_NAME} PRIVATE
+  i2c.cpp
+)

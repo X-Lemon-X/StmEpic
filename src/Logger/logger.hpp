@@ -24,6 +24,21 @@
 
 namespace stmepic {
 
+// @brief log_debug macro for logging debug messages with file and function name for debug purposes.
+#define log_debug(...) \
+  stmepic::Logger::get_instance().debug(__VA_ARGS__, __FILE__, __func__)
+
+// @brief log_info macro for logging info messages with file and function name for debug purposes.
+#define log_info(...) \
+  stmepic::Logger::get_instance().info(__VA_ARGS__, __FILE__, __func__)
+
+// @brief log_warn macro for logging warning messages with file and function name for debug purposes.
+#define log_warn(...) \
+  stmepic::Logger::get_instance().warn(__VA_ARGS__, __FILE__, __func__)
+
+// @brief log_error macro for logging error messages with file and function name for debug purposes.
+#define log_error(...) \
+  stmepic::Logger::get_instance().error(__VA_ARGS__, __FILE__, __func__)
 
 /**
  * @enum LOG_LEVEL
@@ -76,16 +91,16 @@ class Logger {
   Status init(LOG_LEVEL level, bool print_info, transmit_data_func _transmi_function, std::string _version = "");
 
   /// @brief  log the ERROR message
-  void error(std::string msg);
+  void error(std::string msg, const char* file = nullptr, const char* function_name = nullptr);
 
   /// @brief  log the WARNING message
-  void warning(std::string msg);
+  void warning(std::string msg, const char* file = nullptr, const char* function_name = nullptr);
 
   /// @brief  log the INFO message
-  void info(std::string msg);
+  void info(std::string msg, const char* file = nullptr, const char* function_name = nullptr);
 
   /// @brief  log the DEBUG message
-  void debug(std::string msg);
+  void debug(std::string msg, const char* file = nullptr, const char* function_name = nullptr);
 
   /// @brief  parse the key value pair to json format
   /// @param key - key of the json field
@@ -123,7 +138,7 @@ class Logger {
   LOG_LEVEL log_level;
   bool print_info;
   std::string version;
-  void transmit(std::string msg, std::string prefix);
+  void transmit(std::string msg, std::string prefix, const char* file = nullptr, const char* function_name = nullptr);
   static std::string key_value_to_json(std::string key, std::string value);
   transmit_data_func transmit_function;
 };

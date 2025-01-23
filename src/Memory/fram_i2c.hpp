@@ -49,10 +49,10 @@ class FramI2C : public FRAM {
 
   Result<bool> device_is_connected() override final;
   bool device_ok() override final;
-  Result<DeviceStatus> device_get_status() override final;
+  Status device_get_status() override final;
   Status device_reset() override final;
-  Status device_start() override final;
-  Status device_stop() override final;
+  Status device_enable() override final;
+  Status device_disable() override final;
 
   protected:
   I2C_HandleTypeDef* hi2c;

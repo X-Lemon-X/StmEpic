@@ -5,116 +5,109 @@
 
 namespace stmepic {
 
+/**
+ * @brief Class for controlling the I2C interface with automatic DMA, IRQ or blocking mode
+ * The best mode is DMA and IRQ since they allows other other tasks to run while the I2C is reading or writing
+ * all function to read and write data are blocking.
+ */
 class I2C : public HardwareInterface {
-  public:
-  I2C(I2C_HandleTypeDef& hi2c, const gpio::GpioPin& sda, const gpio::GpioPin& scl, const HardwareTy type)
-  : _hi2c(&hi2c), _gpio_sda(sda), _gpio_sdc(scl), _hardwType(type) {
-    _mutex = xSemaphoreCreateMutex();
-  };
+public:
+  ~I2C();
 
-  ~I2C() {
-    vSemaphoreDelete(_mutex);
-  };
+  /**
+   * @brief Make new I2C interface, the interface is added to the list of all I2C interfaces and will be automatically handled
+   *
+   * @param hi2c the I2C handle that will be used to communicate with the I2C device
+   * @param sda the SDA pin of the I2C interface
+   * @param scl the SCL pin of the I2C interface
+   * @param type the type of the I2C interface mode, DMA, IRQ or BLOCKING
+   * @return Result<std::shared_ptr<I2C>> will return AlreadyExists if the I2C interface was already initialized.
+   */
+  static Result<std::shared_ptr<I2C>>
+  Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type);
 
-  void dma_callback(I2C_HandleTypeDef& hi2c) {
-    if(hi2c.Instance != _hi2c->Instance)
-      return;
+  /**
+   * @brief Reset the I2C interface
+   * This will reset also I2C lines by pulling them low and high to reset the I2C devices
+   * @return Status
+   */
+  Status reset();
 
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(task_handle, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
+  /**
+   * @brief Start the I2C interface init all required settings for the I2C interface
+   * Like setings for DMA, IRQ or blocking mode
+   * @return Status
+   */
+  Status start();
 
-  void it_callback(I2C_HandleTypeDef& hi2c) {
-    if(hi2c.Instance != _hi2c->Instance)
-      return;
+  /**
+   * @brief Stop the I2C interface
+   * @return Status
+   */
+  Status stop();
 
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(task_handle, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
+  /**
+   * @brief Read data from the I2C device in blocking mode with other tasks beeing able to freelu run in the
+   * meantime returns the data read from the device after the read is done
+   *
+   * @param address the address of the I2C device
+   * @param mem_address the memory address from which the data will be read
+   * @param data the data that will be read from the I2C device
+   * @param size the size of the data that will be read
+   * @return Result<uint8_t *>
+   */
+  Status read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1);
 
-  Status reset() {
-    return Status::NotImplemented();
-  }
+  /**
+   * @brief Write data to the I2C device in blocking mode with other tasks beeing able to freelu run in the
+   *
+   * @param address the address of the I2C device in 7 bir format it will be automatically by 1
+   * @param mem_address the memory address to which the data will be written
+   * @param mem_size the size of the memory address
+   * @param data the data that will be written to the I2C device
+   * @param size the size of the data that will be written
+   * @return Status
+   */
+  Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1);
 
-  Status start() {
-    return Status::NotImplemented();
-  }
+  /**
+   * @brief Run the TX callbacks from the IRQ or DMA interrupt
+   * @param hi2c the I2C handle that triggered the interrupt
+   * @note This function runs over all I2C initialized interfaces
+   */
+  static void run_tx_callbacks_from_irq(I2C_HandleTypeDef *hi2c);
 
-  Status stop() {
-    return Status::NotImplemented();
-  }
+  /**
+   * @brief Run the RX callbacks from the IRQ or DMA interrupt
+   * @param hi2c the I2C handle that triggered the interrupt
+   * @note This function runs over all I2C initialized interfaces
+   */
+  static void run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c);
 
-  Result<uint8_t*> read(uint16_t address, uint16_t mem_address, uint8_t* data, uint16_t size) {
-    xSemaphoreTake(_mutex, portMAX_DELAY);
-    Result<uint8_t*> result = Status::ExecutionError();
-    switch(_hardwType) {
-    case HardwareTy::DMA: result = read_dma(address, mem_address, data, size); break;
-    case HardwareTy::IRQ: result = read_irq(address, mem_address, data, size); break;
-    case HardwareTy::BLOCKING: result = read_bl(address, mem_address, data, size); break;
-    }
-    xSemaphoreGive(_mutex);
-    return result;
-  }
+private:
+  I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type);
 
-  Status write(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t* data, uint16_t size) {
-    switch(_hardwType) {
-    case HardwareTy::DMA: return write_dma(address, mem_address, mem_size, data, size);
-    case HardwareTy::IRQ: return write_irq(address, mem_address, mem_size, data, size);
-    case HardwareTy::BLOCKING:
-      return write_bl(address, mem_address, mem_size, data, size);
-    }
-  }
-
-  private:
-  SemaphoreHandle_t _mutex;
   const HardwareTy _hardwType;
-  const gpio::GpioPin& _gpio_sda;
-  const gpio::GpioPin& _gpio_sdc;
-  I2C_HandleTypeDef* _hi2c;
+  const gpio::GpioPin &_gpio_sda;
+  const gpio::GpioPin &_gpio_sdc;
+  SemaphoreHandle_t _mutex;
+  I2C_HandleTypeDef *_hi2c;
+
+  /// @brief Task handle for the specific I2C interface
   TaskHandle_t task_handle;
+  /// @brief  List of all I2C interfaces initialized
+  static std::vector<std::shared_ptr<I2C>> i2c_interfaces;
 
-  Result<uint8_t*> read_dma(uint16_t address, uint16_t mem_address, uint8_t* data, uint16_t size) {
-    return Status::NotImplemented();
-  }
+  void tx_callback(I2C_HandleTypeDef *hi2c);
+  void rx_callback(I2C_HandleTypeDef *hi2c);
 
-  Result<uint8_t*> read_irq(uint16_t address, uint16_t mem_address, uint8_t* data, uint16_t size) {
-    return Status::NotImplemented();
-  }
+  Status read_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  Status read_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  Status read_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
 
-  Result<uint8_t*> read_bl(uint16_t address, uint16_t mem_address, uint8_t* data, uint16_t size) {
-    return Status::NotImplemented();
-  }
-
-  Status write_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t* data, uint16_t size) {
-    vPortEnterCritical();
-    task_handle = xTaskGetCurrentTaskHandle();
-    auto stat = HAL_I2C_Mem_Write_DMA(_hi2c, address, mem_address, mem_size, data, size);
-    vPortExitCritical();
-    if(stat == HAL_OK) {
-      ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    }
-    return DeviceTranslateStatus::translate_hal_status_to_status(stat);
-  }
-
-  Status write_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t* data, uint16_t size) {
-    vPortEnterCritical();
-    task_handle = xTaskGetCurrentTaskHandle();
-    auto stat   = HAL_I2C_Mem_Write_IT(_hi2c, address, mem_address, mem_size, data, size);
-    vPortExitCritical();
-    if(stat == HAL_OK) {
-      ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    }
-    return DeviceTranslateStatus::translate_hal_status_to_status(stat);
-  }
-
-  Status write_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t* data, uint16_t size) {
-    vPortEnterCritical();
-    auto stat = HAL_I2C_Mem_Write(_hi2c, address, mem_address, mem_size, data, size, HAL_MAX_DELAY);
-    vPortExitCritical();
-    return DeviceTranslateStatus::translate_hal_status_to_status(stat);
-  }
+  Status write_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  Status write_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  Status write_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
 };
 
 } // namespace stmepic

@@ -187,10 +187,10 @@ class BNO055 : public stmepic::DeviceBase {
 
   Result<bool> device_is_connected();
   bool device_ok();
-  Result<DeviceStatus> device_get_status();
+  Status device_get_status();
   Status device_reset();
-  Status device_start();
-  Status device_stop();
+  Status device_enable();
+  Status device_disable();
 
   private:
   Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);

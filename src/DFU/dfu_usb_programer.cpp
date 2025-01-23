@@ -1,9 +1,8 @@
-
+#include "stmepic.hpp"
 #include "dfu_usb_programer.hpp"
 #include "gpio.hpp"
 // #include "usbd_cdc_if.h"
 #include "logger.hpp"
-#include "stmepic.hpp"
 #include <cstring>
 #include <string>
 

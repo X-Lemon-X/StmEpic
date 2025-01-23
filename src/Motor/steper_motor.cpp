@@ -152,18 +152,18 @@ Result<bool> SteperMotorStepDir::device_is_connected() {
   return Result<bool>::OK(true);
 }
 
-Result<DeviceStatus> SteperMotorStepDir::device_get_status() {
-  return Result<DeviceStatus>::OK(DeviceStatus::OK);
+Status SteperMotorStepDir::device_get_status() {
+  return Status::OK();
 }
 
 Status SteperMotorStepDir::device_reset() {
   return Status::OK();
 }
 
-Status SteperMotorStepDir::device_start() {
+Status SteperMotorStepDir::device_enable() {
   return Status::OK();
 }
 
-Status SteperMotorStepDir::device_stop() {
+Status SteperMotorStepDir::device_disable() {
   return Status::OK();
 }

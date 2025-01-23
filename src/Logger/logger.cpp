@@ -1,7 +1,7 @@
+#include "stmepic.hpp"
 #include "logger.hpp"
 #include <string>
 // #include "usbd_cdc_if.h"
-#include "stmepic.hpp"
 
 
 using namespace stmepic;
@@ -23,34 +23,38 @@ Status Logger::init(LOG_LEVEL level, bool _print_info, transmit_data_func _trans
   return Status::OK();
 }
 
-void Logger::error(std::string msg) {
+void Logger::error(std::string msg, const char* file, const char* function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_ERROR)
     return;
-  transmit(msg, "ERROR");
+  transmit(msg, "ERROR", file, function_name);
 }
 
-void Logger::warning(std::string msg) {
+void Logger::warning(std::string msg, const char* file, const char* function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_WARNING)
     return;
-  transmit(msg, "WARNING");
+  transmit(msg, "WARNING", file, function_name);
 }
 
-void Logger::info(std::string msg) {
+void Logger::info(std::string msg, const char* file, const char* function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_INFO)
     return;
-  transmit(msg, "INFO");
+  transmit(msg, "INFO", file, function_name);
 }
 
-void Logger::debug(std::string msg) {
+void Logger::debug(std::string msg, const char* file, const char* function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_DEBUG)
     return;
-  transmit(msg, "DEBUG");
+  transmit(msg, "DEBUG", file, function_name);
 }
 
-void Logger::transmit(std::string msg, std::string prefix) {
+void Logger::transmit(std::string msg, std::string prefix, const char* file, const char* function_name) {
   if(print_info) {
+    std::string debug_info = "";
+    if(file != nullptr && function_name != nullptr)
+      debug_info = "," + key_value_to_json("file", file) + "," +
+                   key_value_to_json("function", function_name);
     msg = "{\"time\":\"" + std::to_string(HAL_GetTick()) + "\",\"level\":\"" + prefix +
-          "\",\"ver\":\"" + version + "\",\"msg\":{" + msg + "}}\n";
+          "\",\"ver\":\"" + version + "\"" + debug_info + ",\"msg\":{" + msg + "}}\n";
   } else {
     msg += "\n";
   }

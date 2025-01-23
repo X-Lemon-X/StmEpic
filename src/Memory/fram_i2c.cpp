@@ -18,18 +18,17 @@ Status FramI2C::init() {
   return device_get_status().status();
 }
 
-Result<DeviceStatus> FramI2C::device_get_status() {
+Status FramI2C::device_get_status() {
   if(hi2c == nullptr)
     return Status::Invalid("I2C is not initialized");
-  auto status = HAL_I2C_IsDeviceReady(hi2c, device_address, 1, 100);
-  return Result<DeviceStatus>::OK(DeviceTranslateStatus::translate_hal_status_to_device(status));
+  return HAL_I2C_IsDeviceReady(hi2c, device_address, 1, 100);
 }
 
 bool FramI2C::device_ok() {
   auto status = device_get_status();
   if(!status.ok())
     return false;
-  return status.valueOrDie() == DeviceStatus::OK;
+  return status.ok();
 }
 
 Result<bool> FramI2C::device_is_connected() {
@@ -41,11 +40,11 @@ Status FramI2C::device_reset() {
   return device_get_status().status();
 }
 
-Status FramI2C::device_start() {
+Status FramI2C::device_enable() {
   return device_get_status().status();
 }
 
-Status FramI2C::device_stop() {
+Status FramI2C::device_disable() {
   return Status::OK();
 }
 
@@ -54,9 +53,8 @@ Status FramI2C::write(uint32_t address, const std::vector<uint8_t>& data) {
   STMEPIC_ASSING_OR_RETURN(encoded_data, FRAM::encode_data(data));
   if(encoded_data.size() > fram_size)
     return Status::CapacityError("Data is too big for the FRAM");
-  auto status = HAL_I2C_Mem_Write(hi2c, device_address, begin_address + address, 1,
-                                  encoded_data.data(), encoded_data.size(), 100);
-  return DeviceTranslateStatus::translate_hal_status_to_status(status);
+  return HAL_I2C_Mem_Write(hi2c, device_address, begin_address + address, 1,
+                           encoded_data.data(), encoded_data.size(), 100);
 }
 
 
@@ -65,14 +63,12 @@ Result<std::vector<uint8_t>> FramI2C::read(uint32_t address) {
   uint8_t data_size[2];
   auto status =
   HAL_I2C_Mem_Read(hi2c, device_address, begin_address + address + 7, 1, data_size, 2, 100);
-  STMEPIC_RETURN_ON_ERROR(DeviceTranslateStatus::translate_hal_status_to_status(status));
-  // if(status != HAL_OK) return Status::IOError("Error reading data size from FRAM");
+  STMEPIC_RETURN_ON_ERROR(Status(status));
   uint16_t size = data_size[0] | (data_size[1] << 8);
   data.resize(size + frame_size);
   status = HAL_I2C_Mem_Read(hi2c, device_address, begin_address + address, 1, data.data(),
                             size + frame_size, 100);
-  STMEPIC_RETURN_ON_ERROR(DeviceTranslateStatus::translate_hal_status_to_status(status));
-  // if(status != HAL_OK) return Status::IOError("Error reading data from FRAM");
+  STMEPIC_RETURN_ON_ERROR(Status(status));
   return FRAM::decode_data(data);
 }
 
@@ -91,10 +87,8 @@ Status FramI2CFM24CLxx::write(uint32_t address, const std::vector<uint8_t>& data
   uint32_t memory_address = begin_address + address;
   uint16_t dev_address    = device_address | ((memory_address >> 8) & 0x0E);
 
-  auto status = HAL_I2C_Mem_Write(hi2c, dev_address, memory_address, 1,
-                                  encoded_data.data(), encoded_data.size(), 200);
-
-  return DeviceTranslateStatus::translate_hal_status_to_status(status);
+  return HAL_I2C_Mem_Write(hi2c, dev_address, memory_address, 1, encoded_data.data(),
+                           encoded_data.size(), 200);
 }
 
 Result<std::vector<uint8_t>> FramI2CFM24CLxx::read(uint32_t address) {
@@ -102,14 +96,15 @@ Result<std::vector<uint8_t>> FramI2CFM24CLxx::read(uint32_t address) {
   uint8_t data_size[2];
   uint32_t memory_address = begin_address + address;
   uint16_t dev_address    = device_address | ((memory_address >> 8) & 0x0E);
-  auto status = HAL_I2C_Mem_Read(hi2c, dev_address, memory_address + 7, 1, data_size, 2, 200);
-  if(status != HAL_OK)
-    return DeviceTranslateStatus::translate_hal_status_to_status(status);
+  auto status =
+  Status(HAL_I2C_Mem_Read(hi2c, dev_address, memory_address + 7, 1, data_size, 2, 200));
+  if(!status.ok())
+    return status;
   uint16_t size = (data_size[0] << 8) | data_size[1];
   data.resize(size + frame_size);
-  status =
-  HAL_I2C_Mem_Read(hi2c, dev_address, memory_address, 1, data.data(), size + frame_size, 200);
-  if(status != HAL_OK)
-    return DeviceTranslateStatus::translate_hal_status_to_status(status);
+  status = Status(HAL_I2C_Mem_Read(hi2c, dev_address, memory_address, 1, data.data(),
+                                   size + frame_size, 200));
+  if(!status.ok())
+    return status;
   return FRAM::decode_data(data);
 }

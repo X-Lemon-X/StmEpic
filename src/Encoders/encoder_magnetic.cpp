@@ -7,6 +7,7 @@
 
 
 using namespace stmepic::encoders;
+using namespace stmepic;
 
 
 #define PI_m2 6.28318530717958647692f
@@ -212,22 +213,21 @@ stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected() {
   return Result<bool>::OK(encoder_connected);
 }
 
-stmepic::Result<stmepic::DeviceStatus> EncoderAbsoluteMagnetic::device_get_status() {
+stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {
   if(hi2c == nullptr)
     return Status::Invalid("I2C is not initialized");
-  auto status = HAL_I2C_IsDeviceReady(hi2c, address, 1, 100);
-  return Result<DeviceStatus>::OK(DeviceTranslateStatus::translate_hal_status_to_device(status));
+  return HAL_I2C_IsDeviceReady(hi2c, address, 1, 100);
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_reset() {
   return Status::OK();
 }
 
-stmepic::Status EncoderAbsoluteMagnetic::device_start() {
+stmepic::Status EncoderAbsoluteMagnetic::device_enable() {
   return device_get_status().status();
 }
 
 
-stmepic::Status EncoderAbsoluteMagnetic::device_stop() {
+stmepic::Status EncoderAbsoluteMagnetic::device_disable() {
   return Status::OK();
 }

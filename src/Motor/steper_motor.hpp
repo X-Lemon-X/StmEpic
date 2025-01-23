@@ -102,13 +102,13 @@ class SteperMotorStepDir : public MotorBase {
 
   Result<bool> device_is_connected() override;
 
-  Result<DeviceStatus> device_get_status() override;
+  Status device_get_status() override;
 
   Status device_reset() override;
 
-  Status device_start() override;
+  Status device_enable() override;
 
-  Status device_stop() override;
+  Status device_disable() override;
 
   private:
   float radians_to_frequency;

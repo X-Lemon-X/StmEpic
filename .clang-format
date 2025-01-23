@@ -56,11 +56,11 @@ Language: Cpp
 Standard: Cpp11
 
 # Pointer and reference alignment style. Possible values: Left, Right, Middle.
-PointerAlignment: Left
+PointerAlignment: Right
 
 # AccessModifierOffset (int)
 # The extra indent or outdent of access modifiers, e.g. public:.
-AccessModifierOffset: 0
+AccessModifierOffset: -2
 
 # AlignAfterOpenBracket (BracketAlignmentStyle)
 # If true, horizontally aligns arguments after an open bracket.
@@ -203,7 +203,7 @@ BreakConstructorInitializersBeforeComma: false
 # ColumnLimit (unsigned)
 # The column limit.
 # A column limit of 0 means that there is no column limit. In this case, clang-format will respect the input’s line breaking decisions within statements unless they contradict other rules.
-ColumnLimit: 90
+ColumnLimit: 110
 
 # CommentPragmas (std::string)
 # A regular expression that describes comments with special meaning, which should not be split into lines or otherwise changed.

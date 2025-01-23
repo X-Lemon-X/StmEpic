@@ -140,13 +140,13 @@ class MotorClosedLoop : public MotorBase {
 
   bool device_ok() override;
 
-  Result<DeviceStatus> device_get_status() override;
+  Status device_get_status() override;
 
   Status device_reset() override;
 
-  Status device_start() override;
+  Status device_enable() override;
 
-  Status device_stop() override;
+  Status device_disable() override;
 
   private:
   MotorBase& motor;
