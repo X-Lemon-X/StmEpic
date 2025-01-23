@@ -55,7 +55,7 @@ struct MovementState {
  *
  */
 class MovementEquation {
-  public:
+public:
   /// @brief Constructor for the MovementEquation class
   MovementEquation();
 
@@ -88,7 +88,7 @@ class MovementEquation {
  *
  */
 class MovementControler {
-  public:
+public:
   /// @brief Arm controler interface
   MovementControler();
 
@@ -111,7 +111,7 @@ class MovementControler {
   /// when you have two encoders one on the engine and one on the other shaft. However if
   /// second encoder is not used it is recommended to pass
   // the pass the same encoder_velocity as the encoder_pos.
-  void init(motor::MotorBase& motor, MovementControlMode control_mode, MovementEquation& movement_equation);
+  void init(motor::MotorBase &motor, MovementControlMode control_mode, MovementEquation &movement_equation);
 
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
   void handle();
@@ -171,9 +171,9 @@ class MovementControler {
   /// @param override True to turn off the limit position, false to turn on the limit position
   void override_limit_position(bool override);
 
-  private:
-  motor::MotorBase* motor;
-  MovementEquation* movement_equation;
+private:
+  motor::MotorBase *motor;
+  MovementEquation *movement_equation;
   MovementControlMode control_mode;
   bool initialized;
 

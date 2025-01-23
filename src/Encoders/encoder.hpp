@@ -28,7 +28,7 @@ namespace stmepic::encoders {
  *
  */
 class EncoderBase : public DeviceBase {
-  public:
+public:
   /// @brief Construct a new Encoder Base object
   EncoderBase() = default;
 

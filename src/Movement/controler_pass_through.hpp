@@ -24,7 +24,7 @@ namespace stmepic::movement {
 
 /// @brief PassThroughControler is a controler that passes the target state without any modification.
 class PassThroughControler : public MovementEquation {
-  public:
+public:
   PassThroughControler();
   void begin_state(MovementState current_state, float current_time) override;
   MovementState calculate(MovementState current_state, MovementState target_state) override;

@@ -39,7 +39,7 @@ uint16_t translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2);
  *
  */
 class EncoderAbsoluteMagnetic : public EncoderBase {
-  public:
+public:
   /// @brief Init fucnion of the encoder
   /// first arg is value of the first register and the second is the value of the second register
   using traslate_reg_to_angle = uint16_t (*)(uint8_t, uint8_t);
@@ -55,18 +55,18 @@ class EncoderAbsoluteMagnetic : public EncoderBase {
   /// @param _reg_to_angle_function sets the function that will be used to translate register
   /// data to angle. It have to return the angle in uint16_t and takes the data from two registers first and second.
   ///  the function that will be used to read the angle, and return the angle in uint16_t in binary format for example 0-4095 or 0-16383
-  void init(I2C_HandleTypeDef& hi2c,
+  void init(I2C_HandleTypeDef &hi2c,
             traslate_reg_to_angle _reg_to_angle_function,
-            filters::FilterBase* filter_angle    = nullptr,
-            filters::FilterBase* filter_velocity = nullptr);
+            filters::FilterBase *filter_angle    = nullptr,
+            filters::FilterBase *filter_velocity = nullptr);
 
   /// @brief Pings the encoder to check if it is connected
   /// @return true if the encoder is connected
   // bool ping_encoder();
 
   /// @brief Check if last request to the encoder was successful if not the encoder is disconnected,
-  /// therefor it requires to be used when handle is called regularly, otherwise the return value will be unreliable.
-  /// use ping_encoder() if you want to check if the encoder is connected.
+  /// therefor it requires to be used when handle is called regularly, otherwise the return value will be
+  /// unreliable. use ping_encoder() if you want to check if the encoder is connected.
   /// @return true if the encoder is connected.
   // [[nodiscard]] bool is_connected() const override;
 
@@ -156,10 +156,10 @@ class EncoderAbsoluteMagnetic : public EncoderBase {
 
   Status device_disable() override;
 
-  private:
-  I2C_HandleTypeDef* hi2c;
-  filters::FilterBase* filter_angle;
-  filters::FilterBase* filter_velocity;
+private:
+  I2C_HandleTypeDef *hi2c;
+  filters::FilterBase *filter_angle;
+  filters::FilterBase *filter_velocity;
   traslate_reg_to_angle reg_to_angle_function;
 
   bool encoder_connected;

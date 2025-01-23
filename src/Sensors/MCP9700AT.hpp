@@ -30,7 +30,7 @@ class MCP9700AT {
   static const float MCP9700AT_V0;
   static const float MCP9700AT_revTC;
 
-  public:
+public:
   /// @brief Get the temperature from the MCP9700AT sensor
   /// @param sensor_voltage the voltage output from the sensor
   static float get_temperature(float sensor_voltage);

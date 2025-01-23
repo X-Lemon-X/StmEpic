@@ -25,13 +25,13 @@ namespace stmepic::dfu {
  *
  */
 class UsbProgramer {
-  private:
-  const gpio::GpioPin& boot_device;
+private:
+  const gpio::GpioPin &boot_device;
   uint8_t buffer[USB_PROGRAMER_BUFFER_SIZE];
   std::string usb_programer_info;
 
-  public:
-  UsbProgramer(const gpio::GpioPin& boot_device);
+public:
+  UsbProgramer(const gpio::GpioPin &boot_device);
 
   /// @brief should be called in the main loop to handle the usb programing
   void handler();

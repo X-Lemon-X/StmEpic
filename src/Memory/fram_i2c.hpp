@@ -22,7 +22,7 @@ namespace stmepic::memory {
 
 /// @brief The FRAM class for I2C FRAM ICs
 class FramI2C : public FRAM {
-  public:
+public:
   /**
    * @brief Construct a new FramI2C object
    *
@@ -31,7 +31,7 @@ class FramI2C : public FRAM {
    * @param begin_address the begining address from which the memory will be used
    * @param fram_size the size of the memory of the FRAM device to avoid out of bounds errors
    */
-  FramI2C(I2C_HandleTypeDef& hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
+  FramI2C(I2C_HandleTypeDef &hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
 
   /// @brief Init the FRAM device
   Status init() override;
@@ -39,7 +39,7 @@ class FramI2C : public FRAM {
   /// @brief Write data to the FRAM device
   /// @param address the address where the data will be written
   /// @param data the data that will be written
-  virtual Status write(uint32_t address, const std::vector<uint8_t>& data) override;
+  virtual Status write(uint32_t address, const std::vector<uint8_t> &data) override;
 
   /// @brief Read data from the FRAM device
   /// @param address the address where the data will be read
@@ -54,8 +54,8 @@ class FramI2C : public FRAM {
   Status device_enable() override final;
   Status device_disable() override final;
 
-  protected:
-  I2C_HandleTypeDef* hi2c;
+protected:
+  I2C_HandleTypeDef *hi2c;
   uint16_t begin_address;
   uint32_t fram_size;
   uint8_t device_address;
@@ -66,9 +66,9 @@ class FramI2C : public FRAM {
  *
  */
 class FramI2CFM24CLxx : public FramI2C {
-  public:
-  FramI2CFM24CLxx(I2C_HandleTypeDef& hi2c, uint16_t begin_address, uint32_t fram_size);
-  Status write(uint32_t address, const std::vector<uint8_t>& data) override;
+public:
+  FramI2CFM24CLxx(I2C_HandleTypeDef &hi2c, uint16_t begin_address, uint32_t fram_size);
+  Status write(uint32_t address, const std::vector<uint8_t> &data) override;
   Result<std::vector<uint8_t>> read(uint32_t address) override;
 };
 

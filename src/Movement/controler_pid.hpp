@@ -28,14 +28,14 @@ namespace stmepic::movement {
  *
  */
 class PIDControler : public MovementEquation {
-  private:
+private:
   float Kp;
   float Kd;
   float Ki;
   MovementState previous_state;
   float previous_time;
 
-  public:
+public:
   PIDControler();
 
   void begin_state(MovementState current_state, float current_time) override;

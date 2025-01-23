@@ -10,15 +10,14 @@ namespace stmepic {
 /// @brief a CIrcular buffor class that stores copies of data in a static circualar array
 /// @tparam circualr_buffor_data_type
 /// @tparam buffor_size
-template <typename circualr_buffor_data_type, uint32_t buffor_size>
-class static_circular_buffor {
-  private:
+template <typename circualr_buffor_data_type, uint32_t buffor_size> class static_circular_buffor {
+private:
   circualr_buffor_data_type buffor[buffor_size];
   uint32_t head;
   uint32_t tail;
   uint32_t size;
 
-  public:
+public:
   static_assert(buffor_size > 0, "Buffor size must be greater than 0");
 
   static_circular_buffor() : head(0), tail(0), size(0){};

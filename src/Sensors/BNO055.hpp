@@ -141,11 +141,7 @@ static const uint8_t BNO055_REG_GYR_CONFIG_0 = 0x0A;
 static const uint8_t BNO055_REG_MAG_CONFIG   = 0x09;
 static const uint8_t BNO055_REG_ACC_CONFIG   = 0x08;
 
-enum class BNO055_PWR_MODE_t {
-  BNO055_PWR_MODE_NORMAL,
-  BNO055_PWR_MODE_LOW_POWER,
-  BNO055_PWR_MODE_SUSPEND
-};
+enum class BNO055_PWR_MODE_t { BNO055_PWR_MODE_NORMAL, BNO055_PWR_MODE_LOW_POWER, BNO055_PWR_MODE_SUSPEND };
 
 enum class BNO055_OPR_MODE_t {
   BNO055_OPR_MODE_CONFIGMODE,
@@ -181,8 +177,8 @@ struct BNO055_Data_t {
 
 class BNO055 : public stmepic::DeviceBase {
 
-  public:
-  BNO055(I2C_HandleTypeDef& i2c, gpio::GpioPin* reset = nullptr);
+public:
+  BNO055(I2C_HandleTypeDef &i2c, gpio::GpioPin *reset = nullptr);
   Result<BNO055_Data_t> get_data();
 
   Result<bool> device_is_connected();
@@ -192,13 +188,13 @@ class BNO055 : public stmepic::DeviceBase {
   Status device_enable();
   Status device_disable();
 
-  private:
+private:
   Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);
   Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(internal::BNO055_PAGE_t page);
 
-  I2C_HandleTypeDef& i2c;
-  gpio::GpioPin* reset;
+  I2C_HandleTypeDef &i2c;
+  gpio::GpioPin *reset;
 };
 
 

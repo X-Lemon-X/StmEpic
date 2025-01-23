@@ -23,7 +23,7 @@ namespace stmepic::filters {
  * For simple data filtration with super simple setup.
  */
 class FilterAlfaBeta : public FilterSampleSkip {
-  public:
+public:
   FilterAlfaBeta();
 
   float calculate(float x) override;
@@ -38,7 +38,7 @@ class FilterAlfaBeta : public FilterSampleSkip {
   /// @param beta the beta value
   void set_beta(float beta);
 
-  private:
+private:
   float alfa;
   float beta;
   float ypri;

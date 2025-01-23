@@ -28,7 +28,7 @@ namespace stmepic::movement {
  *
  */
 class BasicLinearPosControler : public MovementEquation {
-  private:
+private:
   float max_acceleration;
   float target_pos_max_error;
   // float previous_velocity;
@@ -39,7 +39,7 @@ class BasicLinearPosControler : public MovementEquation {
 
   [[nodiscard]] float get_sign(float value);
 
-  public:
+public:
   BasicLinearPosControler();
 
   void begin_state(MovementState current_state, float current_time) override;

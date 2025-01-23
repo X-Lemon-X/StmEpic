@@ -7,12 +7,11 @@ using namespace stmepic::motor;
 using namespace stmepic;
 using namespace stmepic::gpio;
 
-MotorClosedLoop::MotorClosedLoop(MotorBase& _motor,
-                                 encoders::EncoderBase* _encoder_pos,
-                                 encoders::EncoderBase* _encoder_vel,
-                                 encoders::EncoderBase* _encoder_torque)
-: motor(_motor), encoder_pos(_encoder_pos), encoder_vel(_encoder_vel),
-  encoder_torque(_encoder_torque) {
+MotorClosedLoop::MotorClosedLoop(MotorBase &_motor,
+                                 encoders::EncoderBase *_encoder_pos,
+                                 encoders::EncoderBase *_encoder_vel,
+                                 encoders::EncoderBase *_encoder_torque)
+: motor(_motor), encoder_pos(_encoder_pos), encoder_vel(_encoder_vel), encoder_torque(_encoder_torque) {
 }
 
 void MotorClosedLoop::init() {

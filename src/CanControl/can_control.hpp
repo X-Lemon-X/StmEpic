@@ -37,7 +37,7 @@ namespace stmepic {
  *
  */
 struct CanMsg {
-  public:
+public:
   /// @brief frame_id of the message
   uint32_t frame_id;
 
@@ -59,10 +59,9 @@ struct CanMsg {
  * This class provides functionalities for handling the CAN interface
  * with easy to implement callbacks for each frame id.
  */
-template <uint32_t CAN_CALLBACK_LIST_SIZE = CAN_CONTROL_CAN_CALLBACK_LIST_SIZE_DEFAULT>
-class CanControl {
-  public:
-  using function_pointer = void (*)(CanMsg&);
+template <uint32_t CAN_CALLBACK_LIST_SIZE = CAN_CONTROL_CAN_CALLBACK_LIST_SIZE_DEFAULT> class CanControl {
+public:
+  using function_pointer = void (*)(CanMsg &);
 
   static const uint32_t CAN_DEFAULT_FRAME_ID = 0x0;
 
@@ -78,10 +77,7 @@ class CanControl {
   /// @param ticker  main systeerror ticker object
   /// @param pin_tx_led  pin object for the TX led
   /// @param pin_rx_led  pin object for the RX ledCAN_QUEUE_SIZE
-  void init(CAN_HandleTypeDef& _can_interface,
-            uint32_t _can_fifo,
-            gpio::GpioPin* _pin_tx_led,
-            gpio::GpioPin* _pin_rx_led) {
+  void init(CAN_HandleTypeDef &_can_interface, uint32_t _can_fifo, gpio::GpioPin *_pin_tx_led, gpio::GpioPin *_pin_rx_led) {
     can_interface = &_can_interface;
     can_fifo      = _can_fifo;
     pin_rx_led    = _pin_rx_led;
@@ -160,7 +156,7 @@ class CanControl {
 
   /// @brief  Adds a message to the queue, the messages will be send only when handle is called
   /// @param msg  CAN_MSG to be sent
-  Status send_can_msg_to_queue(CanMsg& msg) {
+  Status send_can_msg_to_queue(CanMsg &msg) {
     return tx_msg_buffor.push_back(msg);
   };
 
@@ -179,7 +175,7 @@ class CanControl {
 
   /// @brief  Send a message to a CAN bus
   /// @param msg  CanMsg to be sent
-  Status send_can_msg(CanMsg& msg) {
+  Status send_can_msg(CanMsg &msg) {
     if(HAL_CAN_GetTxMailboxesFreeLevel(can_interface) == 0)
       return Status::OutOfMemory("CAN TX buffer is full");
 
@@ -195,8 +191,8 @@ class CanControl {
     return Status::OK();
   };
 
-  private:
-  CAN_HandleTypeDef* can_interface;
+private:
+  CAN_HandleTypeDef *can_interface;
   uint32_t can_fifo;
   std::shared_ptr<Timing> timing_led_rx;
   std::shared_ptr<Timing> timing_led_tx;
@@ -208,8 +204,8 @@ class CanControl {
   // std::unordered_map<uint32_t, void (*)(CanMsg&)> callback_map;
   etl::unordered_map<uint32_t, function_pointer, CAN_CALLBACK_LIST_SIZE> callback_map;
 
-  const gpio::GpioPin* pin_tx_led;
-  const gpio::GpioPin* pin_rx_led;
+  const gpio::GpioPin *pin_tx_led;
+  const gpio::GpioPin *pin_rx_led;
   uint32_t last_tx_mailbox;
 
   uint32_t filter_mask;
@@ -267,7 +263,7 @@ class CanControl {
   //   (void)rx_msg_buffor.push_back(msg);
   // }
 
-  static void base_callback(CanMsg& msg) {
+  static void base_callback(CanMsg &msg) {
     __NOP();
   };
 };

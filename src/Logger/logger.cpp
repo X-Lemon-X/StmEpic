@@ -23,51 +23,50 @@ Status Logger::init(LOG_LEVEL level, bool _print_info, transmit_data_func _trans
   return Status::OK();
 }
 
-void Logger::error(std::string msg, const char* file, const char* function_name) {
+void Logger::error(std::string msg, const char *file, const char *function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_ERROR)
     return;
   transmit(msg, "ERROR", file, function_name);
 }
 
-void Logger::warning(std::string msg, const char* file, const char* function_name) {
+void Logger::warning(std::string msg, const char *file, const char *function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_WARNING)
     return;
   transmit(msg, "WARNING", file, function_name);
 }
 
-void Logger::info(std::string msg, const char* file, const char* function_name) {
+void Logger::info(std::string msg, const char *file, const char *function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_INFO)
     return;
   transmit(msg, "INFO", file, function_name);
 }
 
-void Logger::debug(std::string msg, const char* file, const char* function_name) {
+void Logger::debug(std::string msg, const char *file, const char *function_name) {
   if(log_level > LOG_LEVEL::LOG_LEVEL_DEBUG)
     return;
   transmit(msg, "DEBUG", file, function_name);
 }
 
-void Logger::transmit(std::string msg, std::string prefix, const char* file, const char* function_name) {
+void Logger::transmit(std::string msg, std::string prefix, const char *file, const char *function_name) {
   if(print_info) {
     std::string debug_info = "";
     if(file != nullptr && function_name != nullptr)
-      debug_info = "," + key_value_to_json("file", file) + "," +
-                   key_value_to_json("function", function_name);
-    msg = "{\"time\":\"" + std::to_string(HAL_GetTick()) + "\",\"level\":\"" + prefix +
-          "\",\"ver\":\"" + version + "\"" + debug_info + ",\"msg\":{" + msg + "}}\n";
+      debug_info = "," + key_value_to_json("file", file) + "," + key_value_to_json("function", function_name);
+    msg = "{\"time\":\"" + std::to_string(HAL_GetTick()) + "\",\"level\":\"" + prefix + "\",\"ver\":\"" +
+          version + "\"" + debug_info + ",\"msg\":{" + msg + "}}\n";
   } else {
     msg += "\n";
   }
   if(transmit_function)
-    transmit_function((uint8_t*)msg.c_str(), msg.length());
+    transmit_function((uint8_t *)msg.c_str(), msg.length());
 }
 
 std::string Logger::key_value_to_json(std::string key, std::string value) {
   return "\"" + key + "\":\"" + value + "\"";
 }
 
-Logger& Logger::get_instance() {
-  static Logger* logger_instance = nullptr;
+Logger &Logger::get_instance() {
+  static Logger *logger_instance = nullptr;
   if(logger_instance == nullptr)
     logger_instance = new Logger();
   return *logger_instance;
