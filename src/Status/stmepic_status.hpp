@@ -272,7 +272,7 @@ public:
   }
 
 private:
-  Status(StatusCode status, const char *message) : _status(status), _message(message) {};
+  Status(StatusCode status, const char *message) : _status(status), _message(message){};
   StatusCode _status;
   const char *_message;
 };
@@ -287,7 +287,7 @@ private:
 template <typename T> struct Result {
 public:
   /// @brief Create a new Result from status for clean return from functions when error occurs.
-  Result(Status status) : _status(status) {};
+  Result(Status status) : _status(status){};
 
   /// @brief Return a new Result with value and status OK.
   static auto OK(const T &value) -> Result<T> {
@@ -315,7 +315,7 @@ public:
   }
 
 private:
-  Result(T value, Status status) : _value(value), _status(status) {};
+  Result(T value, Status status) : _value(value), _status(status){};
   T _value;
   Status _status;
 };
