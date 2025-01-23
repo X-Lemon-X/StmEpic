@@ -148,6 +148,7 @@ public:
    * NotImplemented. For example, if the device is a logic lever shifter, it doesn't
    * require a task to run to do its work, just some control signals will be send whenever
    * user change the voltage level.
+   * @return Status Status of the operation. Notimplemented if the device don't have this functionality.
    */
   [[nodiscard]] virtual Status device_task_run() {
     return Status::NotImplemented();
@@ -158,6 +159,7 @@ public:
    * This function is used to stop the task that runs on the device to do some work.
    * similat to device_task_run, but this function stops the task.
    * If the device don't have this functionality, this function should return NotImplemented.
+   * @return Status Status of the operation. Notimplemented if the device don't have this functionality.
    */
   [[nodiscard]] virtual Status device_task_stop() {
     return Status::NotImplemented();

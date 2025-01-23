@@ -89,7 +89,7 @@ private:
 
   const HardwareTy _hardwType;
   const gpio::GpioPin &_gpio_sda;
-  const gpio::GpioPin &_gpio_sdc;
+  const gpio::GpioPin &_gpio_scl;
   SemaphoreHandle_t _mutex;
   I2C_HandleTypeDef *_hi2c;
 
