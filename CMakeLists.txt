@@ -5,9 +5,9 @@ set(UPPER_PROJECT_NAME ${CMAKE_PROJECT_NAME})
 add_library(stmepic INTERFACE)
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17 PARENT_SCOPE)
+set(CMAKE_CXX_STANDARD_REQUIRED True PARENT_SCOPE)
+set(EXPORT_COMPILE_COMMANDS ON PARENT_SCOPE)
 
 cmake_policy(SET CMP0076 NEW)
 
@@ -101,6 +101,17 @@ add_subdirectory(FreeRTOS-Kernel)
 ## LINK ALL THE STMEPIC MODULES
 target_link_libraries(stmepic INTERFACE etl::etl freertos_config freertos_kernel)
 
+############################################
+## C++ compiler flags
+set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" PARENT_SCOPE)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -u_printf_float -Wreturn-type" PARENT_SCOPE)
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}  -u_printf_float -Wreturn-type" PARENT_SCOPE)
+
+# aditional linker flags
+set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type" PARENT_SCOPE)
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type" PARENT_SCOPE)
+
+enable_language(CXX C ASM)
 
 ############################################
 # DOCUMENTATION GENERATION
@@ -118,4 +129,3 @@ if(STMEPIC_GENERATE_DOCS)
     message("Doxygen need to be installed to generate the doxygen documentation")
   endif (DOXYGEN_FOUND)
 endif()
-
