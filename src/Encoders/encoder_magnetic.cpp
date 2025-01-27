@@ -38,10 +38,10 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic() {
   this->reg_to_angle_function      = translate_reg_to_angle_AS5600;
 }
 
-void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef& hi2c,
+void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef &hi2c,
                                    traslate_reg_to_angle _reg_to_angle_function,
-                                   filters::FilterBase* filter_angle,
-                                   filters::FilterBase* filter_velocity) {
+                                   filters::FilterBase *filter_angle,
+                                   filters::FilterBase *filter_velocity) {
   if(!this->encoder_enabled)
     return;
   this->hi2c                  = &hi2c;

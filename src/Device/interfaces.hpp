@@ -9,7 +9,7 @@ namespace stmepic {
 enum class HardwareTy { DMA, IRQ, BLOCKING };
 
 class HardwareInterface {
-  public:
+public:
   HardwareInterface()                  = default;
   virtual ~HardwareInterface()         = default;
   [[nodiscard]] virtual Status reset() = 0;

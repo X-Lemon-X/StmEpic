@@ -51,7 +51,7 @@ void I2C::run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c) {
 
 
 I2C::I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type)
-: _hi2c(&hi2c), _gpio_sda(sda), _gpio_sdc(scl), _hardwType(type) {
+: _hi2c(&hi2c), _gpio_sda(sda), _gpio_scl(scl), _hardwType(type) {
   _mutex = xSemaphoreCreateMutex();
 };
 
@@ -87,15 +87,37 @@ void I2C::rx_callback(I2C_HandleTypeDef *hi2c) {
 
 
 Status I2C::reset() {
-  return Status::NotImplemented();
+  STMEPIC_RETURN_ON_ERROR(stop());
+  // restart
+  GPIO_InitTypeDef gpioinit = { 0 };
+  gpioinit.Pin              = _gpio_sda.pin;
+  gpioinit.Mode             = GPIO_MODE_OUTPUT_PP;
+  gpioinit.Pull             = GPIO_NOPULL;
+  gpioinit.Speed            = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(_gpio_sda.port, &gpioinit);
+  gpioinit.Pin = _gpio_scl.pin;
+  HAL_GPIO_Init(_gpio_scl.port, &gpioinit);
+
+  vPortEnterCritical();
+  HAL_GPIO_WritePin(_gpio_sda.port, _gpio_sda.pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(_gpio_scl.port, _gpio_scl.pin, GPIO_PIN_SET);
+
+  for(size_t i = 0; i < 20; i++) {
+    HAL_GPIO_TogglePin(_gpio_scl.port, _gpio_scl.pin);
+    HAL_Delay(1);
+  }
+  vPortExitCritical();
+  return start();
 }
 
 Status I2C::start() {
-  return Status::NotImplemented();
+  auto staus = HAL_I2C_Init(_hi2c);
+  return staus;
 }
 
 Status I2C::stop() {
-  return Status::NotImplemented();
+  auto status = HAL_I2C_DeInit(_hi2c);
+  return status;
 }
 
 Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {

@@ -26,7 +26,7 @@ namespace stmepic::sensors::temperature {
  * Like 10k or 100k or any other NTC termistor
  */
 class NtcTermistors {
-  public:
+public:
   /**
    * @brief Construct a new NtcTermistors object
    * Vcc |------[R1]----------[NTC]--------------|| GND
@@ -37,7 +37,7 @@ class NtcTermistors {
   NtcTermistors(float termistor_supply_voltage, float termistor_divider_resistance);
   float get_temperature(float voltage_value);
 
-  private:
+private:
   const float termistor_supply_voltage;
   const float termistor_divider_resisitor;
 

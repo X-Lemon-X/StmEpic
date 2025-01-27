@@ -20,7 +20,7 @@ FRAM::FRAM() {
   encryption_key = base_encryption_key;
 }
 
-Result<std::vector<uint8_t>> FRAM::encode_data(const std::vector<uint8_t>& data) {
+Result<std::vector<uint8_t>> FRAM::encode_data(const std::vector<uint8_t> &data) {
   if(data.size() == 0)
     return Status::CapacityError("Size of the data is 0");
 
@@ -59,7 +59,7 @@ Result<std::vector<uint8_t>> FRAM::encode_data(const std::vector<uint8_t>& data)
   return Result<std::vector<uint8_t>>::OK(da);
 }
 
-Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t>& data) {
+Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t> &data) {
   if(data.size() == 0)
     return Status::CapacityError("Size of the data is 0");
 
@@ -81,8 +81,8 @@ Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t>& data)
   encrypted_encres[2] = data[5];
   encrypted_encres[3] = data[6];
   STMEPIC_ASSING_OR_RETURN(decrypted_encres, decrypt_data(encrypted_encres, encryption_key));
-  uint32_t encres = (decrypted_encres[0] << 24) | (decrypted_encres[1] << 16) |
-                    (decrypted_encres[2] << 8) | decrypted_encres[3];
+  uint32_t encres =
+  (decrypted_encres[0] << 24) | (decrypted_encres[1] << 16) | (decrypted_encres[2] << 8) | decrypted_encres[3];
   std::string key = std::to_string(encres) + encryption_key;
 
   auto data_data = std::vector<uint8_t>(data.begin() + frame_size, data.end());
@@ -93,14 +93,14 @@ Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t>& data)
 }
 
 
-uint16_t FRAM::calculate_checksum(const std::vector<uint8_t>& data) {
+uint16_t FRAM::calculate_checksum(const std::vector<uint8_t> &data) {
   uint16_t checksum = 0;
-  for(auto& d : data)
+  for(auto &d : data)
     checksum += d;
   return checksum;
 }
 
-Result<std::vector<uint8_t>> FRAM::encrypt_data(const std::vector<uint8_t>& data, std::string key) {
+Result<std::vector<uint8_t>> FRAM::encrypt_data(const std::vector<uint8_t> &data, std::string key) {
   if(data.size() == 0)
     return Status::CapacityError("Size of the data is 0");
   if(key == FRAM::base_encryption_key)
@@ -108,13 +108,13 @@ Result<std::vector<uint8_t>> FRAM::encrypt_data(const std::vector<uint8_t>& data
   std::vector<uint8_t> encrypted_data;
   uint8_t shaout[algorithm::SHA256::SHA256_OUTPUT_SIZE];
   // uint32_t key_data[] = {key, encres};
-  algorithm::SHA256::sha256((uint8_t*)(key.c_str()), key.size(), shaout);
+  algorithm::SHA256::sha256((uint8_t *)(key.c_str()), key.size(), shaout);
   for(size_t i = 0; i < data.size(); i++)
     encrypted_data.push_back(data[i] ^ shaout[i % algorithm::SHA256::SHA256_OUTPUT_SIZE]);
   return Result<std::vector<uint8_t>>::OK(encrypted_data);
 }
 
-Result<std::vector<uint8_t>> FRAM::decrypt_data(const std::vector<uint8_t>& data, std::string key) {
+Result<std::vector<uint8_t>> FRAM::decrypt_data(const std::vector<uint8_t> &data, std::string key) {
   if(data.size() == 0)
     return Status::CapacityError("Size of the data is 0");
   if(key == FRAM::base_encryption_key)
@@ -122,7 +122,7 @@ Result<std::vector<uint8_t>> FRAM::decrypt_data(const std::vector<uint8_t>& data
   std::vector<uint8_t> decrypted_data;
   uint8_t shaout[algorithm::SHA256::SHA256_OUTPUT_SIZE];
   // uint32_t key_data[] = {key, encres};
-  algorithm::SHA256::sha256((uint8_t*)(key.c_str()), key.size(), shaout);
+  algorithm::SHA256::sha256((uint8_t *)(key.c_str()), key.size(), shaout);
   for(size_t i = 0; i < data.size(); i++)
     decrypted_data.push_back(data[i] ^ shaout[i % algorithm::SHA256::SHA256_OUTPUT_SIZE]);
   return Result<std::vector<uint8_t>>::OK(decrypted_data);

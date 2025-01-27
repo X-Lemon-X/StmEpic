@@ -32,9 +32,7 @@ MovementControler::~MovementControler() {
   }
 }
 
-void MovementControler::init(motor::MotorBase& _motor,
-                             MovementControlMode _control_mode,
-                             MovementEquation& _movement_equation) {
+void MovementControler::init(motor::MotorBase &_motor, MovementControlMode _control_mode, MovementEquation &_movement_equation) {
   motor                  = &_motor;
   movement_equation      = &_movement_equation;
   control_mode           = _control_mode;
@@ -57,11 +55,10 @@ void MovementControler::handle() {
   state.velocity = overide_limit_abs(state.velocity, max_velocity);
   state.torque   = overide_limit_abs(state.torque, max_torque);
 
-  if(dont_override_limit_position &&
-     (current_state.position < min_position || current_state.position > max_position)) {
-    state.velocity = 0;
-    state.torque   = 0;
-    state.position = overide_limit(current_state.position, max_position, min_position);
+  if(dont_override_limit_position && (current_state.position < min_position || current_state.position > max_position)) {
+    state.velocity         = 0;
+    state.torque           = 0;
+    state.position         = overide_limit(current_state.position, max_position, min_position);
     limit_positon_achieved = true;
   } else {
     limit_positon_achieved = false;

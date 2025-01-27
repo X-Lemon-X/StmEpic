@@ -23,15 +23,15 @@ void Ticker::irq_update_ticker() {
   tick_micros = tick_millis * 1000;
 }
 
-Ticker& Ticker::get_instance() {
-  static Ticker* ticker;
+Ticker &Ticker::get_instance() {
+  static Ticker *ticker;
   if(ticker == nullptr) {
     ticker = new Ticker();
   }
   return *ticker;
 }
 
-void Ticker::init(TIM_HandleTypeDef* _timer) {
+void Ticker::init(TIM_HandleTypeDef *_timer) {
   timer       = _timer;
   tick_micros = 0;
   tick_millis = 0;
@@ -59,7 +59,7 @@ void Timing::set_behaviour(uint32_t _period, bool _repeat) {
   repeat = _repeat;
 }
 
-Timing::Timing(Ticker& _ticker) : ticker(_ticker) {
+Timing::Timing(Ticker &_ticker) : ticker(_ticker) {
   period         = 0;
   last_time      = ticker.get_micros();
   repeat         = true;
@@ -68,8 +68,7 @@ Timing::Timing(Ticker& _ticker) : ticker(_ticker) {
   triggered_flag = false;
 }
 
-Result<std::shared_ptr<Timing>>
-Timing::Make(uint32_t period, bool repeat, void (*function)(Timing&), Ticker& ticker) {
+Result<std::shared_ptr<Timing>> Timing::Make(uint32_t period, bool repeat, void (*function)(Timing &), Ticker &ticker) {
   auto new_timer = new Timing(ticker);
   new_timer->set_behaviour(period, repeat);
   new_timer->function = function;
@@ -117,7 +116,7 @@ void Timing::run_function() {
   this->function(*this);
 }
 
-TimeScheduler::TimeScheduler(Ticker& _ticker) : ticker(_ticker) {
+TimeScheduler::TimeScheduler(Ticker &_ticker) : ticker(_ticker) {
 }
 
 Status TimeScheduler::add_timer(std::shared_ptr<Timing> timer) {
@@ -128,7 +127,7 @@ Status TimeScheduler::add_timer(std::shared_ptr<Timing> timer) {
 }
 
 void TimeScheduler::schedules_handle_non_blocking() {
-  for(auto& timer : timers) {
+  for(auto &timer : timers) {
     timer->run_function();
   }
 }

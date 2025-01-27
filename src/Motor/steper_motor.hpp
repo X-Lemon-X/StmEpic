@@ -29,12 +29,12 @@ namespace stmepic::motor {
  *
  */
 class SteperMotorStepDir : public MotorBase {
-  public:
+public:
   /// @brief Constructor for the SteperMotorStepDir class
-  SteperMotorStepDir(TIM_HandleTypeDef& htim,
+  SteperMotorStepDir(TIM_HandleTypeDef &htim,
                      unsigned int timer_channel,
-                     const gpio::GpioPin& direction_pin,
-                     const gpio::GpioPin& enable_pin);
+                     const gpio::GpioPin &direction_pin,
+                     const gpio::GpioPin &enable_pin);
 
   /// @brief Initialize the SteperMotor, calculates all necessary stuff to avoid
   /// calculating it over again after the initialization
@@ -110,14 +110,14 @@ class SteperMotorStepDir : public MotorBase {
 
   Status device_disable() override;
 
-  private:
+private:
   float radians_to_frequency;
   float frequency;
   float angle;
-  TIM_HandleTypeDef& htim;
+  TIM_HandleTypeDef &htim;
   unsigned int timer_channel;
-  const gpio::GpioPin& direction_pin;
-  const gpio::GpioPin& enable_pin;
+  const gpio::GpioPin &direction_pin;
+  const gpio::GpioPin &enable_pin;
 
   float steps_per_revolution;
   float gear_ratio;

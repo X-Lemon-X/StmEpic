@@ -30,7 +30,7 @@
 
 /// @brief  get the voltage value from the analog pin only for 12 bit ADC and 3.3V reference voltage
 /// @param gpio_pin  the pin to read the voltage from
-#define VOLTAGE_VALUE(gpio_pin) (float)gpio_pin.analog_value* ANALOG_ADC_VAKUE_TO_VOLTAGE
+#define VOLTAGE_VALUE(gpio_pin) (float)gpio_pin.analog_value *ANALOG_ADC_VAKUE_TO_VOLTAGE
 
 namespace stmepic::gpio {
 
@@ -45,7 +45,7 @@ namespace stmepic::gpio {
  */
 struct GpioPin {
   uint16_t pin;
-  GPIO_TypeDef* port;
+  GPIO_TypeDef *port;
   uint16_t analog_value;
 };
 

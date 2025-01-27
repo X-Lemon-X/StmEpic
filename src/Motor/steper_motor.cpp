@@ -17,12 +17,11 @@ template <typename T> int sgn(T val) {
   return (T(0) < val) - (val < T(0));
 }
 
-SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef& _htim,
+SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef &_htim,
                                        unsigned int _timer_channel,
-                                       const GpioPin& _direction_pin,
-                                       const GpioPin& _enable_pin)
-: htim(_htim), direction_pin(_direction_pin), timer_channel(_timer_channel),
-  enable_pin(_enable_pin) {
+                                       const GpioPin &_direction_pin,
+                                       const GpioPin &_enable_pin)
+: htim(_htim), direction_pin(_direction_pin), timer_channel(_timer_channel), enable_pin(_enable_pin) {
   this->radians_to_frequency = 0;
   this->steps_per_revolution = 400;
   this->gear_ratio           = 1;
@@ -42,8 +41,7 @@ void SteperMotorStepDir::init() {
   // equaions to get frequency that will give us desired velocity
   // base frequency
   // frequency = velocity * steps_pre_revolutions * gear_ratio
-  this->radians_to_frequency =
-  core_freq / prescaler / ((this->steps_per_revolution * this->gear_ratio) / PIM2);
+  this->radians_to_frequency = core_freq / prescaler / ((this->steps_per_revolution * this->gear_ratio) / PIM2);
 }
 
 void SteperMotorStepDir::set_velocity(float velocity) {

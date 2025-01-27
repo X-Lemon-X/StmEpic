@@ -24,7 +24,7 @@ namespace stmepic::filters {
  * Making it simple to change and test new filters for sensors.
  */
 class FilterBase {
-  public:
+public:
   /// @brief Construct a new Filter Base object
   FilterBase() = default;
 
@@ -49,7 +49,7 @@ class FilterBase {
  * Simple sample skip filter, to take every N-th sample.
  */
 class FilterSampleSkip : public FilterBase {
-  public:
+public:
   /// @brief Construct a new Filter Sample Skip object
   /// simple filter that skips samples
   FilterSampleSkip();
@@ -61,7 +61,7 @@ class FilterSampleSkip : public FilterBase {
   /// @brief sets the initial value of the filter
   void set_init_value(float value) override;
 
-  private:
+private:
   uint16_t samples_to_skip;
   float last_value;
   uint16_t sample_count;

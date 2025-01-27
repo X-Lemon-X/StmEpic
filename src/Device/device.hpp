@@ -83,7 +83,7 @@ namespace stmepic {
  */
 
 class DeviceBase {
-  public:
+public:
   DeviceBase() = default;
 
 
@@ -148,6 +148,7 @@ class DeviceBase {
    * NotImplemented. For example, if the device is a logic lever shifter, it doesn't
    * require a task to run to do its work, just some control signals will be send whenever
    * user change the voltage level.
+   * @return Status Status of the operation. Notimplemented if the device don't have this functionality.
    */
   [[nodiscard]] virtual Status device_task_run() {
     return Status::NotImplemented();
@@ -158,6 +159,7 @@ class DeviceBase {
    * This function is used to stop the task that runs on the device to do some work.
    * similat to device_task_run, but this function stops the task.
    * If the device don't have this functionality, this function should return NotImplemented.
+   * @return Status Status of the operation. Notimplemented if the device don't have this functionality.
    */
   [[nodiscard]] virtual Status device_task_stop() {
     return Status::NotImplemented();
@@ -207,12 +209,12 @@ class DeviceBase {
  * @tparam MaxDeviceCount Maximum number of devices that can be managed.
  */
 template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager {
-  public:
-  using device_status_callback = void (*)(DeviceBase*, StatusCode);
+public:
+  using device_status_callback = void (*)(DeviceBase *, StatusCode);
 
   DeviceMenager() = default;
 
-  Status add_device(DeviceBase* device) {
+  Status add_device(DeviceBase *device) {
     if(etl::find(devices.begin(), devices.end(), device) != devices.end()) {
       return Status::AlreadyExists();
     }
@@ -220,7 +222,7 @@ template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager
     return Status::OK();
   }
 
-  Status remove_device(DeviceBase* device) {
+  Status remove_device(DeviceBase *device) {
     auto dev = etl::find(devices.begin(), devices.end(), device);
     if(dev == devices.end()) {
       return Status::KeyError();
@@ -232,7 +234,7 @@ template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager
 
   Status reset_all() {
     Status status;
-    for(auto& device : devices) {
+    for(auto &device : devices) {
       status = device->device_reset();
       if(!status.ok())
         return status;
@@ -242,7 +244,7 @@ template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager
   Status start_all() {
     Status status;
     ;
-    for(auto& device : devices) {
+    for(auto &device : devices) {
       status = device->device_start();
       if(status.ok())
         return status;
@@ -251,19 +253,19 @@ template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager
 
   Status stop_all() {
     Status status;
-    for(auto& device : devices) {
+    for(auto &device : devices) {
       status = device->device_stop();
       if(status.ok())
         return status;
     };
   };
 
-  void add_callback(DeviceBase* device, device_status_callback callback) {
+  void add_callback(DeviceBase *device, device_status_callback callback) {
     add_device(device);
     device_callbacks[device] = callback;
   }
 
-  Status remove_callback(DeviceBase* device) {
+  Status remove_callback(DeviceBase *device) {
     auto devcall = device_callbacks.find(device);
     if(devcall != device_callbacks.end()) {
       device_callbacks.erase(devcall);
@@ -273,7 +275,7 @@ template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager
   }
 
   [[nodiscard]] Result<bool> is_all_connected() {
-    for(auto& device : devices) {
+    for(auto &device : devices) {
       auto result = device->device_is_connected();
       if(!result.ok())
         return result;
@@ -284,16 +286,16 @@ template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager
   }
 
   [[nodiscard]] bool is_all_ok() {
-    for(auto& device : devices) {
+    for(auto &device : devices) {
       if(!device->device_ok())
         return false;
     }
     return true;
   }
 
-  private:
-  etl::vector<DeviceBase*, MaxDeviceCount> devices;
-  etl::unordered_map<DeviceBase*, device_status_callback, MaxDeviceCount> device_callbacks;
+private:
+  etl::vector<DeviceBase *, MaxDeviceCount> devices;
+  etl::unordered_map<DeviceBase *, device_status_callback, MaxDeviceCount> device_callbacks;
 };
 
 } // namespace stmepic

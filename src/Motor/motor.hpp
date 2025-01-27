@@ -31,7 +31,7 @@ namespace stmepic::motor {
  *
  */
 class MotorBase : public DeviceBase {
-  public:
+public:
   MotorBase() = default;
 
   /// @brief Initialize the Motor, calcualtes all necessary stuff to a void calcualting it
@@ -97,16 +97,16 @@ class MotorBase : public DeviceBase {
  *
  */
 class MotorClosedLoop : public MotorBase {
-  public:
+public:
   /// @brief Constructor for the SteperMotorClosedLoop class taht takes a SteperMotor, and 0 or 1 to 2 encoders
   /// @param steper_motor The SteperMotor that will be controlled
   /// @param encoder_pos The encoder that will be used to get position of the SteperMotor
   /// @param encoder_vel The encoder that will be used to get velocity of the SteperMotor
   /// The same encoder_pos and encoder_vel can be passed if the SteperMotor has only one encoder
-  MotorClosedLoop(MotorBase& _motor,
-                  encoders::EncoderBase* _encoder_pos,
-                  encoders::EncoderBase* _encoder_vel,
-                  encoders::EncoderBase* _encoder_torque);
+  MotorClosedLoop(MotorBase &_motor,
+                  encoders::EncoderBase *_encoder_pos,
+                  encoders::EncoderBase *_encoder_vel,
+                  encoders::EncoderBase *_encoder_torque);
 
   void init() override;
 
@@ -148,11 +148,11 @@ class MotorClosedLoop : public MotorBase {
 
   Status device_disable() override;
 
-  private:
-  MotorBase& motor;
-  encoders::EncoderBase* encoder_pos;
-  encoders::EncoderBase* encoder_vel;
-  encoders::EncoderBase* encoder_torque;
+private:
+  MotorBase &motor;
+  encoders::EncoderBase *encoder_pos;
+  encoders::EncoderBase *encoder_vel;
+  encoders::EncoderBase *encoder_torque;
 };
 
 } // namespace stmepic::motor
