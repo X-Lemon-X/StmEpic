@@ -27,7 +27,7 @@ namespace stmepic::encoders {
  * @brief Base Interface for all encoders.
  *
  */
-class EncoderBase : public DeviceBase {
+class EncoderBase : public DeviceThreadedBase {
 public:
   /// @brief Construct a new Encoder Base object
   EncoderBase() = default;
@@ -57,9 +57,6 @@ public:
   /// @brief handles the encoder updates data read from the encoder
   virtual void handle() = 0;
 
-  /// @brief handles the encoder updates in some IRK.
-  virtual void handle_irk() = 0;
-
   /// @brief sets the offset of the encoder
   /// @param offset the offset in radians
   virtual void set_offset(float offset) = 0;
@@ -72,10 +69,6 @@ public:
   /// this is used to calculate the real angle and velocity of the motor in case the motor has a gear reduction
   /// @param ratio
   virtual void set_ratio(float ratio) = 0;
-
-  /// @brief Enable the encoder
-  /// @param enable true to enable the encoder
-  virtual void set_enable_encoder(bool enable) = 0;
 };
 
 } // namespace stmepic::encoders

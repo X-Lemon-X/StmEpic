@@ -14,7 +14,7 @@
 
 /**
  * @defgroup Devices
- * @brief Functions related to device control. From sensors to actuators.
+ * @brief Functions related to device control. From sensors to actuators. As well as task menagment for devices.
  * @{
  */
 
@@ -23,55 +23,7 @@ namespace stmepic {
  * @def DEVICE_MAX_DEVICE_COUNT
  * @brief Maximum number of devices that can be managed.
  */
-#define DEVICE_MAX_DEVICE_COUNT (uint32_t)32
-
-
-// /**
-//  * @enum DeviceStatus
-//  * @brief Enumeration representing various statuses of a device.
-//  *
-//  * @var DeviceStatus::OK
-//  * Device is operating normally.
-//  *
-//  * @var DeviceStatus::DEVICE_UNKNOWN_ERROR
-//  * Device encountered an unknown error.
-//  *
-//  * @var DeviceStatus::DEVICE_NOT_IMPLEMENTED
-//  * Device functionality is not implemented.
-//  *
-//  * @var DeviceStatus::DEVICE_IO_ERROR
-//  * Device encountered an I/O error.
-//  *
-//  * @var DeviceStatus::DEVICE_NOT_CONNECTED
-//  * Device is not connected.
-//  *
-//  * @var DeviceStatus::DEVICE_POWEROFF
-//  * Device is powered off.
-//  *
-//  * @var DeviceStatus::DEVICE_ALL_ERROR
-//  * Device encountered all possible errors.
-//  *
-//  * @var DeviceStatus::DEVICE_TIMEOUT
-//  * Device operation timed out.
-//  *
-//  * @var DeviceStatus::DEVICE_HAL_ERROR
-//  * Device encountered a HAL error.
-//  *
-//  * @var DeviceStatus::DEVICE_HAL_BUSY
-//  * Device HAL is busy.
-//  */
-// enum class DeviceStatus {
-//   OK                     = 0,
-//   DEVICE_UNKNOWN_ERROR   = 1,
-//   DEVICE_NOT_IMPLEMENTED = 2,
-//   DEVICE_IO_ERROR        = 3,
-//   DEVICE_NOT_CONNECTED   = 4,
-//   DEVICE_POWEROFF        = 5,
-//   DEVICE_ALL_ERROR       = 6,
-//   DEVICE_TIMEOUT         = 7,
-//   DEVICE_HAL_ERROR       = 8,
-//   DEVICE_HAL_BUSY        = 9,
-// };
+#define DEVICE_MAX_DEVICE_COUNT (uint32_t)64
 
 
 /**
@@ -84,7 +36,8 @@ namespace stmepic {
 
 class DeviceBase {
 public:
-  DeviceBase() = default;
+  DeviceBase()          = default;
+  virtual ~DeviceBase() = default;
 
 
   /**
@@ -137,6 +90,37 @@ public:
    * @return Status Status of the operation.
    */
   [[nodiscard]] virtual Status device_disable() = 0;
+};
+
+/**
+ * @class DeviceThrededSettingsBase
+ * @brief Abstract base struct to hold all setings for a device task to be run on the device.
+ * usua;;y will be cast to the specific settings struct for specific device.
+ */
+struct DeviceThrededSettingsBase {
+  StackType_t uxStackDepth;
+  UBaseType_t uxPriority;
+
+  DeviceThrededSettingsBase() : uxStackDepth(256), uxPriority(tskIDLE_PRIORITY + 2) {
+  }
+};
+
+/**
+ * @class DeviceThrededSettingsDefault
+ * @brief Default settings for a device task to be run on the device.
+ * This struct will be used to set the default settings for the task that will run on the device.
+ */
+struct DeviceThrededSettingsDefault : public DeviceThrededSettingsBase {
+  uint32_t period; // in ms that will determine task run frequency
+};
+
+
+class DeviceThreadedBase : public DeviceBase {
+public:
+  typedef void(TaskFunction)(void *);
+
+  DeviceThreadedBase();
+  virtual ~DeviceThreadedBase();
 
   /**
    * @brief Run a task that runs on the device.
@@ -144,161 +128,71 @@ public:
    * For example, if the device is a sensor, this function can be used to start reading
    * data from the sensor. Example for encoder this function would start a task that would
    * start reading the angles from the encoder in continous loop.
-   * However, if the device don't have this functionality, this function should return
-   * NotImplemented. For example, if the device is a logic lever shifter, it doesn't
-   * require a task to run to do its work, just some control signals will be send whenever
-   * user change the voltage level.
-   * @return Status Status of the operation. Notimplemented if the device don't have this functionality.
+   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
+   * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status device_task_run() {
-    return Status::NotImplemented();
-  };
+  [[nodiscard]] Status device_task_run(const DeviceThrededSettingsBase &settings);
 
   /**
    * @brief Stop the task that runs on the device.
    * This function is used to stop the task that runs on the device to do some work.
    * similat to device_task_run, but this function stops the task.
-   * If the device don't have this functionality, this function should return NotImplemented.
-   * @return Status Status of the operation. Notimplemented if the device don't have this functionality.
+   * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status device_task_stop() {
-    return Status::NotImplemented();
-  };
-};
-
-
-// /**
-//  * @class DeviceTranslateStatus
-//  * @brief Utility class for translating HAL status to device status and general status.
-//  *
-//  * This class provides static methods to translate HAL_StatusTypeDef to DeviceStatus and Status.
-//  */
-// class DeviceTranslateStatus {
-//   public:
-//   DeviceTranslateStatus() = default;
-
-//   static DeviceStatus translate_hal_status_to_device(HAL_StatusTypeDef status) {
-//     switch(status) {
-//     case HAL_OK: return DeviceStatus::OK;
-//     case HAL_ERROR: return DeviceStatus::DEVICE_HAL_ERROR;
-//     case HAL_BUSY: return DeviceStatus::DEVICE_HAL_BUSY;
-//     case HAL_TIMEOUT: return DeviceStatus::DEVICE_TIMEOUT;
-//     default: return DeviceStatus::DEVICE_UNKNOWN_ERROR;
-//     }
-//   }
-
-//   static Status translate_hal_status_to_status(HAL_StatusTypeDef status) {
-//     switch(status) {
-//     case HAL_OK: return Status::OK();
-//     case HAL_ERROR: return Status::IOError("HAL error");
-//     case HAL_BUSY: return Status::IOError("HAL busy");
-//     case HAL_TIMEOUT: return Status::TimeOut("HAL timeout");
-//     default: return Status::UnknownError("HAL unknown error");
-//     }
-//   }
-// };
-
-
-/**
- * @class DeviceMenager
- * @brief Template class for managing multiple devices.
- *
- * This class provides methods to add, remove, reset, start, and stop devices. It also supports
- * checking if all devices are connected and if all devices are operating normally.
- *
- * @tparam MaxDeviceCount Maximum number of devices that can be managed.
- */
-template <uint32_t MaxDeviceCount = DEVICE_MAX_DEVICE_COUNT> class DeviceMenager {
-public:
-  using device_status_callback = void (*)(DeviceBase *, StatusCode);
-
-  DeviceMenager() = default;
-
-  Status add_device(DeviceBase *device) {
-    if(etl::find(devices.begin(), devices.end(), device) != devices.end()) {
-      return Status::AlreadyExists();
-    }
-    devices.push_back(device);
-    return Status::OK();
-  }
-
-  Status remove_device(DeviceBase *device) {
-    auto dev = etl::find(devices.begin(), devices.end(), device);
-    if(dev == devices.end()) {
-      return Status::KeyError();
-    }
-    (void)remove_callback(device);
-    devices.erase(dev);
-    return Status::OK();
-  }
-
-  Status reset_all() {
-    Status status;
-    for(auto &device : devices) {
-      status = device->device_reset();
-      if(!status.ok())
-        return status;
-    }
-  };
-
-  Status start_all() {
-    Status status;
-    ;
-    for(auto &device : devices) {
-      status = device->device_start();
-      if(status.ok())
-        return status;
-    };
-  };
-
-  Status stop_all() {
-    Status status;
-    for(auto &device : devices) {
-      status = device->device_stop();
-      if(status.ok())
-        return status;
-    };
-  };
-
-  void add_callback(DeviceBase *device, device_status_callback callback) {
-    add_device(device);
-    device_callbacks[device] = callback;
-  }
-
-  Status remove_callback(DeviceBase *device) {
-    auto devcall = device_callbacks.find(device);
-    if(devcall != device_callbacks.end()) {
-      device_callbacks.erase(devcall);
-      return Status::OK();
-    }
-    return Status::KeyError();
-  }
-
-  [[nodiscard]] Result<bool> is_all_connected() {
-    for(auto &device : devices) {
-      auto result = device->device_is_connected();
-      if(!result.ok())
-        return result;
-      if(!result.valueOrDie())
-        return Result<bool>::OK(false);
-    }
-    return Result<bool>::OK(true);
-  }
-
-  [[nodiscard]] bool is_all_ok() {
-    for(auto &device : devices) {
-      if(!device->device_ok())
-        return false;
-    }
-    return true;
-  }
+  [[nodiscard]] virtual Status device_task_stop();
 
 private:
-  etl::vector<DeviceBase *, MaxDeviceCount> devices;
-  etl::unordered_map<DeviceBase *, device_status_callback, MaxDeviceCount> device_callbacks;
+  void *task_arg_ptr[3];
+
+  /**
+   * @brief Pure virtual function to start the task that runs on the device.
+   * This funciton should be overriden by the specific device to start the task that will run on the device.
+   * to do some work. For example, if the device is a sensor, this function can be used to start reading sensor data.
+   * However if you don't wont to add this fucntionity your self then simply make this function run the do_default_task_start
+   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
+   * @return Status Status of the operation.
+   */
+  [[nodiscard]] virtual Status do_device_task_start(const DeviceThrededSettingsBase &settings) = 0;
+
+  /**
+   * @brief Pure virtual function to stop the task that runs on the device.
+   * This funciton should be overriden by the specific device to stop the task that will run on the device.
+   * However if you don't wont to add this fucntionity your self then simply make this function run the do_default_task_stop
+   * @return Status Status of the operation.
+   */
+  [[nodiscard]] virtual Status do_device_task_stop() = 0;
+
+  /**
+   * @brief default task taht runs in a  infinit loop with a specified frequency.
+   * @param arg 3 arguments that will be passed to the task function.
+   * 1 - task function that will be run in a  loop
+   * 2 - task argument that will be passed to the task function
+   * 3 - period in ms that will determine task run frequency
+   */
+  static void default_task(void *arg);
+
+protected:
+  /// @brief FreeRtos Task handle for the specific device
+  TaskHandle_t task_handle;
+
+  /**
+   * @brief Runs and Start task privided by the user. With specified frequency.
+   *
+   * @param settings Settings for the task that will run on the device. Can be customized.
+   * @param task Task function that will be run. This function should be static if it is a member function.
+   * @param task_arg Argument that will be passed to the task function.
+   * Class instance for example that will be used in the task to do some work on.
+   * @return Status if the task was started successfully.
+   */
+  [[nodiscard]] Status do_default_task_start(const DeviceThrededSettingsDefault &settings, TaskFunction task, void *task_arg);
+
+  /**
+   * @brief Stops the task that runs default task on the device.
+   *
+   * @return Status if the task was stopped successfully.
+   */
+  [[nodiscard]] Status do_default_task_stop();
 };
 
+
 } // namespace stmepic
-
-
-/** @} */ // end of Encoder group

@@ -92,16 +92,10 @@ public:
   /// @brief handles the encoder updates data read from the encoder
   void handle() override;
 
-  /// @brief handles the encoder updates data read from the encoder
-  void handle_irk() override;
-
   /// @brief set the ratio that will be multiplayed by value of the angle and velocity
   /// @param ratio the ratio that will be multiplayed by value of the angle and velocity
   void set_ratio(float ratio) override;
 
-  /// @brief sets the enable of the encoder
-  /// @param enable true if the encoder is enabled
-  void set_enable_encoder(bool enable) override;
 
   /// @brief reads the raw angle from the encoder
   /// @return the raw angle in uint16_t
@@ -182,7 +176,7 @@ private:
   uint8_t address;
   uint8_t angle_register;
   uint8_t magnes_detection_register;
-  bool encoder_enabled;
+  bool encoder_initiated;
 
 
   /// @brief Calucaltes velcoicty, and passes it thoroung a filter
@@ -195,6 +189,11 @@ private:
   /// @brief reads the angle from the encoder and converts it to radians
   /// applays the offset and the reverse
   float read_angle_rads();
+
+  static void task_encoder(void *arg);
+
+  Status do_device_task_start(const DeviceThrededSettingsBase &settings) override;
+  Status do_device_task_stop() override;
 };
 
 

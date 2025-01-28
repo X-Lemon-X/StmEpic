@@ -7,4 +7,6 @@ target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
 
 target_sources(${UPPER_PROJECT_NAME} PRIVATE
   i2c.cpp
+  device.cpp
+  hardware.cpp
 )

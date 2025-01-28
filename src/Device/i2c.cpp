@@ -8,6 +8,7 @@ std::vector<std::shared_ptr<I2C>> I2C::i2c_interfaces;
 
 
 // @brief I2C callback for DMA and IRQ
+extern "C" {
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   I2C::run_tx_callbacks_from_irq(hi2c);
 }
@@ -15,9 +16,10 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
   I2C::run_rx_callbacks_from_irq(hi2c);
 }
+}
 
 Result<std::shared_ptr<I2C>>
-I2C::Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type) {
+I2C::Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type) {
   static std::vector<std::shared_ptr<I2C>> i2c_instances;
 
   vPortEnterCritical();
@@ -50,7 +52,7 @@ void I2C::run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c) {
 }
 
 
-I2C::I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type)
+I2C::I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type)
 : _hi2c(&hi2c), _gpio_sda(sda), _gpio_scl(scl), _hardwType(type) {
   _mutex = xSemaphoreCreateMutex();
 };
@@ -86,8 +88,8 @@ void I2C::rx_callback(I2C_HandleTypeDef *hi2c) {
 }
 
 
-Status I2C::reset() {
-  STMEPIC_RETURN_ON_ERROR(stop());
+Status I2C::hardware_reset() {
+  STMEPIC_RETURN_ON_ERROR(hardware_stop());
   // restart
   GPIO_InitTypeDef gpioinit = { 0 };
   gpioinit.Pin              = _gpio_sda.pin;
@@ -107,15 +109,15 @@ Status I2C::reset() {
     HAL_Delay(1);
   }
   vPortExitCritical();
-  return start();
+  return hardware_start();
 }
 
-Status I2C::start() {
+Status I2C::hardware_start() {
   auto staus = HAL_I2C_Init(_hi2c);
   return staus;
 }
 
-Status I2C::stop() {
+Status I2C::hardware_stop() {
   auto status = HAL_I2C_DeInit(_hi2c);
   return status;
 }
@@ -124,9 +126,9 @@ Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   switch(_hardwType) {
-  case HardwareTy::DMA: result = read_dma(address, mem_address, mem_size, data, size); break;
-  case HardwareTy::IRQ: result = read_irq(address, mem_address, mem_size, data, size); break;
-  case HardwareTy::BLOCKING: result = read_bl(address, mem_address, mem_size, data, size); break;
+  case HardwareType::DMA: result = read_dma(address, mem_address, mem_size, data, size); break;
+  case HardwareType::IRQ: result = read_irq(address, mem_address, mem_size, data, size); break;
+  case HardwareType::BLOCKING: result = read_bl(address, mem_address, mem_size, data, size); break;
   }
   xSemaphoreGive(_mutex);
   return result;
@@ -134,9 +136,9 @@ Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t
 
 Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {
   switch(_hardwType) {
-  case HardwareTy::DMA: return write_dma(address, mem_address, mem_size, data, size);
-  case HardwareTy::IRQ: return write_irq(address, mem_address, mem_size, data, size);
-  case HardwareTy::BLOCKING: return write_bl(address, mem_address, mem_size, data, size);
+  case HardwareType::DMA: return write_dma(address, mem_address, mem_size, data, size);
+  case HardwareType::IRQ: return write_irq(address, mem_address, mem_size, data, size);
+  case HardwareType::BLOCKING: return write_bl(address, mem_address, mem_size, data, size);
   }
 }
 

@@ -32,7 +32,7 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic() {
   this->offset                     = 0;
   this->data[0]                    = 0;
   this->data[1]                    = 0;
-  this->encoder_enabled            = false;
+  this->encoder_initiated          = false;
   this->ratio                      = 1;
   this->dead_zone_correction_angle = 0;
   this->reg_to_angle_function      = translate_reg_to_angle_AS5600;
@@ -42,8 +42,6 @@ void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef &hi2c,
                                    traslate_reg_to_angle _reg_to_angle_function,
                                    filters::FilterBase *filter_angle,
                                    filters::FilterBase *filter_velocity) {
-  if(!this->encoder_enabled)
-    return;
   this->hi2c                  = &hi2c;
   this->filter_angle          = filter_angle;
   this->filter_velocity       = filter_velocity;
@@ -51,7 +49,7 @@ void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef &hi2c,
   this->current_velocity      = 0;
   this->over_drive_angle      = 0;
   this->reg_to_angle_function = _reg_to_angle_function;
-
+  this->encoder_initiated     = true;
   // bool connected = ping_encoder();
 
   float angle = read_angle_rads();
@@ -73,8 +71,8 @@ void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef &hi2c,
 // }
 
 stmepic::Result<uint16_t> EncoderAbsoluteMagnetic::read_raw_angle() {
-  if(!encoder_enabled)
-    return Status::IOError("Encoder is not enabled");
+  if(!encoder_initiated)
+    return Status::IOError("Encoder is not initiated");
 
   HAL_StatusTypeDef status = HAL_I2C_Mem_Read(hi2c, address, angle_register, 1, this->data, 2, 5);
   if(status != HAL_OK) {
@@ -98,7 +96,7 @@ float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
 }
 
 float EncoderAbsoluteMagnetic::read_angle_rads() {
-  if(!encoder_enabled)
+  if(!encoder_initiated)
     return 0;
   auto maybe_reg = read_raw_angle();
   if(!maybe_reg.ok())
@@ -115,7 +113,7 @@ float EncoderAbsoluteMagnetic::read_angle_rads() {
 }
 
 float EncoderAbsoluteMagnetic::read_angle() {
-  if(!encoder_enabled)
+  if(!encoder_initiated)
     return 0;
 
   float angle = read_angle_rads();
@@ -137,17 +135,10 @@ float EncoderAbsoluteMagnetic::read_angle() {
 }
 
 void EncoderAbsoluteMagnetic::handle() {
-  if(!encoder_enabled)
+  if(!encoder_initiated)
     return;
   read_angle();
 }
-
-void EncoderAbsoluteMagnetic::handle_irk() {
-  if(!encoder_enabled)
-    return;
-  read_angle();
-}
-
 
 float EncoderAbsoluteMagnetic::get_velocity() const {
   return this->current_velocity;
@@ -201,10 +192,6 @@ void EncoderAbsoluteMagnetic::set_ratio(float ratio) {
   this->ratio = ratio;
 }
 
-void EncoderAbsoluteMagnetic::set_enable_encoder(bool enable) {
-  this->encoder_enabled = enable;
-}
-
 bool EncoderAbsoluteMagnetic::device_ok() {
   return encoder_connected;
 }
@@ -230,4 +217,19 @@ stmepic::Status EncoderAbsoluteMagnetic::device_enable() {
 
 stmepic::Status EncoderAbsoluteMagnetic::device_disable() {
   return Status::OK();
+}
+
+stmepic::Status EncoderAbsoluteMagnetic::do_device_task_start(const DeviceThrededSettingsBase &settings) {
+  DeviceThrededSettingsDefault settings_default = static_cast<const DeviceThrededSettingsDefault &>(settings);
+  return DeviceThreadedBase::do_default_task_start(settings_default, task_encoder, this);
+}
+
+stmepic::Status EncoderAbsoluteMagnetic::do_device_task_stop() {
+  return DeviceThreadedBase::do_default_task_stop();
+}
+
+
+void EncoderAbsoluteMagnetic::task_encoder(void *arg) {
+  EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
+  encoder->handle();
 }

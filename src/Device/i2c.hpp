@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stmepic.hpp"
-#include "interfaces.hpp"
+#include "hardware.hpp"
 
 namespace stmepic {
 
@@ -12,7 +12,7 @@ namespace stmepic {
  */
 class I2C : public HardwareInterface {
 public:
-  ~I2C();
+  ~I2C() override;
 
   /**
    * @brief Make new I2C interface, the interface is added to the list of all I2C interfaces and will be automatically handled
@@ -24,27 +24,27 @@ public:
    * @return Result<std::shared_ptr<I2C>> will return AlreadyExists if the I2C interface was already initialized.
    */
   static Result<std::shared_ptr<I2C>>
-  Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type);
+  Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type);
 
   /**
    * @brief Reset the I2C interface
    * This will reset also I2C lines by pulling them low and high to reset the I2C devices
    * @return Status
    */
-  Status reset();
+  Status hardware_reset() override;
 
   /**
    * @brief Start the I2C interface init all required settings for the I2C interface
    * Like setings for DMA, IRQ or blocking mode
    * @return Status
    */
-  Status start();
+  Status hardware_start() override;
 
   /**
    * @brief Stop the I2C interface
    * @return Status
    */
-  Status stop();
+  Status hardware_stop() override;
 
   /**
    * @brief Read data from the I2C device in blocking mode with other tasks beeing able to freelu run in the
@@ -85,9 +85,9 @@ public:
   static void run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c);
 
 private:
-  I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareTy type);
+  I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type);
 
-  const HardwareTy _hardwType;
+  const HardwareType _hardwType;
   const gpio::GpioPin &_gpio_sda;
   const gpio::GpioPin &_gpio_scl;
   SemaphoreHandle_t _mutex;
