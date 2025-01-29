@@ -178,7 +178,7 @@ struct BNO055_Data_t {
 class BNO055 : public stmepic::DeviceBase {
 
 public:
-  BNO055(I2C_HandleTypeDef &i2c, gpio::GpioPin *reset = nullptr);
+  BNO055(I2C_HandleTypeDef &i2c, GpioPin *reset = nullptr);
   Result<BNO055_Data_t> get_data();
 
   Result<bool> device_is_connected();
@@ -194,7 +194,7 @@ private:
   Status set_page(internal::BNO055_PAGE_t page);
 
   I2C_HandleTypeDef &i2c;
-  gpio::GpioPin *reset;
+  GpioPin *reset;
 };
 
 

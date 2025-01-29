@@ -6,6 +6,7 @@
 #include "stmepic.hpp"
 #include "stmepic_status.hpp"
 #include <cstddef>
+#include "i2c.hpp"
 
 #define ANGLE_MAX_DEFFERENCE 2.0f // 1 radian
 
@@ -192,8 +193,8 @@ private:
 
   static void task_encoder(void *arg);
 
-  Status do_device_task_start(const DeviceThrededSettingsBase &settings) override;
-  Status do_device_task_stop() override;
+  [[nodiscard]] Status do_device_task_start() override;
+  [[nodiscard]] Status do_device_task_stop() override;
 };
 
 

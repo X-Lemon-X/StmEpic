@@ -30,7 +30,8 @@ namespace stmepic::encoders {
 class EncoderBase : public DeviceThreadedBase {
 public:
   /// @brief Construct a new Encoder Base object
-  EncoderBase() = default;
+  EncoderBase()          = default;
+  virtual ~EncoderBase() = default;
 
   /// @brief reads the last calculated velocity
   /// @return the velocity in radians per second

@@ -5,7 +5,6 @@
 
 using namespace stmepic::motor;
 using namespace stmepic;
-using namespace stmepic::gpio;
 
 MotorClosedLoop::MotorClosedLoop(MotorBase &_motor,
                                  encoders::EncoderBase *_encoder_pos,

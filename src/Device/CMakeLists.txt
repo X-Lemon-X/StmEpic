@@ -9,4 +9,5 @@ target_sources(${UPPER_PROJECT_NAME} PRIVATE
   i2c.cpp
   device.cpp
   hardware.cpp
+  gpio.cpp
 )

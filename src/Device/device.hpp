@@ -18,12 +18,17 @@
  * @{
  */
 
+namespace stmepic::internall {
+struct DeviceTaskDefaultArgs;
+}
+
 namespace stmepic {
 /**
  * @def DEVICE_MAX_DEVICE_COUNT
  * @brief Maximum number of devices that can be managed.
  */
 #define DEVICE_MAX_DEVICE_COUNT (uint32_t)64
+typedef void(TaskFunction)(void *);
 
 
 /**
@@ -98,27 +103,21 @@ public:
  * usua;;y will be cast to the specific settings struct for specific device.
  */
 struct DeviceThrededSettingsBase {
+  /// @brief  Stack size for the task that will run on the device.
   StackType_t uxStackDepth;
+
+  /// @brief Priority for the task that will run on the device.
   UBaseType_t uxPriority;
 
-  DeviceThrededSettingsBase() : uxStackDepth(256), uxPriority(tskIDLE_PRIORITY + 2) {
-  }
-};
+  /// @brief Period in ms for the task that will run on the device.
+  uint32_t period;
 
-/**
- * @class DeviceThrededSettingsDefault
- * @brief Default settings for a device task to be run on the device.
- * This struct will be used to set the default settings for the task that will run on the device.
- */
-struct DeviceThrededSettingsDefault : public DeviceThrededSettingsBase {
-  uint32_t period; // in ms that will determine task run frequency
+  DeviceThrededSettingsBase();
+  virtual DeviceThrededSettingsBase *clone() const;
 };
-
 
 class DeviceThreadedBase : public DeviceBase {
 public:
-  typedef void(TaskFunction)(void *);
-
   DeviceThreadedBase();
   virtual ~DeviceThreadedBase();
 
@@ -131,7 +130,7 @@ public:
    * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
    * @return Status Status of the operation.
    */
-  [[nodiscard]] Status device_task_run(const DeviceThrededSettingsBase &settings);
+  [[nodiscard]] Status device_task_run();
 
   /**
    * @brief Stop the task that runs on the device.
@@ -139,11 +138,22 @@ public:
    * similat to device_task_run, but this function stops the task.
    * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status device_task_stop();
+  [[nodiscard]] Status device_task_stop();
 
-private:
-  void *task_arg_ptr[3];
+  /**
+   * @brief Set the settings for the task that will run on the device.
+   * This function is used to set the settings for the task that will run on the device to do some work.
+   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
+   */
+  Status device_task_set_settings(const DeviceThrededSettingsBase &settings);
 
+  /**
+   * @brief Check if the task is running.
+   * @return bool True if the task is running, false otherwise.
+   */
+  bool device_task_is_running() const;
+
+protected:
   /**
    * @brief Pure virtual function to start the task that runs on the device.
    * This funciton should be overriden by the specific device to start the task that will run on the device.
@@ -152,7 +162,7 @@ private:
    * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
    * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status do_device_task_start(const DeviceThrededSettingsBase &settings) = 0;
+  [[nodiscard]] virtual Status do_device_task_start() = 0;
 
   /**
    * @brief Pure virtual function to stop the task that runs on the device.
@@ -162,16 +172,6 @@ private:
    */
   [[nodiscard]] virtual Status do_device_task_stop() = 0;
 
-  /**
-   * @brief default task taht runs in a  infinit loop with a specified frequency.
-   * @param arg 3 arguments that will be passed to the task function.
-   * 1 - task function that will be run in a  loop
-   * 2 - task argument that will be passed to the task function
-   * 3 - period in ms that will determine task run frequency
-   */
-  static void default_task(void *arg);
-
-protected:
   /// @brief FreeRtos Task handle for the specific device
   TaskHandle_t task_handle;
 
@@ -184,7 +184,7 @@ protected:
    * Class instance for example that will be used in the task to do some work on.
    * @return Status if the task was started successfully.
    */
-  [[nodiscard]] Status do_default_task_start(const DeviceThrededSettingsDefault &settings, TaskFunction task, void *task_arg);
+  [[nodiscard]] Status do_default_task_start(TaskFunction task, void *task_arg);
 
   /**
    * @brief Stops the task that runs default task on the device.
@@ -192,7 +192,31 @@ protected:
    * @return Status if the task was stopped successfully.
    */
   [[nodiscard]] Status do_default_task_stop();
+
+
+private:
+  std::unique_ptr<DeviceThrededSettingsBase> settings;
+  std::unique_ptr<internall::DeviceTaskDefaultArgs> task_args;
+  bool task_running;
+
+  /**
+   * @brief default task taht runs in a  infinit loop with a specified frequency.
+   * @param arg 3 arguments that will be passed to the task function.
+   * 1 - task function that will be run in a  loop
+   * 2 - task argument that will be passed to the task function
+   * 3 - period in ms that will determine task run frequency
+   */
+  static void default_task(void *arg);
 };
 
 
 } // namespace stmepic
+
+
+namespace stmepic::internall {
+struct DeviceTaskDefaultArgs {
+  void *args;
+  TaskFunction *task;
+  uint32_t period;
+};
+} // namespace stmepic::internall

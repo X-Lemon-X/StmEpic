@@ -219,9 +219,8 @@ stmepic::Status EncoderAbsoluteMagnetic::device_disable() {
   return Status::OK();
 }
 
-stmepic::Status EncoderAbsoluteMagnetic::do_device_task_start(const DeviceThrededSettingsBase &settings) {
-  DeviceThrededSettingsDefault settings_default = static_cast<const DeviceThrededSettingsDefault &>(settings);
-  return DeviceThreadedBase::do_default_task_start(settings_default, task_encoder, this);
+stmepic::Status EncoderAbsoluteMagnetic::do_device_task_start() {
+  return DeviceThreadedBase::do_default_task_start(task_encoder, this);
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::do_device_task_stop() {

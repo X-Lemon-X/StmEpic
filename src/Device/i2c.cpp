@@ -18,8 +18,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 }
 }
 
-Result<std::shared_ptr<I2C>>
-I2C::Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type) {
+Result<std::shared_ptr<I2C>> I2C::Make(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type) {
   static std::vector<std::shared_ptr<I2C>> i2c_instances;
 
   vPortEnterCritical();
@@ -52,7 +51,7 @@ void I2C::run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c) {
 }
 
 
-I2C::I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type)
+I2C::I2C(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type)
 : _hi2c(&hi2c), _gpio_sda(sda), _gpio_scl(scl), _hardwType(type) {
   _mutex = xSemaphoreCreateMutex();
 };
@@ -91,21 +90,24 @@ void I2C::rx_callback(I2C_HandleTypeDef *hi2c) {
 Status I2C::hardware_reset() {
   STMEPIC_RETURN_ON_ERROR(hardware_stop());
   // restart
+  vPortEnterCritical();
   GPIO_InitTypeDef gpioinit = { 0 };
   gpioinit.Pin              = _gpio_sda.pin;
   gpioinit.Mode             = GPIO_MODE_OUTPUT_PP;
   gpioinit.Pull             = GPIO_NOPULL;
   gpioinit.Speed            = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(_gpio_sda.port, &gpioinit);
+  HAL_GPIO_Init(&_gpio_sda.port, &gpioinit);
   gpioinit.Pin = _gpio_scl.pin;
-  HAL_GPIO_Init(_gpio_scl.port, &gpioinit);
+  HAL_GPIO_Init(&_gpio_scl.port, &gpioinit);
 
-  vPortEnterCritical();
-  HAL_GPIO_WritePin(_gpio_sda.port, _gpio_sda.pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(_gpio_scl.port, _gpio_scl.pin, GPIO_PIN_SET);
+  _gpio_sda.write(1);
+  _gpio_scl.write(1);
+  // HAL_GPIO_WritePin(&_gpio_sda.port, _gpio_sda.pin, GPIO_PIN_SET);
+  // HAL_GPIO_WritePin(&_gpio_scl.port, _gpio_scl.pin, GPIO_PIN_SET);
 
   for(size_t i = 0; i < 20; i++) {
-    HAL_GPIO_TogglePin(_gpio_scl.port, _gpio_scl.pin);
+    // HAL_GPIO_TogglePin(_gpio_scl.port, _gpio_scl.pin);
+    _gpio_scl.toggle();
     HAL_Delay(1);
   }
   vPortExitCritical();

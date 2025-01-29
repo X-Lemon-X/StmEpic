@@ -7,7 +7,6 @@
 
 
 using namespace stmepic::motor;
-using namespace stmepic::gpio;
 using namespace stmepic;
 
 #define PIM2 6.28318530717958647692f
@@ -17,10 +16,7 @@ template <typename T> int sgn(T val) {
   return (T(0) < val) - (val < T(0));
 }
 
-SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef &_htim,
-                                       unsigned int _timer_channel,
-                                       const GpioPin &_direction_pin,
-                                       const GpioPin &_enable_pin)
+SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef &_htim, unsigned int _timer_channel, GpioPin &_direction_pin, GpioPin &_enable_pin)
 : htim(_htim), direction_pin(_direction_pin), timer_channel(_timer_channel), enable_pin(_enable_pin) {
   this->radians_to_frequency = 0;
   this->steps_per_revolution = 400;
@@ -58,9 +54,9 @@ void SteperMotorStepDir::set_velocity(float velocity) {
   // if direction is reversed, the motor will move in the opposite direction
   bool direction = !reverse;
   if(velocity > 0)
-    WRITE_GPIO(direction_pin, direction);
+    direction_pin.write(direction);
   else {
-    WRITE_GPIO(direction_pin, !direction);
+    direction_pin.write(!direction);
     velocity = -velocity;
   }
 
@@ -106,7 +102,7 @@ float SteperMotorStepDir::get_absolute_position() const {
 
 void SteperMotorStepDir::set_enable(bool enable) {
   uint8_t enable_pin_state = enable ^ enable_reversed;
-  WRITE_GPIO(enable_pin, enable_pin_state);
+  enable_pin.write(enable_pin_state);
 }
 
 

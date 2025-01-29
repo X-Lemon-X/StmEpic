@@ -2,7 +2,6 @@
 
 using namespace stmepic;
 using namespace stmepic::movement;
-using namespace stmepic::gpio;
 
 PassThroughControler::PassThroughControler() : MovementEquation() {
 }

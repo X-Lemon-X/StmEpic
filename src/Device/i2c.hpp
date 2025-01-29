@@ -23,8 +23,7 @@ public:
    * @param type the type of the I2C interface mode, DMA, IRQ or BLOCKING
    * @return Result<std::shared_ptr<I2C>> will return AlreadyExists if the I2C interface was already initialized.
    */
-  static Result<std::shared_ptr<I2C>>
-  Make(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type);
+  static Result<std::shared_ptr<I2C>> Make(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type);
 
   /**
    * @brief Reset the I2C interface
@@ -85,11 +84,11 @@ public:
   static void run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c);
 
 private:
-  I2C(I2C_HandleTypeDef &hi2c, const gpio::GpioPin &sda, const gpio::GpioPin &scl, const HardwareType type);
+  I2C(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type);
 
   const HardwareType _hardwType;
-  const gpio::GpioPin &_gpio_sda;
-  const gpio::GpioPin &_gpio_scl;
+  GpioPin &_gpio_sda;
+  GpioPin &_gpio_scl;
   SemaphoreHandle_t _mutex;
   I2C_HandleTypeDef *_hi2c;
 

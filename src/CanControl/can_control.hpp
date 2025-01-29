@@ -77,7 +77,7 @@ public:
   /// @param ticker  main systeerror ticker object
   /// @param pin_tx_led  pin object for the TX led
   /// @param pin_rx_led  pin object for the RX ledCAN_QUEUE_SIZE
-  void init(CAN_HandleTypeDef &_can_interface, uint32_t _can_fifo, gpio::GpioPin *_pin_tx_led, gpio::GpioPin *_pin_rx_led) {
+  void init(CAN_HandleTypeDef &_can_interface, uint32_t _can_fifo, GpioPin *_pin_tx_led, GpioPin *_pin_rx_led) {
     can_interface = &_can_interface;
     can_fifo      = _can_fifo;
     pin_rx_led    = _pin_rx_led;
@@ -204,8 +204,8 @@ private:
   // std::unordered_map<uint32_t, void (*)(CanMsg&)> callback_map;
   etl::unordered_map<uint32_t, function_pointer, CAN_CALLBACK_LIST_SIZE> callback_map;
 
-  const gpio::GpioPin *pin_tx_led;
-  const gpio::GpioPin *pin_rx_led;
+  GpioPin *pin_tx_led;
+  GpioPin *pin_rx_led;
   uint32_t last_tx_mailbox;
 
   uint32_t filter_mask;
@@ -216,10 +216,10 @@ private:
     if(pin_rx_led == nullptr || pin_tx_led == nullptr)
       return;
     if(timing_led_rx->triggered())
-      WRITE_GPIO((*pin_rx_led), GPIO_PIN_RESET);
+      pin_rx_led->write(0);
 
     if(timing_led_tx->triggered())
-      WRITE_GPIO((*pin_tx_led), GPIO_PIN_RESET);
+      pin_tx_led->write(0);
   };
 
   /// @brief  Handle the send of can messages if queie is used
@@ -247,13 +247,13 @@ private:
 
   /// @brief  turn on the TX led for a short period
   void blink_tx_led() {
-    WRITE_GPIO((*pin_tx_led), GPIO_PIN_SET);
+    pin_tx_led->write(1);
     timing_led_tx->reset();
   };
 
   /// @brief  turn on the RX led for a short period
   void blink_rx_led() {
-    WRITE_GPIO((*pin_rx_led), GPIO_PIN_SET);
+    pin_rx_led->write(1);
     timing_led_rx->reset();
   };
 

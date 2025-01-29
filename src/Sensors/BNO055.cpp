@@ -7,7 +7,7 @@
 using namespace stmepic::sensors::imu;
 
 
-BNO055::BNO055(I2C_HandleTypeDef &i2c, gpio::GpioPin *reset) : i2c(i2c), reset(reset) {
+BNO055::BNO055(I2C_HandleTypeDef &i2c, GpioPin *reset) : i2c(i2c), reset(reset) {
   device_reset();
 }
 

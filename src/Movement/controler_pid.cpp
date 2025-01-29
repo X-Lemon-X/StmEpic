@@ -5,7 +5,6 @@
 
 using namespace stmepic;
 using namespace stmepic::movement;
-using namespace stmepic::gpio;
 
 
 PIDControler::PIDControler() : MovementEquation() {

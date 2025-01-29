@@ -13,8 +13,8 @@ uint8_t usb_programer_buffer[USB_PROGRAMER_BUFFER_SIZE];
 uint32_t usb_programer_buffer_len  = 0;
 uint8_t usb_programer_data_recived = 0;
 
-UsbProgramer::UsbProgramer(const gpio::GpioPin &_boot_device) : boot_device(_boot_device) {
-  WRITE_GPIO(this->boot_device, GPIO_PIN_RESET);
+UsbProgramer::UsbProgramer(GpioPin &_boot_device) : boot_device(_boot_device) {
+  boot_device.write(GPIO_PIN_RESET);
 }
 
 void UsbProgramer::reset_device() {
@@ -23,10 +23,10 @@ void UsbProgramer::reset_device() {
 
 void UsbProgramer::enter_dfu_mode() {
 
-  WRITE_GPIO(this->boot_device, GPIO_PIN_SET);
+  boot_device.write(GPIO_PIN_SET);
   HAL_Delay(50);
   reset_device();
-  WRITE_GPIO(this->boot_device, GPIO_PIN_RESET);
+  boot_device.write(GPIO_PIN_RESET);
   while(true) {
   }
 }

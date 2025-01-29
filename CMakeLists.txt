@@ -27,7 +27,6 @@ option(STMEPIC_MEMORY "Enable Memory module" ON)
 # CORE STMEPIC MODULES
 add_subdirectory(src/Containers)
 add_subdirectory(src/Timing)
-add_subdirectory(src/Gpio)
 add_subdirectory(src/Filters)
 add_subdirectory(src/config)
 add_subdirectory(src/Status)

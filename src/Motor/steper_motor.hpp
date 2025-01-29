@@ -31,10 +31,7 @@ namespace stmepic::motor {
 class SteperMotorStepDir : public MotorBase {
 public:
   /// @brief Constructor for the SteperMotorStepDir class
-  SteperMotorStepDir(TIM_HandleTypeDef &htim,
-                     unsigned int timer_channel,
-                     const gpio::GpioPin &direction_pin,
-                     const gpio::GpioPin &enable_pin);
+  SteperMotorStepDir(TIM_HandleTypeDef &htim, unsigned int timer_channel, GpioPin &direction_pin, GpioPin &enable_pin);
 
   /// @brief Initialize the SteperMotor, calculates all necessary stuff to avoid
   /// calculating it over again after the initialization
@@ -116,8 +113,8 @@ private:
   float angle;
   TIM_HandleTypeDef &htim;
   unsigned int timer_channel;
-  const gpio::GpioPin &direction_pin;
-  const gpio::GpioPin &enable_pin;
+  GpioPin &direction_pin;
+  GpioPin &enable_pin;
 
   float steps_per_revolution;
   float gear_ratio;
