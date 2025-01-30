@@ -5,6 +5,5 @@ target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include/${UPPER_PROJECT_NAME}> 
 )
 
-target_sources(${UPPER_PROJECT_NAME} PRIVATE
-  freertos.cpp
-)
+# target_sources(${UPPER_PROJECT_NAME} PRIVATE
+# )

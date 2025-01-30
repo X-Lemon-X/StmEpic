@@ -14,6 +14,7 @@ cmake_policy(SET CMP0076 NEW)
 ############################################
 # STMEPIC MODULES OPTIONS
 option(STMEPIC_GENERATE_DOCS "Enable documentaion genration" OFF)
+option(STMEPIC_ENABLE_EMBEDED_FREERTOS "Enable Memory module" OFF)
 option(STMEPIC_CAN_CONTROLER "Enable CAN Controler" ON)
 option(STMEPIC_ENCODERS "Enable Encoders module" ON)
 option(STMEPIC_LOGGER "Enable LOGGER module" ON)
@@ -65,40 +66,49 @@ if(STMEPIC_MEMORY)
   add_subdirectory(src/Memory)
 endif()
 
+
+############################################
+# LIBRARIES
+
+set(LIBRARIES_INCLUDED "")
+
+
 ############################################
 # Embedded Template Library (ETL)
 add_subdirectory(etl)
+list(APPEND LIBRARIES_INCLUDED etl::etl)
 
 ############################################
 # FREE RTOS CONFIGURATION
+if(STMEPIC_ENABLE_EMBEDED_FREERTOS)
+  if(NOT FREERTOS_PORT)
+    message(FATAL_ERROR 
+      "Please set the FREERTOS_PORT variable this will set the port of the FreeRTOS like GCC_ARM_CM4F or GCC_ARM_CM7")
+  endif()
 
-if(NOT FREERTOS_PORT)
-  message(FATAL_ERROR 
-    "Please set the FREERTOS_PORT variable this will set the port of the FreeRTOS like GCC_ARM_CM4F or GCC_ARM_CM7")
+  if(NOT FREERTOS_HEAP)
+    message(FATAL_ERROR 
+      "Please set the FREERTOS_HEAP variable this will set the heap implementation of the FreeRTOS like 1-5 ")
+  endif()
+
+  if(NOT FREERTOS_CONFIG_FILE_DIRECTORY)
+    message(FATAL_ERROR 
+      "Please set the FREERTOS_CONFIG_FILE_DIRECTORY variable this will set the directory of the 
+      FreeRTOSConfig.h file you can see example fiel in StmEpic/templates/FreeRTOSConfig.h")
+  endif()
+
+  add_library(freertos_config INTERFACE)
+  target_include_directories(freertos_config
+    INTERFACE
+    ${FREERTOS_CONFIG_FILE_DIRECTORY}
+  )
+  add_subdirectory(FreeRTOS-Kernel)
+  list(APPEND LIBRARIES_INCLUDED freertos_kernel freertos_config)
 endif()
-
-if(NOT FREERTOS_HEAP)
-  message(FATAL_ERROR 
-    "Please set the FREERTOS_HEAP variable this will set the heap implementation of the FreeRTOS like 1-5 ")
-endif()
-
-if(NOT FREERTOS_CONFIG_FILE_DIRECTORY)
-  message(FATAL_ERROR 
-    "Please set the FREERTOS_CONFIG_FILE_DIRECTORY variable this will set the directory of the 
-    FreeRTOSConfig.h file you can see example fiel in StmEpic/templates/FreeRTOSConfig.h")
-endif()
-
-add_library(freertos_config INTERFACE)
-target_include_directories(freertos_config
-  INTERFACE
-  ${FREERTOS_CONFIG_FILE_DIRECTORY}
-)
-add_subdirectory(FreeRTOS-Kernel)
-
 
 ############################################
 ## LINK ALL THE STMEPIC MODULES
-target_link_libraries(stmepic INTERFACE etl::etl freertos_config freertos_kernel)
+target_link_libraries(stmepic INTERFACE ${LIBRARIES_INCLUDED})
 
 ############################################
 ## C++ compiler flags
