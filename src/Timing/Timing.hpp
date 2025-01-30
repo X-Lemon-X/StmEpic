@@ -69,6 +69,8 @@ public:
   /// This shoule be initated otherwise bunch of other relying classes will not work
   static Ticker &get_instance();
 
+  void delay(uint32_t delay);
+
 private:
   uint32_t tick_millis;
   uint32_t tick_micros;

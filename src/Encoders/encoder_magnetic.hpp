@@ -56,7 +56,7 @@ public:
   /// @param _reg_to_angle_function sets the function that will be used to translate register
   /// data to angle. It have to return the angle in uint16_t and takes the data from two registers first and second.
   ///  the function that will be used to read the angle, and return the angle in uint16_t in binary format for example 0-4095 or 0-16383
-  void init(I2C_HandleTypeDef &hi2c,
+  void init(std::shared_ptr<I2C> hi2c,
             traslate_reg_to_angle _reg_to_angle_function,
             filters::FilterBase *filter_angle    = nullptr,
             filters::FilterBase *filter_velocity = nullptr);
@@ -152,7 +152,7 @@ public:
   Status device_disable() override;
 
 private:
-  I2C_HandleTypeDef *hi2c;
+  std::shared_ptr<I2C> hi2c;
   filters::FilterBase *filter_angle;
   filters::FilterBase *filter_velocity;
   traslate_reg_to_angle reg_to_angle_function;
@@ -178,6 +178,7 @@ private:
   uint8_t angle_register;
   uint8_t magnes_detection_register;
   bool encoder_initiated;
+  Status device_status;
 
 
   /// @brief Calucaltes velcoicty, and passes it thoroung a filter

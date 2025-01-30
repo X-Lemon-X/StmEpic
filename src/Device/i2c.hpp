@@ -91,22 +91,26 @@ private:
   GpioPin &_gpio_scl;
   SemaphoreHandle_t _mutex;
   I2C_HandleTypeDef *_hi2c;
+  bool dma_lock;
 
   /// @brief Task handle for the specific I2C interface
   TaskHandle_t task_handle;
   /// @brief  List of all I2C interfaces initialized
-  static std::vector<std::shared_ptr<I2C>> i2c_interfaces;
+  static std::vector<std::shared_ptr<I2C>> i2c_instances;
 
   void tx_callback(I2C_HandleTypeDef *hi2c);
   void rx_callback(I2C_HandleTypeDef *hi2c);
 
-  Status read_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  Status read_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  Status read_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  Status _read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size);
+  Status _write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size);
 
-  Status write_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  Status write_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  Status write_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  // Status read_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  // Status read_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  // Status read_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+
+  // Status write_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  // Status write_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
+  // Status write_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
 };
 
 } // namespace stmepic

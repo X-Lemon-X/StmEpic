@@ -25,7 +25,8 @@ uint16_t stmepic::encoders::translate_reg_to_angle_MT6701(uint8_t data1, uint8_t
   return reg;
 }
 
-EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic() {
+EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic()
+: device_status(Status::Disconnected("Encoder is not connected")) {
   this->resolution                 = 4096;
   this->address                    = 0x36;
   this->reverse                    = false;
@@ -38,11 +39,11 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic() {
   this->reg_to_angle_function      = translate_reg_to_angle_AS5600;
 }
 
-void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef &hi2c,
+void EncoderAbsoluteMagnetic::init(std::shared_ptr<I2C> hi2c,
                                    traslate_reg_to_angle _reg_to_angle_function,
                                    filters::FilterBase *filter_angle,
                                    filters::FilterBase *filter_velocity) {
-  this->hi2c                  = &hi2c;
+  this->hi2c                  = hi2c;
   this->filter_angle          = filter_angle;
   this->filter_velocity       = filter_velocity;
   this->last_time             = stmepic::Ticker::get_instance().get_seconds();
@@ -50,6 +51,7 @@ void EncoderAbsoluteMagnetic::init(I2C_HandleTypeDef &hi2c,
   this->over_drive_angle      = 0;
   this->reg_to_angle_function = _reg_to_angle_function;
   this->encoder_initiated     = true;
+  this->device_status         = Status::Disconnected("Encoder is not connected");
   // bool connected = ping_encoder();
 
   float angle = read_angle_rads();
@@ -74,13 +76,12 @@ stmepic::Result<uint16_t> EncoderAbsoluteMagnetic::read_raw_angle() {
   if(!encoder_initiated)
     return Status::IOError("Encoder is not initiated");
 
-  HAL_StatusTypeDef status = HAL_I2C_Mem_Read(hi2c, address, angle_register, 1, this->data, 2, 5);
-  if(status != HAL_OK) {
-    encoder_connected = false;
-    return Status::IOError("Error reading data from encoder");
-  }
-  encoder_connected = true;
-  uint16_t reg      = reg_to_angle_function(data[0], data[1]);
+  // HAL_StatusTypeDef status = HAL_I2C_Mem_Read(hi2c, address, angle_register, 1, this->data, 2, 5);
+  auto status       = hi2c->read(address, angle_register, data, 2);
+  encoder_connected = status.ok();
+  device_status     = status;
+  STMEPIC_RETURN_ON_ERROR(status);
+  uint16_t reg = reg_to_angle_function(data[0], data[1]);
   return Result<uint16_t>::OK(reg);
 }
 
@@ -203,7 +204,7 @@ stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected() {
 stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {
   if(hi2c == nullptr)
     return Status::Invalid("I2C is not initialized");
-  return HAL_I2C_IsDeviceReady(hi2c, address, 1, 100);
+  return device_status;
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_reset() {

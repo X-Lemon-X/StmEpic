@@ -54,6 +54,12 @@ float Ticker::get_seconds() {
   return (float)get_micros() * 0.000001f;
 }
 
+void Ticker::delay(uint32_t delay) {
+  uint32_t start = get_micros();
+  while(get_micros() - start < delay) {
+  }
+}
+
 void Timing::set_behaviour(uint32_t _period, bool _repeat) {
   period = _period;
   repeat = _repeat;
