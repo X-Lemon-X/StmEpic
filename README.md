@@ -11,17 +11,21 @@
   <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm11.yml/badge.svg?branch=main" alt="gnu11"/>
 </p>
 
-This library is a collection of algoritms and interfaces to be used in robotics projects with FreeRtos as operating system. The library is designed to be used with the STM32 series of microcontrollers.
-The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos, and comunication protocols, in a meaningful way that they can work with each other out of the box, with litle to none configuration.
+This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers, C++ and Cmake.
+
+The library provides a set of classes and interfaces that can be used to quickly combine bunch of sensors, engines, servos and comunication protocols in a meaningful way. The library aims to provide elemnts that can work with each other out of the box with litle to none configuration.
+
+All is glued together with the FreeRTOS system. Most of the devices run tasks in the background to handle trafic.
 The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes.
 
 ## Features
 
 - **FreeRTOS** embeded FreeRTOS as task scheduler.
 - **ETL** Included **Embedded Template Library** library for containers and so on [link](https://github.com/ETLCPP/etl).
-- **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
 - **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
 - **Dfu**: Class that can be used to enable the USB as programing using DFU [hardware support required].
+- **Drivers**: Set of drivers that enable power usage of intwerfaces like I2C, SPI, UART, CAN, USB that out of the box allow to
+  multi task withou blocking the CPU while simultaniously reading and writing data in "Blocking mode" for the interacting thread, as well as add handy interfaces to inetract with specific protocols in a simple way.
 - **Encoders**: Interface to read data from different types of encoders.
 - **Filters**: Set of filters that can be used to filter data.
 - **Gpio**: Wraper for the GPIO pins on the microcontroller.
@@ -40,9 +44,6 @@ The library is written in C++ and is designed to be used with the code generatio
 2. Add the following line to your CMakeLists.txt file:
 
 ```cmake
-set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "") # set appropriate port for your microcontroller
-set(FREERTOS_HEAP 4 CACHE STRING "") # set appropriate heap implementation
-set(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src") # set appropriate path to FreeRTOSConfig.h config file
 add_subdirectory(StmEpic)
 target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  stmepic)
 ```
@@ -55,8 +56,9 @@ The library is designed to be used with the code generation tool STM32CubeMX.
 
 1. Create a new project in STM32CubeMX.
 2. In the project settings, set generate code as CMakelist.
-3. Include all source files from the library to the project.
-4. don't forget to have ARM GCC toolchain installed. You can download it from [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) or get docker image to build the project from [here](https://hub.docker.com/repository/docker/xlemonx/arm-gnu-toolchain).
+3. Enable FreeRTOS/CMSISV2 in the project settings.
+4. Include all source files from the library to the project.
+5. Don't forget to have ARM GCC toolchain installed. You can download it from [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) or get docker image to build the project from [here](https://hub.docker.com/repository/docker/xlemonx/arm-gnu-toolchain).
 
 ## Documentation
 
