@@ -5,6 +5,11 @@
 #include "device.hpp"
 #include "etl/queue.h"
 
+/**
+ * @file can.hpp
+ * @brief CAN interface wrapper classthat alow to do handle the CAN interface with ease. By adding callbacks
+ * for specific frame ids. with nice rx and tx tasks that handle the traffic in not blocking mode.
+ */
 
 namespace stmepic {
 
@@ -42,6 +47,8 @@ struct CanCallbackTask {
 
 /**
  * @brief Class for controlling the CAN interface
+ * automatically by allowing to add callbacks for specific frame ids.
+ * as well as writing to interface from any task in a non blocking / thread safe fashion.
  */
 class CAN : public HardwareInterface {
 

@@ -13,16 +13,18 @@
 
 This library is a collection of algoritms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers, C++ and Cmake.
 
-The library provides a set of classes that can be used to quickly combine bunch of sensors, engines, servos and comunication protocols in a meaningful way. The library aims to provide elemnts that can work with each other out of the box with litle to none configuration.
+The library provides a set of classes and interfaces that can be used to quickly combine bunch of sensors, engines, servos and comunication protocols in a meaningful way. The library aims to provide elemnts that can work with each other out of the box with litle to none configuration.
 
+All is glued together with the FreeRTOS system. Most of the devices run tasks in the background to handle trafic.
 The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes.
 
 ## Features
 
 - **ETL** Included **Embedded Template Library** library for containers and so on [link](https://github.com/ETLCPP/etl).
-- **CanControler**: Read and write data from the CAN bus, with easy to use callbacks.
 - **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
 - **Dfu**: Class that can be used to enable the USB as programing using DFU [hardware support required].
+- **Drivers**: Set of drivers that enable power usage of intwerfaces like I2C, SPI, UART, CAN, USB that out of the box allow to
+  multi task withou blocking the CPU while simultaniously reading and writing data in "Blocking mode" for the interacting thread, as well as add handy interfaces to inetract with specific protocols in a simple way.
 - **Encoders**: Interface to read data from different types of encoders.
 - **Filters**: Set of filters that can be used to filter data.
 - **Gpio**: Wraper for the GPIO pins on the microcontroller.

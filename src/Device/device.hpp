@@ -37,6 +37,7 @@ typedef void(TaskFunction)(void *);
  *
  * This class provides the interface for device operations such as checking connection
  * status, getting device status, resetting, starting, and stopping the device.
+ *
  */
 
 class DeviceBase {
