@@ -3,4 +3,4 @@
 	url = https://github.com/ETLCPP/etl.git
 [submodule "FreeRTOS-Kernel"]
 	path = FreeRTOS-Kernel
-	url = git@github.com:FreeRTOS/FreeRTOS-Kernel.git
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
