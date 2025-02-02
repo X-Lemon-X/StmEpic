@@ -23,7 +23,7 @@ DeviceThreadedBase::~DeviceThreadedBase() {
 }
 
 
-Status DeviceThreadedBase::device_task_run() {
+Status DeviceThreadedBase::device_task_start() {
   if(task_running)
     return Status::Cancelled("Task is already running");
   auto ret     = do_device_task_start();

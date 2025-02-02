@@ -51,7 +51,7 @@ void EncoderAbsoluteMagnetic::init(std::shared_ptr<I2C> hi2c,
   this->over_drive_angle      = 0;
   this->reg_to_angle_function = _reg_to_angle_function;
   this->encoder_initiated     = true;
-  this->device_status         = Status::Disconnected("Encoder is not connected");
+  this->device_status         = Status::OK();
   // bool connected = ping_encoder();
 
   float angle = read_angle_rads();
@@ -208,7 +208,8 @@ stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_reset() {
-  return Status::OK();
+  STMEPIC_RETURN_ON_ERROR(device_disable());
+  return device_enable();
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_enable() {
@@ -217,7 +218,7 @@ stmepic::Status EncoderAbsoluteMagnetic::device_enable() {
 
 
 stmepic::Status EncoderAbsoluteMagnetic::device_disable() {
-  return Status::OK();
+  return do_default_task_stop();
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::do_device_task_start() {

@@ -137,12 +137,12 @@ public:
    * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
    * @return Status Status of the operation.
    */
-  [[nodiscard]] Status device_task_run();
+  [[nodiscard]] Status device_task_start();
 
   /**
    * @brief Stop the task that runs on the device.
    * This function is used to stop the task that runs on the device to do some work.
-   * similat to device_task_run, but this function stops the task.
+   * similat to device_task_start, but this function stops the task.
    * @return Status Status of the operation.
    */
   [[nodiscard]] Status device_task_stop();

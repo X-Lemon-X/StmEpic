@@ -13,8 +13,11 @@
 
 namespace stmepic {
 
+class CAN;
+
 struct CanDataFrame {
 public:
+  CanDataFrame();
   /// @brief frame_id of the message
   uint32_t frame_id;
 
@@ -36,7 +39,7 @@ namespace internall {
 /// @brief Callback function for the CAN interface
 /// @param CanDataFrame the data of the incoming CAN frame
 /// @param void* args provided by the user
-using hardware_can_function_pointer = void (*)(CanDataFrame &, void *);
+using hardware_can_function_pointer = void (*)(CAN &, CanDataFrame &, void *);
 
 struct CanCallbackTask {
   void *args;
@@ -165,7 +168,7 @@ private:
    * @param frame the data frame that was received
    * @param args the arguments that will be passed to the callback function
    */
-  static void default_callback_function(CanDataFrame &frame, void *args);
+  static void default_callback_function(CAN &can, CanDataFrame &frame, void *args);
 };
 
 

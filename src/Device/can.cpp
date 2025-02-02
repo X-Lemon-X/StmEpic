@@ -26,6 +26,10 @@ void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan) {
 }
 
 
+CanDataFrame::CanDataFrame() : frame_id(0), remote_request(false), extended_id(false), data_size(0) {
+  memset(data, 0, sizeof(data));
+}
+
 std::vector<std::shared_ptr<CAN>> CAN::can_instances;
 
 Result<std::shared_ptr<CAN>>
@@ -118,7 +122,7 @@ Status CAN::hardware_start() {
   STMEPIC_RETURN_ON_ERROR(
   Status(HAL_CAN_ActivateNotification(_hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING)));
   if(task_handle_rx == nullptr)
-    xTaskCreate(CAN::task_rx, "CAN_RX", 600, this, 1, &task_handle_rx);
+    xTaskCreate(CAN::task_rx, "CAN_RX", 1024, this, 1, &task_handle_rx);
   if(task_handle_tx == nullptr)
     xTaskCreate(CAN::task_tx, "CAN_TX", 254, this, 1, &task_handle_tx);
   is_initiated = true;
@@ -179,7 +183,7 @@ void CAN::task_rx(void *arg) {
     if(can->_gpio_rx_led)
       can->_gpio_rx_led->write(0);
     // call the callback on a message
-    task->callback(*msg, task->args);
+    task->callback(*can, *msg, task->args);
     free(msg);
     msg = nullptr;
   }
@@ -263,7 +267,8 @@ void CAN::rx_callback(CAN_HandleTypeDef *hcan) {
   portYIELD_FROM_ISR(hptw);
 }
 
-void CAN::default_callback_function(CanDataFrame &msg, void *args) {
+void CAN::default_callback_function(CAN &can, CanDataFrame &msg, void *args) {
+  (void)can;
   (void)args;
   (void)msg;
 }

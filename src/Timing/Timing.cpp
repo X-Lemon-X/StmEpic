@@ -40,9 +40,9 @@ void Ticker::init(TIM_HandleTypeDef *_timer) {
 uint32_t Ticker::get_micros() {
   if(timer == nullptr)
     return 0;
-  __disable_irq();
+  vPortEnterCritical();
   uint32_t mic = (uint32_t)timer->Instance->CNT + tick_micros;
-  __enable_irq();
+  vPortExitCritical();
   return mic;
 }
 
