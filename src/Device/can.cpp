@@ -193,8 +193,11 @@ void CAN::task_tx(void *arg) {
   auto can          = static_cast<CAN *>(arg);
   CanDataFrame *msg = nullptr;
   while(true) {
-    if(xQueueReceive(can->tx_queue_handle, &msg, 100) != pdTRUE)
+    if(xQueueReceive(can->tx_queue_handle, &msg, 100) != pdTRUE) {
+      if(can->_gpio_tx_led)
+        can->_gpio_tx_led->write(0);
       continue;
+    }
 
     while(HAL_CAN_GetTxMailboxesFreeLevel(can->_hcan) == 0) {
       vTaskDelay(5);
