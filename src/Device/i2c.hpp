@@ -45,6 +45,7 @@ public:
    */
   Status hardware_stop() override;
 
+
   /**
    * @brief Read data from the I2C device in blocking mode with other tasks beeing able to freelu run in the
    * meantime returns the data read from the device after the read is done

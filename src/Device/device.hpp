@@ -116,6 +116,12 @@ struct DeviceThrededSettingsBase {
   virtual DeviceThrededSettingsBase *clone() const;
 };
 
+/**
+ * @class DeviceThreadedBase
+ * @brief Abstract base class for all devices that run a task on the device.
+ * This class provides the interface for device operations such as starting and stopping
+ * a task that runs on the device. For example, if the device is a sensor, that requires some reading done in a loop.
+ */
 class DeviceThreadedBase : public DeviceBase {
 public:
   DeviceThreadedBase();
@@ -201,10 +207,8 @@ private:
 
   /**
    * @brief default task taht runs in a  infinit loop with a specified frequency.
-   * @param arg 3 arguments that will be passed to the task function.
-   * 1 - task function that will be run in a  loop
-   * 2 - task argument that will be passed to the task function
-   * 3 - period in ms that will determine task run frequency
+   * @param arg DeviceTaskDefaultArgs struct that holds the task function, argument and period.
+   *
    */
   static void default_task(void *arg);
 };
@@ -214,6 +218,11 @@ private:
 
 
 namespace stmepic::internall {
+
+/**
+ * @struct DeviceTaskDefaultArgs
+ * @brief Struct to hold the default arguments for the default task that will run on the device.
+ */
 struct DeviceTaskDefaultArgs {
   void *args;
   TaskFunction *task;

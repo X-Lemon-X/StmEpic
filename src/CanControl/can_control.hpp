@@ -18,8 +18,8 @@
 #define CAN_DATA_FRAME_MAX_SIZE 8
 #endif
 
-#ifndef CAN_QUEUE_SIZE
-#define CAN_QUEUE_SIZE 128
+#ifndef CAN_QUEUE_SIZE_OLD
+#define CAN_QUEUE_SIZE_OLD 128
 #endif
 
 #ifndef CAN_LED_BLINK_PERIOD_US
@@ -199,8 +199,8 @@ private:
   std::shared_ptr<Timing> timing_can_task;
   uint8_t data[CAN_DATA_FRAME_MAX_SIZE];
   CAN_RxHeaderTypeDef header;
-  // static_circular_buffor<CanMsg,CAN_QUEUE_SIZE> rx_msg_buffor;
-  static_circular_buffor<CanMsg, CAN_QUEUE_SIZE> tx_msg_buffor;
+  // static_circular_buffor<CanMsg,CAN_QUEUE_SIZE_OLD> rx_msg_buffor;
+  static_circular_buffor<CanMsg, CAN_QUEUE_SIZE_OLD> tx_msg_buffor;
   // std::unordered_map<uint32_t, void (*)(CanMsg&)> callback_map;
   etl::unordered_map<uint32_t, function_pointer, CAN_CALLBACK_LIST_SIZE> callback_map;
 
