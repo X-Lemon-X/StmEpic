@@ -3,7 +3,7 @@
 #include "sha256.hpp"
 #include "stm32f4xx_hal_i2c.h"
 #include "stmepic.hpp"
-#include "stmepic_status.hpp"
+#include "status.hpp"
 #include <cstdint>
 #include <cstdlib>
 

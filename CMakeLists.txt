@@ -26,19 +26,19 @@ option(STMEPIC_MEMORY "Enable Memory module" ON)
 
 ############################################
 # CORE STMEPIC MODULES
-add_subdirectory(src/Containers)
+# add_subdirectory(src/Containers)
 add_subdirectory(src/Timing)
 add_subdirectory(src/Filters)
-add_subdirectory(src/Config)
+add_subdirectory(src/Inc)
 add_subdirectory(src/Device)
 add_subdirectory(src/Algorithm)
 
 
 ############################################
 # STMEPIC OPTIONAL MODULES
-if(STMEPIC_CAN_CONTROLER)
-  add_subdirectory(src/CanControl)
-endif()
+# if(STMEPIC_CAN_CONTROLER)
+#   add_subdirectory(src/CanControl)
+# endif()
 
 if(STMEPIC_ENCODERS)
   add_subdirectory(src/Encoders)

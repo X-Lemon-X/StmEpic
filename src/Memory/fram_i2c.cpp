@@ -2,7 +2,7 @@
 #include "fram_i2c.hpp"
 #include "device.hpp"
 #include "stmepic.hpp"
-#include "stmepic_status.hpp"
+#include "status.hpp"
 
 using namespace stmepic::memory;
 using namespace stmepic;

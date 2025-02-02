@@ -2,7 +2,7 @@
 
 
 #include "stmepic.hpp"
-#include "stmepic_status.hpp"
+#include "status.hpp"
 #include <memory>
 #include <vector>
 
@@ -85,9 +85,9 @@ private:
  *
  * This class provides functionalities for handling time-based operations.
  * It can be used to create timers that can be trigered after specified period of time.
- * Most of the time it will be used with TimeScheduler class.
- * To creat tasksk that run  with a specific frequency.
- * For example, to create a task that reads a sensor every 100ms, or blink an LED every 500ms.
+ * usefull for operation that cehck if something was done in a specific time period.
+ * Or for creatign simple task for whitch runing separate thread would be an overkill.
+ * In task scenario Timing should be used with TimeScheduler.
  */
 
 class Timing {

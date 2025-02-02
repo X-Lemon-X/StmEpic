@@ -1,7 +1,7 @@
 
 #include "steper_motor.hpp"
 #include "stmepic.hpp"
-#include "stmepic_status.hpp"
+#include "status.hpp"
 #include <cmath>
 #include <cstdint>
 

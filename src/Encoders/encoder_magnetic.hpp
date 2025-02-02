@@ -4,7 +4,7 @@
 #include "encoder.hpp"
 #include "filter.hpp"
 #include "stmepic.hpp"
-#include "stmepic_status.hpp"
+#include "status.hpp"
 #include <cstddef>
 #include "i2c.hpp"
 

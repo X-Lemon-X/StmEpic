@@ -5,7 +5,7 @@
 
 
 /**
- * @file stmepic_status.hpp
+ * @file status.hpp
  * @brief  Status class definition.
  */
 
