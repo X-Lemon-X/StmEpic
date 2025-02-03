@@ -216,6 +216,13 @@ Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
   return result;
 }
 
+Status I2C::is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) {
+  xSemaphoreTake(_mutex, portMAX_DELAY);
+  Status status = HAL_I2C_IsDeviceReady(_hi2c, address, trials, timeout);
+  xSemaphoreGive(_mutex);
+  return status;
+}
+
 // Status I2C::read_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
 //   auto s = xTaskGetSchedulerState();
 //   if(s == taskSCHEDULER_RUNNING)

@@ -70,6 +70,9 @@ public:
    */
   Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1);
 
+
+  Status is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout);
+
   /**
    * @brief Run the TX callbacks from the IRQ or DMA interrupt
    * @param hi2c the I2C handle that triggered the interrupt

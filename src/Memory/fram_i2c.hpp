@@ -3,6 +3,7 @@
 #include "memory_fram.hpp"
 #include "stmepic.hpp"
 #include "status.hpp"
+#include "i2c.hpp"
 #include <cstdint>
 #include <cstdlib>
 #include <vector>
@@ -31,7 +32,7 @@ public:
    * @param begin_address the begining address from which the memory will be used
    * @param fram_size the size of the memory of the FRAM device to avoid out of bounds errors
    */
-  FramI2C(I2C_HandleTypeDef &hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
+  FramI2C(std::shared_ptr<I2C> hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
 
   /// @brief Init the FRAM device
   Status init() override;
@@ -55,7 +56,7 @@ public:
   Status device_disable() override final;
 
 protected:
-  I2C_HandleTypeDef *hi2c;
+  std::shared_ptr<I2C> hi2c;
   uint16_t begin_address;
   uint32_t fram_size;
   uint8_t device_address;
@@ -67,7 +68,7 @@ protected:
  */
 class FramI2CFM24CLxx : public FramI2C {
 public:
-  FramI2CFM24CLxx(I2C_HandleTypeDef &hi2c, uint16_t begin_address, uint32_t fram_size);
+  FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size);
   Status write(uint32_t address, const std::vector<uint8_t> &data) override;
   Result<std::vector<uint8_t>> read(uint32_t address) override;
 };
