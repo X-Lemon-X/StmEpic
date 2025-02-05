@@ -3,7 +3,6 @@
 #include "movement_controler.hpp"
 #include "Timing.hpp"
 #include "motor.hpp"
-#include "stm32f4xx_hal.h"
 #include <cmath>
 
 using namespace stmepic;

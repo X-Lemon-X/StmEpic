@@ -1,7 +1,6 @@
 #include "memory_fram.hpp"
 #include "device.hpp"
 #include "sha256.hpp"
-#include "stm32f4xx_hal_i2c.h"
 #include "stmepic.hpp"
 #include "status.hpp"
 #include <cstdint>
