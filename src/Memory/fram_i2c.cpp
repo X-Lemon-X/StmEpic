@@ -12,9 +12,8 @@ FramI2C::FramI2C(std::shared_ptr<I2C> _hi2c, uint8_t _device_address, uint16_t _
 : hi2c(_hi2c), device_address(_device_address), begin_address(_begin_address), fram_size(_fram_size) {
 }
 
-
-Status FramI2C::init() {
-  return device_get_status().status();
+FramI2C::~FramI2C() {
+  device_stop();
 }
 
 Status FramI2C::device_get_status() {
@@ -39,11 +38,11 @@ Status FramI2C::device_reset() {
   return device_get_status().status();
 }
 
-Status FramI2C::device_enable() {
+Status FramI2C::device_start() {
   return device_get_status().status();
 }
 
-Status FramI2C::device_disable() {
+Status FramI2C::device_stop() {
   return Status::OK();
 }
 

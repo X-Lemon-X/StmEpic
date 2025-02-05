@@ -154,10 +154,10 @@ Status SteperMotorStepDir::device_reset() {
   return Status::OK();
 }
 
-Status SteperMotorStepDir::device_enable() {
+Status SteperMotorStepDir::device_start() {
   return Status::OK();
 }
 
-Status SteperMotorStepDir::device_disable() {
+Status SteperMotorStepDir::device_stop() {
   return Status::OK();
 }

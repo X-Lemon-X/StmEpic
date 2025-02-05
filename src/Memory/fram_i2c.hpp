@@ -25,8 +25,7 @@ namespace stmepic::memory {
 class FramI2C : public FRAM {
 public:
   /**
-   * @brief Construct a new FramI2C object
-   *
+   * @brief Construct a new FramI2C driver
    * @param hi2c the I2C handle that will be used to communicate with the FRAM device
    * @param device_address the address of the FRAM device
    * @param begin_address the begining address from which the memory will be used
@@ -34,8 +33,7 @@ public:
    */
   FramI2C(std::shared_ptr<I2C> hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
 
-  /// @brief Init the FRAM device
-  Status init() override;
+  virtual ~FramI2C();
 
   /// @brief Write data to the FRAM device
   /// @param address the address where the data will be written
@@ -52,8 +50,8 @@ public:
   bool device_ok() override final;
   Status device_get_status() override final;
   Status device_reset() override final;
-  Status device_enable() override final;
-  Status device_disable() override final;
+  Status device_start() override final;
+  Status device_stop() override final;
 
 protected:
   std::shared_ptr<I2C> hi2c;
@@ -68,7 +66,7 @@ protected:
  */
 class FramI2CFM24CLxx : public FramI2C {
 public:
-  FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size);
+  FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address = 0, uint32_t fram_size = 16000);
   Status write(uint32_t address, const std::vector<uint8_t> &data) override;
   Result<std::vector<uint8_t>> read(uint32_t address) override;
 };

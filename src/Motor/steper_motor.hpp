@@ -103,9 +103,9 @@ public:
 
   Status device_reset() override;
 
-  Status device_enable() override;
+  Status device_start() override;
 
-  Status device_disable() override;
+  Status device_stop() override;
 
 private:
   float radians_to_frequency;

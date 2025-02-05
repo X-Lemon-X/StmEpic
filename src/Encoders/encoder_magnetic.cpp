@@ -208,16 +208,16 @@ stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_reset() {
-  STMEPIC_RETURN_ON_ERROR(device_disable());
-  return device_enable();
+  STMEPIC_RETURN_ON_ERROR(device_stop());
+  return device_start();
 }
 
-stmepic::Status EncoderAbsoluteMagnetic::device_enable() {
+stmepic::Status EncoderAbsoluteMagnetic::device_start() {
   return device_get_status().status();
 }
 
 
-stmepic::Status EncoderAbsoluteMagnetic::device_disable() {
+stmepic::Status EncoderAbsoluteMagnetic::device_stop() {
   return do_default_task_stop();
 }
 

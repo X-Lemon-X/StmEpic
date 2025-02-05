@@ -20,5 +20,5 @@ Status BNO055::set_operation_mode(internal::BNO055_OPR_MODE_t mode) {
   return HAL_I2C_Mem_Write(&i2c, internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_OPR_MODE, 1, (uint8_t *)&mode, 1, 100);
 }
 
-Status BNO055::device_enable() {
+Status BNO055::device_start() {
 }

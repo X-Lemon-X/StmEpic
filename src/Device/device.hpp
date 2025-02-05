@@ -86,7 +86,7 @@ public:
    * If the device don't have start/stop functionality, this function should return OK.
    * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status device_enable() = 0;
+  [[nodiscard]] virtual Status device_start() = 0;
 
   /**
    * @brief Disables the device. This will usually require the hardware suport to work
@@ -95,7 +95,7 @@ public:
    * If the device don't have start/stop functionality, this function should return OK.
    * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status device_disable() = 0;
+  [[nodiscard]] virtual Status device_stop() = 0;
 };
 
 /**

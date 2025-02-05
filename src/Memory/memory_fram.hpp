@@ -55,9 +55,7 @@ namespace stmepic::memory {
 class FRAM : public DeviceBase {
 
 public:
-  FRAM();
-  /// @brief Init the FRAM device
-  virtual Status init() = 0;
+  virtual ~FRAM() = default;
 
   /// @brief Write data to the FRAM device
   /// @param address the address where the data will be written
@@ -146,6 +144,7 @@ public:
   std::string get_encryption_key();
 
 protected:
+  FRAM();
   /// @brief encodes the data to be written to the FRAM device
   /// @param data the data that will be encoded only Data part of the FRAM data structure
   /// @param key the key that will be used to encode the data

@@ -185,8 +185,8 @@ public:
   bool device_ok();
   Status device_get_status();
   Status device_reset();
-  Status device_enable();
-  Status device_disable();
+  Status device_start();
+  Status device_stop();
 
 private:
   Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);

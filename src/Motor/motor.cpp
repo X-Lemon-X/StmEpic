@@ -97,10 +97,10 @@ Result<bool> MotorClosedLoop::device_is_connected() {
   return motor.device_reset();
 }
 
-[[nodiscard]] Status MotorClosedLoop::device_enable() {
-  return motor.device_enable();
+[[nodiscard]] Status MotorClosedLoop::device_start() {
+  return motor.device_start();
 }
 
-[[nodiscard]] Status MotorClosedLoop::device_disable() {
-  return motor.device_disable();
+[[nodiscard]] Status MotorClosedLoop::device_stop() {
+  return motor.device_stop();
 }
