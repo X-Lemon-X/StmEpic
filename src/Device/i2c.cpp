@@ -134,6 +134,7 @@ Status I2C::hardware_stop() {
 
 Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {
   task_handle = xTaskGetCurrentTaskHandle();
+  address     = address << 1;
   if(task_handle != nullptr)
     vPortEnterCritical();
   Status result = Status::ExecutionError();

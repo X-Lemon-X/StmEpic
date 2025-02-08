@@ -23,55 +23,12 @@
 
 namespace stmepic::encoders {
 
-/// @brief Translates register data to angle for AS5600 magnetic encoder from ams AG
-/// The encdoer are max 16bit and need some bit shifting. This funciton implement the shifting
-/// @param data1 the value of the first register
-/// @param data2 the value of the second register
-uint16_t translate_reg_to_angle_AS5600(uint8_t data1, uint8_t data2);
-
-/// @brief translates the register data to angle for MT6701 magnetic encoder from MagnTek
-/// The encdoer are max 16bit and need some bit shifting. This funciton implement the shifting
-/// @param data1 the value of the first register
-/// @param data2 the value of the second register
-uint16_t translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2);
-
 /**
  * @brief Interface for I2C absolute magnetic encoders.
  *
  */
 class EncoderAbsoluteMagnetic : public EncoderBase {
 public:
-  /// @brief Init fucnion of the encoder
-  /// first arg is value of the first register and the second is the value of the second register
-  using traslate_reg_to_angle = uint16_t (*)(uint8_t, uint8_t);
-
-  /// @brief Init fucnion of the encoder
-  EncoderAbsoluteMagnetic();
-
-  /// @brief Initiates the encoder
-  /// should be called after all the settings are set  especially the dead zone correction angle if used
-  /// @param hi2c the i2c handler that will be used to communicate with the encoder
-  /// @param filter_angle the filter that will be used to filter the angle, if nullptr the angle will not be filtered
-  /// @param filter_velocity the filter that will be used to filter the velocity if nullptr the velocity will not be filtered
-  /// @param _reg_to_angle_function sets the function that will be used to translate register
-  /// data to angle. It have to return the angle in uint16_t and takes the data from two registers first and second.
-  ///  the function that will be used to read the angle, and return the angle in uint16_t in binary format for example 0-4095 or 0-16383
-  void init(std::shared_ptr<I2C> hi2c,
-            traslate_reg_to_angle _reg_to_angle_function,
-            filters::FilterBase *filter_angle    = nullptr,
-            filters::FilterBase *filter_velocity = nullptr);
-
-  /// @brief Pings the encoder to check if it is connected
-  /// @return true if the encoder is connected
-  // bool ping_encoder();
-
-  /// @brief Check if last request to the encoder was successful if not the encoder is disconnected,
-  /// therefor it requires to be used when handle is called regularly, otherwise the return value will be
-  /// unreliable. use ping_encoder() if you want to check if the encoder is connected.
-  /// @return true if the encoder is connected.
-  // [[nodiscard]] bool is_connected() const override;
-
-
   /// @brief reads the last calculated velocity
   /// @return the velocity in radians per second
   [[nodiscard]] float get_velocity() const override;
@@ -90,26 +47,15 @@ public:
   /// @return the absoulte angle in radians
   [[nodiscard]] float get_absoulute_angle() const override;
 
-  /// @brief handles the encoder updates data read from the encoder
-  void handle() override;
 
   /// @brief set the ratio that will be multiplayed by value of the angle and velocity
   /// @param ratio the ratio that will be multiplayed by value of the angle and velocity
   void set_ratio(float ratio) override;
 
-
-  /// @brief reads the raw angle from the encoder
-  /// @return the raw angle in uint16_t
-  Result<uint16_t> read_raw_angle();
-
   /// @brief reads the angle from the encoder
   /// @return the angle in radians
   float read_angle();
 
-
-  /// @brief sets the resolution of the encoder
-  /// @param resolution the resolution of the encoder
-  void set_resolution(uint16_t resolution);
 
   /// @brief sets the offset of the encoder
   /// @param offset the offset in radians
@@ -118,18 +64,6 @@ public:
   /// @brief sets the reverse of the encoder
   /// @param reverse true if the encoder is reversed
   void set_reverse(bool reverse);
-
-  /// @brief sets the address of the encoder
-  /// @param address the address of the encoder
-  void set_address(uint8_t address);
-
-  /// @brief sets the angle register of the encoder
-  /// @param angle_register the angle register of the encoder
-  void set_angle_register(uint8_t angle_register);
-
-  /// @brief sets the magnes detection register of the encoder (unsuported feature in MT6701)
-  /// @param magnes_detection_register the magnes detection register of the encoder
-  void set_magnes_detection_register(uint8_t magnes_detection_register);
 
   /// @brief sets the begin roation dead zone correction angle
   /// The dead zone angle is used to correct initial value of the angle to be eather positive or negative.
@@ -151,15 +85,34 @@ public:
 
   Status device_stop() override;
 
-private:
+
+  /// @brief thsi should be run in a  constructor of child class to initiate the begining values using child class specific values
+  void init() override;
+
+protected:
+  /// @brief Init fucnion of the encoder
+  EncoderAbsoluteMagnetic(std::shared_ptr<I2C> hi2c,
+                          uint32_t resolution,
+                          std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
+                          std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
+
+  /// @brief Overide this fucniton with fucniton to read angle from  your encoder
+  /// Reads the raw angle from the encoder
+  /// @return the raw angle in uint32_t
+  virtual Result<uint32_t> read_raw_angle() = 0;
+
   std::shared_ptr<I2C> hi2c;
-  filters::FilterBase *filter_angle;
-  filters::FilterBase *filter_velocity;
-  traslate_reg_to_angle reg_to_angle_function;
-
+  /// @brief Should be set to true if the encoder is connected
   bool encoder_connected;
+  Status device_status;
 
-  uint8_t data[2];
+
+private:
+  std::shared_ptr<filters::FilterBase> filter_angle;
+  std::shared_ptr<filters::FilterBase> filter_velocity;
+  // traslate_reg_to_angle reg_to_angle_function;
+
+
   float last_time;
   float prev_angle;
   float current_angle;
@@ -170,15 +123,11 @@ private:
   float absolute_angle;
   float ratio;
 
-  uint16_t resolution;
   float offset;
   float dead_zone_correction_angle;
   bool reverse;
-  uint8_t address;
-  uint8_t angle_register;
-  uint8_t magnes_detection_register;
   bool encoder_initiated;
-  Status device_status;
+  uint32_t resolution;
 
 
   /// @brief Calucaltes velcoicty, and passes it thoroung a filter
@@ -192,11 +141,74 @@ private:
   /// applays the offset and the reverse
   float read_angle_rads();
 
+
+  /// @brief handles the encoder updates data read from the encoder
+  void handle();
+
   static void task_encoder(void *arg);
 
   [[nodiscard]] Status do_device_task_start() override;
   [[nodiscard]] Status do_device_task_stop() override;
 };
 
+
+//********************************************************************************************************************
+// AS5600 Encoder
+
+/// @brief Address of the AS5600 encoders
+enum class encoder_AS5600_addresses : uint16_t { AS5600_I2C_ADDRESS_1 = 0x36 };
+
+/**
+ * @brief Class for AS5600 absoulute magnetic encoder from ams AG
+ * The encoder is a 12 bit magentic absoulute encoder requires amgnet to work with about 0.5-2 mm distance
+ */
+class EncoderAbsoluteMagneticAS5600 : public EncoderAbsoluteMagnetic {
+public:
+  static Result<std::shared_ptr<EncoderAbsoluteMagneticAS5600>>
+  Make(std::shared_ptr<I2C> hi2c,
+       encoder_AS5600_addresses address                     = encoder_AS5600_addresses::AS5600_I2C_ADDRESS_1,
+       std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
+       std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
+  Result<uint32_t> read_raw_angle() override;
+
+private:
+  uint16_t address;
+  EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2C> hi2c,
+                                uint16_t address,
+                                uint32_t resolution,
+                                std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
+                                std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
+};
+
+
+//********************************************************************************************************************
+// Magnatek MT6701 Encoder
+
+/// @brief Address of the MT6701 encoders second one can be programed
+enum class encoder_MT6701_addresses : uint16_t { MT6701_I2C_ADDRESS_1 = 0x06, MT6701_I2C_ADDRESS_2 = 0x46 };
+
+
+/**
+ * @brief Class for MT6701 absoulute magnetic encoder from MagnTek
+ * The encoder is a 14 bit magentic absoulute encoder
+ */
+class EncoderAbsoluteMagneticMT6701 : public EncoderAbsoluteMagnetic {
+public:
+  static Result<std::shared_ptr<EncoderAbsoluteMagneticMT6701>>
+  Make(std::shared_ptr<I2C> hi2c,
+       encoder_MT6701_addresses address                     = encoder_MT6701_addresses::MT6701_I2C_ADDRESS_1,
+       std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
+       std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
+
+  Result<uint32_t> read_raw_angle() override;
+
+private:
+  uint16_t address;
+  EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2C> hi2c,
+                                uint16_t address,
+                                uint32_t resolution,
+                                std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
+                                std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
+};
 
 } // namespace stmepic::encoders

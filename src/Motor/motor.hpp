@@ -104,9 +104,9 @@ public:
   /// @param encoder_vel The encoder that will be used to get velocity of the SteperMotor
   /// The same encoder_pos and encoder_vel can be passed if the SteperMotor has only one encoder
   MotorClosedLoop(MotorBase &_motor,
-                  encoders::EncoderBase *_encoder_pos,
-                  encoders::EncoderBase *_encoder_vel,
-                  encoders::EncoderBase *_encoder_torque);
+                  std::shared_ptr<encoders::EncoderBase> _encoder_pos,
+                  std::shared_ptr<encoders::EncoderBase> _encoder_vel,
+                  std::shared_ptr<encoders::EncoderBase> _encoder_torque);
 
   void init() override;
 
@@ -150,9 +150,9 @@ public:
 
 private:
   MotorBase &motor;
-  encoders::EncoderBase *encoder_pos;
-  encoders::EncoderBase *encoder_vel;
-  encoders::EncoderBase *encoder_torque;
+  std::shared_ptr<encoders::EncoderBase> encoder_pos;
+  std::shared_ptr<encoders::EncoderBase> encoder_vel;
+  std::shared_ptr<encoders::EncoderBase> encoder_torque;
 };
 
 } // namespace stmepic::motor

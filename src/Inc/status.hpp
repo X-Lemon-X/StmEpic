@@ -26,11 +26,11 @@ class Status;
  * This macro is used to return from a function if the result is not OK.
  * usefull to avoid having to check if the status is OK and return the status if not.
  */
-#define STMEPIC_RETURN_ON_ERROR(x) \
-  do {                             \
-    Status _x = x.status();        \
-    if(!_x.ok())                   \
-      return _x;                   \
+#define STMEPIC_RETURN_ON_ERROR(x)   \
+  do {                               \
+    stmepic::Status _x = x.status(); \
+    if(!_x.ok())                     \
+      return _x;                     \
   } while(false)
 
 /**
@@ -41,6 +41,27 @@ class Status;
 #define STMEPIC_ASSING_OR_RETURN(assign, result) \
   STMEPIC_RETURN_ON_ERROR(result);               \
   auto assign = result.valueOrDie();
+
+/**
+ * @brief Macro for assigning a value from a result and resetting the device on error in a single line.
+ *
+ */
+#define STMEPIC_ASSING_OR_HRESET(assign, result) \
+  do {                                           \
+    stmepic::Status _x = result.status();        \
+    if(!_x.ok())                                 \
+      HAL_NVIC_SystemReset();                    \
+  } while(false);                                \
+  auto assign = result.valueOrDie();
+
+void HardFault_Handler(void);
+
+#define STMEPIC_NONE_OR_HARD_FAULT(result) \
+  do {                                     \
+    stmepic::Status _x = result.status();  \
+    if(!_x.ok())                           \
+      HardFault_Handler();                 \
+  } while(false);
 
 /**
  * @enum StatusCode
@@ -138,7 +159,7 @@ enum class StatusCode : char {
  */
 class Status {
 public:
-  Status(Status &status) = default;
+  Status(const Status &status) = default;
 
   Status(HAL_StatusTypeDef status) : _message(nullptr) {
     switch(status) {

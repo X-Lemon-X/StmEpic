@@ -13,48 +13,19 @@ using namespace stmepic;
 #define PI_m2 6.28318530717958647692f
 
 
-uint16_t stmepic::encoders::translate_reg_to_angle_AS5600(uint8_t data1, uint8_t data2) {
-  uint16_t reg = (uint16_t)(data1 & 0x0F) << 8;
-  reg |= (uint16_t)(data2);
-  return reg;
+EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
+                                                 uint32_t _resolution,
+                                                 std::shared_ptr<filters::FilterBase> _filter_angle,
+                                                 std::shared_ptr<filters::FilterBase> _filter_velocity)
+: hi2c(_hi2c), filter_angle(_filter_angle), filter_velocity(_filter_velocity), resolution(_resolution),
+  last_time(stmepic::Ticker::get_instance().get_seconds()), current_velocity(0), over_drive_angle(0),
+  device_status(Status::Disconnected("Encoder is not connected")) {
 }
 
-uint16_t stmepic::encoders::translate_reg_to_angle_MT6701(uint8_t data1, uint8_t data2) {
-  uint16_t reg = (uint16_t)data1 << 6;
-  reg |= (uint16_t)(data2 & 0xfc) >> 2;
-  return reg;
-}
 
-EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic()
-: device_status(Status::Disconnected("Encoder is not connected")) {
-  this->resolution                 = 4096;
-  this->address                    = 0x36;
-  this->reverse                    = false;
-  this->offset                     = 0;
-  this->data[0]                    = 0;
-  this->data[1]                    = 0;
-  this->encoder_initiated          = false;
-  this->ratio                      = 1;
-  this->dead_zone_correction_angle = 0;
-  this->reg_to_angle_function      = translate_reg_to_angle_AS5600;
-}
-
-void EncoderAbsoluteMagnetic::init(std::shared_ptr<I2C> hi2c,
-                                   traslate_reg_to_angle _reg_to_angle_function,
-                                   filters::FilterBase *filter_angle,
-                                   filters::FilterBase *filter_velocity) {
-  this->hi2c                  = hi2c;
-  this->filter_angle          = filter_angle;
-  this->filter_velocity       = filter_velocity;
-  this->last_time             = stmepic::Ticker::get_instance().get_seconds();
-  this->current_velocity      = 0;
-  this->over_drive_angle      = 0;
-  this->reg_to_angle_function = _reg_to_angle_function;
-  this->encoder_initiated     = true;
-  this->device_status         = Status::OK();
-  // bool connected = ping_encoder();
-
+void EncoderAbsoluteMagnetic::init() {
   float angle = read_angle_rads();
+
   // correct the angle begin value to avoid false rotation dircetion
   // after first starting after power down
   if(dead_zone_correction_angle != 0)
@@ -65,24 +36,9 @@ void EncoderAbsoluteMagnetic::init(std::shared_ptr<I2C> hi2c,
   this->prev_angle = angle;
   read_angle();
   this->prev_angle_velocity = this->absolute_angle;
-}
 
-// bool EncoderAbsoluteMagnetic::ping_encoder(){
-//   if(this->encoder_enabled) return false;
-//   return HAL_I2C_IsDeviceReady(hi2c, address, 1, 100) == HAL_OK;
-// }
-
-stmepic::Result<uint16_t> EncoderAbsoluteMagnetic::read_raw_angle() {
-  if(!encoder_initiated)
-    return Status::IOError("Encoder is not initiated");
-
-  // HAL_StatusTypeDef status = HAL_I2C_Mem_Read(hi2c, address, angle_register, 1, this->data, 2, 5);
-  auto status       = hi2c->read(address, angle_register, data, 2);
-  encoder_connected = status.ok();
-  device_status     = status;
-  STMEPIC_RETURN_ON_ERROR(status);
-  uint16_t reg = reg_to_angle_function(data[0], data[1]);
-  return Result<uint16_t>::OK(reg);
+  if(this->filter_angle != nullptr)
+    filter_angle->set_init_value(read_angle());
 }
 
 float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
@@ -97,8 +53,6 @@ float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
 }
 
 float EncoderAbsoluteMagnetic::read_angle_rads() {
-  if(!encoder_initiated)
-    return 0;
   auto maybe_reg = read_raw_angle();
   if(!maybe_reg.ok())
     return 0;
@@ -114,30 +68,28 @@ float EncoderAbsoluteMagnetic::read_angle_rads() {
 }
 
 float EncoderAbsoluteMagnetic::read_angle() {
-  if(!encoder_initiated)
-    return 0;
-
   float angle = read_angle_rads();
 
   if(prev_angle - angle > ANGLE_MAX_DEFFERENCE)
     over_drive_angle += PI_m2;
   else if(angle - prev_angle > ANGLE_MAX_DEFFERENCE)
     over_drive_angle -= PI_m2;
-  prev_angle     = angle;
+  prev_angle = angle;
+
+  if(this->filter_angle != nullptr)
+    angle = filter_angle->calculate(angle);
+
   absolute_angle = (angle + over_drive_angle) * ratio;
   int rotation   = (int)(absolute_angle / PI_m2);
   current_angle  = (float)(absolute_angle - rotation * PI_m2);
 
-  if(this->filter_angle != nullptr)
-    absolute_angle = filter_angle->calculate(absolute_angle);
+
   current_velocity = calculate_velocity(absolute_angle);
 
   return angle;
 }
 
 void EncoderAbsoluteMagnetic::handle() {
-  if(!encoder_initiated)
-    return;
   read_angle();
 }
 
@@ -157,14 +109,6 @@ float EncoderAbsoluteMagnetic::get_absoulute_angle() const {
   return this->absolute_angle;
 }
 
-// bool EncoderAbsoluteMagnetic::is_connected() const{
-//   return this->encoder_connected;
-// }
-
-void EncoderAbsoluteMagnetic::set_resolution(uint16_t resolution) {
-  this->resolution = resolution;
-}
-
 void EncoderAbsoluteMagnetic::set_offset(float offset) {
   this->offset = offset;
 }
@@ -173,17 +117,6 @@ void EncoderAbsoluteMagnetic::set_reverse(bool reverse) {
   this->reverse = reverse;
 }
 
-void EncoderAbsoluteMagnetic::set_address(uint8_t address) {
-  this->address = address;
-}
-
-void EncoderAbsoluteMagnetic::set_angle_register(uint8_t angle_register) {
-  this->angle_register = angle_register;
-}
-
-void EncoderAbsoluteMagnetic::set_magnes_detection_register(uint8_t magnes_detection_register) {
-  this->magnes_detection_register = magnes_detection_register;
-}
 
 void EncoderAbsoluteMagnetic::set_dead_zone_correction_angle(float dead_zone_correction_angle) {
   this->dead_zone_correction_angle = std::abs(dead_zone_correction_angle);
@@ -194,7 +127,7 @@ void EncoderAbsoluteMagnetic::set_ratio(float ratio) {
 }
 
 bool EncoderAbsoluteMagnetic::device_ok() {
-  return encoder_connected;
+  return device_status.ok();
 }
 
 stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected() {
@@ -233,4 +166,72 @@ stmepic::Status EncoderAbsoluteMagnetic::do_device_task_stop() {
 void EncoderAbsoluteMagnetic::task_encoder(void *arg) {
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
   encoder->handle();
+}
+
+
+//********************************************************************************************************************
+// AS5600 Encoder
+
+EncoderAbsoluteMagneticAS5600::EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2C> hi2c,
+                                                             uint16_t _address,
+                                                             uint32_t resolution,
+                                                             std::shared_ptr<filters::FilterBase> filter_angle,
+                                                             std::shared_ptr<filters::FilterBase> filter_velocity)
+: EncoderAbsoluteMagnetic(hi2c, resolution, filter_angle, filter_velocity), address(_address) {
+}
+
+Result<std::shared_ptr<EncoderAbsoluteMagneticAS5600>>
+EncoderAbsoluteMagneticAS5600::Make(std::shared_ptr<I2C> hi2c,
+                                    encoder_AS5600_addresses _address,
+                                    std::shared_ptr<filters::FilterBase> filter_angle,
+                                    std::shared_ptr<filters::FilterBase> filter_velocity) {
+  if(hi2c == nullptr)
+    return Status::Invalid("I2C is not nullptr");
+  auto encoder = std::shared_ptr<EncoderAbsoluteMagneticAS5600>(
+  new EncoderAbsoluteMagneticAS5600(hi2c, (uint16_t)_address, 4096, filter_angle, filter_velocity));
+  return Result<decltype(encoder)>::OK(encoder);
+}
+
+Result<uint32_t> EncoderAbsoluteMagneticAS5600::read_raw_angle() {
+  uint8_t data[2];
+  auto status       = hi2c->read(address, 0x0C, data, 2);
+  encoder_connected = status.ok() || status.status_code() != StatusCode::TimeOut;
+  device_status     = status;
+  STMEPIC_RETURN_ON_ERROR(status);
+  uint32_t reg = (uint32_t)(data[0] & 0x0F) << 8;
+  reg |= (uint32_t)(data[1]);
+  return Result<uint32_t>::OK(reg);
+}
+
+//********************************************************************************************************************
+// Magnatek MT6701 Encoder
+
+EncoderAbsoluteMagneticMT6701::EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2C> hi2c,
+                                                             uint16_t _address,
+                                                             uint32_t resolution,
+                                                             std::shared_ptr<filters::FilterBase> filter_angle,
+                                                             std::shared_ptr<filters::FilterBase> filter_velocity)
+: EncoderAbsoluteMagnetic(hi2c, resolution, filter_angle, filter_velocity), address(_address) {
+}
+Result<std::shared_ptr<EncoderAbsoluteMagneticMT6701>>
+EncoderAbsoluteMagneticMT6701::Make(std::shared_ptr<I2C> hi2c,
+                                    encoder_MT6701_addresses address,
+                                    std::shared_ptr<filters::FilterBase> filter_angle,
+                                    std::shared_ptr<filters::FilterBase> filter_velocity) {
+  if(hi2c == nullptr)
+    return Status::Invalid("I2C is not initialized");
+  auto encoder = std::shared_ptr<EncoderAbsoluteMagneticMT6701>(
+  new EncoderAbsoluteMagneticMT6701(hi2c, (uint16_t)address, 16384, filter_angle, filter_velocity));
+  return Result<decltype(encoder)>::OK(encoder);
+}
+
+Result<uint32_t> EncoderAbsoluteMagneticMT6701::read_raw_angle() {
+  uint8_t data[2];
+  auto status       = hi2c->read(address, 0x03, data, 2);
+  encoder_connected = status.ok() || status.status_code() != StatusCode::TimeOut;
+  device_status     = status;
+  STMEPIC_RETURN_ON_ERROR(status);
+  uint32_t reg = (uint32_t)data[0] << 6;
+  reg |= (uint32_t)(data[1] & 0xfc) >> 2;
+  return Result<uint32_t>::OK(reg);
 }

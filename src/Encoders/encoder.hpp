@@ -33,6 +33,9 @@ public:
   EncoderBase()          = default;
   virtual ~EncoderBase() = default;
 
+  /// @brief Shoule be called to initialize the encoder afer changign the settings
+  virtual void init() = 0;
+
   /// @brief reads the last calculated velocity
   /// @return the velocity in radians per second
   [[nodiscard]] virtual float get_velocity() const = 0;
@@ -55,9 +58,6 @@ public:
   /// @return the absoulte angle in radians
   [[nodiscard]] virtual float get_absoulute_angle() const = 0;
 
-  /// @brief handles the encoder updates data read from the encoder
-  virtual void handle() = 0;
-
   /// @brief sets the offset of the encoder
   /// @param offset the offset in radians
   virtual void set_offset(float offset) = 0;
@@ -67,7 +67,7 @@ public:
   virtual void set_reverse(bool reverse) = 0;
 
   /// @brief set the ratio that will be multiplayed by value of the angle and velocity thus
-  /// this is used to calculate the real angle and velocity of the motor in case the motor has a gear reduction
+  /// is used to calculate the real angle and velocity of the motor in case the motor has a gear reduction
   /// @param ratio
   virtual void set_ratio(float ratio) = 0;
 };
