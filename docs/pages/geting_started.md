@@ -9,24 +9,39 @@ This page will guide you through the process of setting up the project for STM32
 - STM32CubeMX code generation tool
 - ccach
 
-## Requirements
+# Requirements
 
 ### Compiler:
 
 Building the project requires GNU Arm Embedded Toolchain to be installed.
 
 1. Download it from this site [GNU Arm Embedded Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) or directly from this [link](https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz)
-2. Move the extracted files in some directory for example "$HOME/.local/share/gccarm",
-3. Add this in your **_.profile_** file
+2. Extract the downloaded file,
+
+```bash
+tar -xf ~/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+```
+
+3. Move the extracted folder to some directory for example "$HOME/.local/share",
+
+```bash
+mv arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi ~/.local/share/arm-gnu-toolchain-14
+```
+
+4. Add this in your **_.profile_** file
 
 ```bash
 # Add the arm-none-aebi to the path
-if [ -d "$HOME/.local/share/gccarm/bin" ]; then
-    PATH="$HOME/.local/share/gccarm/bin:$PATH"
+if [ -d "$HOME/.local/share/arm-gnu-toolchain-14/bin" ]; then
+    PATH="$HOME/.local/share/arm-gnu-toolchain-14/bin:$PATH"
 fi
 ```
 
-4. restart the pc or run source ~/.profile
+5. Restart the PC or run
+
+```bash
+source ~/.profile
+```
 
 ### Software:
 
@@ -36,8 +51,9 @@ fi
 sudo apt-get install -y cmake ninja-build clang ccache dfu-util stlink-tools python3-pip python3-venv
 ```
 
-2. Install StmCubeIDE you can install it from [official site](https://www.st.com/en/development-tools/stm32cubeide.html).
-3. Install StmCubeMX you can install it from [official site](https://www.st.com/en/development-tools/stm32cubemx.html).
+2. Install the StmCubeIDE you can install it from [official site](https://www.st.com/en/development-tools/stm32cubeide.html).
+3. Install the StmCubeMX you can install it from [official site](https://www.st.com/en/development-tools/stm32cubemx.html).
+4. Install the STM32CubeProgrammer you can install it from [official site](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
 # How to add the library to your project
 
@@ -56,31 +72,23 @@ target_link_libraries( <YOUR_PROEJCT_NAME> PUBLIC  stmepic)
 ```
 
 3. Now you can simply include header files.
-
-## How to use the library
-
-The library is designed to be used with the code generation tool STM32CubeMX.
-
-1. Create a new project in STM32CubeMX.
-2. In the project settings, set generate code as CMakelist.
-3. Include all source files from the library to the project.
-4. don't forget to have ARM GCC toolchain installed. You can download it from [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) or get docker image to build the project from [here](https://hub.docker.com/repository/docker/xlemonx/arm-gnu-toolchain).
+4. Remember that StmEpic requires definitions provided by HAL library whitch are added by STM32CubeMX gnerator, so sometimes with minimal project you might have to enabel manualy some hardware interfaces in stm32yyxx_hal_config.h file.
 
 # Generating the project from scratch
 
 We won't go into many details since there is many guides on how to use STM32CubeMX.
 In this example we asume that the you project name is the same as the folder where the project is located.
 
-1. Open the StmCubeMX click File->New Project
-2. Select appropriate microcontroller, in this case [for this example] it is **_STM32F446RET_**
-3. Configure the peripherals and their pinout in [Pinout & Configuration] tab
-4. Enable FreeRTOS in [Pinout & Configuration]->[Middleware] tab with CMSIS V2
-5. Configure clock in [Clock Configuration] tab
+1. Open the StmCubeMX click File->New Project.
+2. Select appropriate microcontroller, in this case [for this example] it is **_STM32F446RET_**.
+3. Configure the peripherals and their pinout in [Pinout & Configuration] tab.
+4. Enable FreeRTOS in [Pinout & Configuration]->[Middleware] tab with CMSIS V2, in Advanced settings set USE_NEWLIB_REENTRANT to **ENABLED**.
+5. Configure clock in [Clock Configuration] tab.
 6. In [Project Manager] tab set:
    Toolchain/IDE to **_CMake_**
    Project Name to **_project_name_**.
-   Project location to **_The path where you repo is_**.
-   The CubeMX IDE doesn't allow relative paths, so if you set something incorrectly you might have to copy the project **_\*.ioc_** file in to the project root directory and open direclty from there.Otherwise the files genrated by CubeMX will we genrated in some other location.
+   Project location to **_\<path where you repo is\>/.. _**.
+   The CubeMX IDE doesn't allow relative paths, so if you set something incorrectly you might have to copy the project **_\*.ioc_** along with generated files to your repo folder. If that hapened reopen the **_\*.ioc_** in the folder with CubeMX and the corrent path will be set automatically.
 7. Save the project and generate the code using the GENERATE CODE button
 8. In you repo folder there should be bunch of new folders and files like:
 
@@ -92,13 +100,13 @@ In this example we asume that the you project name is the same as the folder whe
 - Drivers/
 - Middlewares/
 - project_name.ioc
-- startup_stm32xxx.s
+- startup_stm32yyxx.s
   ...
 
 ```
 
 8. The project is configured to be built with CMake, However the C++ language is not enabled yet
-   so We still have to add our libraries and source files to the project.
+   so We still have to add our libraries and source files to the project. Check the next section for more details (Adding C++ support).
 
 ## Adding C++ support
 
@@ -106,11 +114,11 @@ In this example we asume that the you project name is the same as the folder whe
 2. Create some heder file that will have single function that will be called in the main.cpp file to enter our part of the program since We don't wont to touch files generated by CubeMX. For example:
 
 ```cpp
-//creat file main_prog.hpp with content:
+//creat file src/main_prog.hpp with content:
 #pragma once
 void main_prog();
 
-//creat file main_prog.cpp with content:
+//creat file src/main_prog.cpp with content:
 #include "main_prog.hpp"
 void main_prog(){
   // Your code here like your tasks, drivers, etc.
