@@ -19,11 +19,10 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
                                                  std::shared_ptr<filters::FilterBase> _filter_angle,
                                                  std::shared_ptr<filters::FilterBase> _filter_velocity)
 
-: hi2c(_hi2c), encoder_connected(false), device_status(Status::Disconnected("Encoder is not connected")),
-  filter_angle(_filter_angle), filter_velocity(_filter_velocity),
-  last_time(stmepic::Ticker::get_instance().get_seconds()), prev_angle(0), current_angle(0),
-  current_velocity(0), prev_angle_rad_raw(0), prev_angle_velocity(0), over_drive_angle(0), absolute_angle(0),
-  ratio(1), offset(0), dead_zone_correction_angle(0), reverse(false), resolution(_resolution) {
+: hi2c(_hi2c), encoder_connected(false), device_status(Status::OK()), filter_angle(_filter_angle),
+  filter_velocity(_filter_velocity), last_time(stmepic::Ticker::get_instance().get_seconds()), prev_angle(0),
+  current_angle(0), current_velocity(0), prev_angle_rad_raw(0), prev_angle_velocity(0), over_drive_angle(0),
+  absolute_angle(0), ratio(1), offset(0), dead_zone_correction_angle(0), reverse(false), resolution(_resolution) {
 }
 
 
