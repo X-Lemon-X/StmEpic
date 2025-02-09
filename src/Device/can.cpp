@@ -65,8 +65,9 @@ void CAN::run_rx_callbacks_from_irq(CAN_HandleTypeDef *hcan) {
 }
 
 CAN::CAN(CAN_HandleTypeDef &hcan, const CAN_FilterTypeDef &_filter, GpioPin *tx_led, GpioPin *rx_led)
-: is_initiated(false), _hcan(&hcan), last_tx_mailbox(0), can_fifo(filter.FilterFIFOAssignment), filter(_filter),
-  _gpio_tx_led(tx_led), _gpio_rx_led(rx_led), task_handle_tx(nullptr), task_handle_rx(nullptr) {
+: is_initiated(false), _hcan(&hcan), last_tx_mailbox(0), can_fifo(_filter.FilterFIFOAssignment),
+  filter(_filter), _gpio_tx_led(tx_led), _gpio_rx_led(rx_led), task_handle_tx(nullptr),
+  task_handle_rx(nullptr), tx_queue_handle(nullptr), rx_queue_handle(nullptr) {
   tx_queue_handle = xQueueCreate(CAN_QUEUE_SIZE, sizeof(CanDataFrame));
   rx_queue_handle = xQueueCreate(CAN_QUEUE_SIZE, sizeof(CanDataFrame));
   can_fifo        = filter.FilterFIFOAssignment;

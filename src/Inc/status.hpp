@@ -54,6 +54,14 @@ class Status;
   } while(false);                                \
   auto assign = result.valueOrDie();
 
+
+#define STMEPIC_NONE_OR_HRESET(result)    \
+  do {                                    \
+    stmepic::Status _x = result.status(); \
+    if(!_x.ok())                          \
+      HAL_NVIC_SystemReset();             \
+  } while(false);
+
 void HardFault_Handler(void);
 
 #define STMEPIC_NONE_OR_HARD_FAULT(result) \

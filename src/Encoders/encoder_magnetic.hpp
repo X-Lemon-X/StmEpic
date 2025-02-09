@@ -109,7 +109,6 @@ private:
   std::shared_ptr<filters::FilterBase> filter_velocity;
   // traslate_reg_to_angle reg_to_angle_function;
 
-
   float last_time;
   float prev_angle;
   float current_angle;
