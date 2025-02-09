@@ -86,9 +86,6 @@ public:
   Status device_stop() override;
 
 
-  /// @brief thsi should be run in a  constructor of child class to initiate the begining values using child class specific values
-  void init() override;
-
 protected:
   /// @brief Init fucnion of the encoder
   EncoderAbsoluteMagnetic(std::shared_ptr<I2C> hi2c,
@@ -117,7 +114,7 @@ private:
   float prev_angle;
   float current_angle;
   float current_velocity;
-
+  float prev_angle_rad_raw;
   float prev_angle_velocity;
   float over_drive_angle;
   float absolute_angle;
@@ -126,9 +123,10 @@ private:
   float offset;
   float dead_zone_correction_angle;
   bool reverse;
-  bool encoder_initiated;
   uint32_t resolution;
 
+  /// @brief thsi should be run in a  constructor of child class to initiate the begining values using child class specific values
+  void init() override;
 
   /// @brief Calucaltes velcoicty, and passes it thoroung a filter
   /// @param angle current angle
@@ -145,7 +143,8 @@ private:
   /// @brief handles the encoder updates data read from the encoder
   void handle();
 
-  static void task_encoder(void *arg);
+  static void task_encoder_before(SimpleTask &handler, void *arg);
+  static void task_encoder(SimpleTask &handler, void *arg);
 
   [[nodiscard]] Status do_device_task_start() override;
   [[nodiscard]] Status do_device_task_stop() override;

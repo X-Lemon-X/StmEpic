@@ -16,7 +16,7 @@ MovementControler::MovementControler()
 : initialized(false), current_state({ 0, 0, 0 }), target_state({ 0, 0, 0 }), dont_override_limit_position(true),
   motor(nullptr), movement_equation(nullptr), control_mode(MovementControlMode::POSITION), enable(false),
   limit_positon_achieved(false), max_position(0), min_position(0), max_torque(0), max_velocity(0) {
-  task.task_init(handle, this, 1, 300, tskIDLE_PRIORITY + 2, "MovementControler");
+  task.task_init(handle, this, 1, nullptr, 300, tskIDLE_PRIORITY + 2, "MovementControler");
 };
 
 MovementControler::~MovementControler() {

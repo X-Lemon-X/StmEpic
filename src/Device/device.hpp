@@ -1,10 +1,10 @@
 #pragma once
-#include "etl/unordered_map.h"
-#include "etl/vector.h"
 #include "stmepic.hpp"
 #include "status.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <memory>
+#include "simple_task.hpp"
 
 /**
  * @file device.hpp
@@ -14,22 +14,12 @@
 
 /**
  * @defgroup Devices
- * @brief Functions related to device control. From sensors to actuators. As well as task menagment for devices.
+ * @brief Functions related to device control. From sensors to actuators.
+ * Comes in two flavors, simple devices and devices that have it own self managed thread.
  * @{
  */
 
-namespace stmepic::internall {
-struct DeviceTaskDefaultArgs;
-}
-
 namespace stmepic {
-/**
- * @def DEVICE_MAX_DEVICE_COUNT
- * @brief Maximum number of devices that can be managed.
- */
-#define DEVICE_MAX_DEVICE_COUNT (uint32_t)64
-typedef void(TaskFunction)(void *);
-
 
 /**
  * @class DeviceBase
@@ -39,7 +29,6 @@ typedef void(TaskFunction)(void *);
  * status, getting device status, resetting, starting, and stopping the device.
  *
  */
-
 class DeviceBase {
 public:
   DeviceBase()          = default;
@@ -103,7 +92,7 @@ public:
  * @brief Abstract base struct to hold all setings for a device task to be run on the device.
  * usua;;y will be cast to the specific settings struct for specific device.
  */
-struct DeviceThrededSettingsBase {
+struct DeviceThrededSettings {
   /// @brief  Stack size for the task that will run on the device.
   StackType_t uxStackDepth;
 
@@ -113,8 +102,7 @@ struct DeviceThrededSettingsBase {
   /// @brief Period in ms for the task that will run on the device.
   uint32_t period;
 
-  DeviceThrededSettingsBase();
-  virtual DeviceThrededSettingsBase *clone() const;
+  DeviceThrededSettings();
 };
 
 /**
@@ -127,6 +115,8 @@ class DeviceThreadedBase : public DeviceBase {
 public:
   DeviceThreadedBase();
   virtual ~DeviceThreadedBase();
+  using task_function_pointer = SimpleTask::simple_task_function_pointer;
+
 
   /**
    * @brief Run a task that runs on the device.
@@ -150,9 +140,9 @@ public:
   /**
    * @brief Set the settings for the task that will run on the device.
    * This function is used to set the settings for the task that will run on the device to do some work.
-   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
+   * @param settings Settings for the task
    */
-  Status device_task_set_settings(const DeviceThrededSettingsBase &settings);
+  Status device_task_set_settings(const DeviceThrededSettings &settings);
 
   /**
    * @brief Check if the task is running.
@@ -180,18 +170,20 @@ protected:
   [[nodiscard]] virtual Status do_device_task_stop() = 0;
 
   /// @brief FreeRtos Task handle for the specific device
-  TaskHandle_t task_handle;
+  // TaskHandle_t task_handle;
 
   /**
    * @brief Runs and Start task privided by the user. With specified frequency.
    *
    * @param settings Settings for the task that will run on the device. Can be customized.
    * @param task Task function that will be run. This function should be static if it is a member function.
-   * @param task_arg Argument that will be passed to the task function.
+   * @param before_task_funciton Function that will be run before the task function. inside a FreeRtos task.
+   * @param task_arg Argument that will be passed to the task and before_task_function function.
    * Class instance for example that will be used in the task to do some work on.
    * @return Status if the task was started successfully.
    */
-  [[nodiscard]] Status do_default_task_start(TaskFunction task, void *task_arg);
+  [[nodiscard]] Status
+  do_default_task_start(task_function_pointer task, task_function_pointer before_task_funciton, void *task_arg);
 
   /**
    * @brief Stops the task that runs default task on the device.
@@ -202,31 +194,10 @@ protected:
 
 
 private:
-  std::unique_ptr<DeviceThrededSettingsBase> settings;
-  std::unique_ptr<internall::DeviceTaskDefaultArgs> task_args;
+  DeviceThrededSettings settings;
+  SimpleTask task_s;
   bool task_running;
-
-  /**
-   * @brief default task taht runs in a  infinit loop with a specified frequency.
-   * @param arg DeviceTaskDefaultArgs struct that holds the task function, argument and period.
-   *
-   */
-  static void default_task(void *arg);
 };
 
 
 } // namespace stmepic
-
-
-namespace stmepic::internall {
-
-/**
- * @struct DeviceTaskDefaultArgs
- * @brief Struct to hold the default arguments for the default task that will run on the device.
- */
-struct DeviceTaskDefaultArgs {
-  void *args;
-  TaskFunction *task;
-  uint32_t period;
-};
-} // namespace stmepic::internall

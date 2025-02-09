@@ -10,7 +10,6 @@
 #include "list.h"
 #include "Timing.hpp"
 #include "gpio.hpp"
-#include "device.hpp"
 
 
 /// @brief stmepic namespace

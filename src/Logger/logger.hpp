@@ -31,7 +31,7 @@ namespace stmepic {
 #define log_info(...) stmepic::Logger::get_instance().info(__VA_ARGS__, __FILE__, __func__)
 
 // @brief log_warn macro for logging warning messages with file and function name for debug purposes.
-#define log_warn(...) stmepic::Logger::get_instance().warn(__VA_ARGS__, __FILE__, __func__)
+#define log_warn(...) stmepic::Logger::get_instance().warning(__VA_ARGS__, __FILE__, __func__)
 
 // @brief log_error macro for logging error messages with file and function name for debug purposes.
 #define log_error(...) stmepic::Logger::get_instance().error(__VA_ARGS__, __FILE__, __func__)

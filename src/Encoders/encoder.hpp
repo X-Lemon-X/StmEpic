@@ -33,9 +33,6 @@ public:
   EncoderBase()          = default;
   virtual ~EncoderBase() = default;
 
-  /// @brief Shoule be called to initialize the encoder afer changign the settings
-  virtual void init() = 0;
-
   /// @brief reads the last calculated velocity
   /// @return the velocity in radians per second
   [[nodiscard]] virtual float get_velocity() const = 0;
@@ -70,6 +67,10 @@ public:
   /// is used to calculate the real angle and velocity of the motor in case the motor has a gear reduction
   /// @param ratio
   virtual void set_ratio(float ratio) = 0;
+
+protected:
+  /// @brief Shoule be called to initialize the encoder afer changign the settings
+  virtual void init() = 0;
 };
 
 } // namespace stmepic::encoders

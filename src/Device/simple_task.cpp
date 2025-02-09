@@ -1,5 +1,3 @@
-#pragma once
-
 #include "simple_task.hpp"
 
 using namespace stmepic;
@@ -18,6 +16,7 @@ SimpleTask::~SimpleTask() {
 Status SimpleTask::task_init(simple_task_function_pointer task,
                              void *task_arg,
                              uint32_t period_ms,
+                             simple_task_function_pointer before_task_task,
                              uint32_t stack_size,
                              UBaseType_t priority,
                              const char *name) {
@@ -35,13 +34,14 @@ Status SimpleTask::task_init(simple_task_function_pointer task,
     return Status::Invalid("Task name is null");
   }
 
-  this->args       = task_arg;
-  this->task       = task;
-  this->period_ms  = period_ms;
-  this->stack_size = stack_size;
-  this->priority   = priority;
-  this->name       = name;
-  is_initiated     = true;
+  this->args             = task_arg;
+  this->task             = task;
+  this->before_task_task = before_task_task;
+  this->period_ms        = period_ms;
+  this->stack_size       = stack_size;
+  this->priority         = priority;
+  this->name             = name;
+  is_initiated           = true;
   return Status::OK();
 }
 
@@ -81,6 +81,8 @@ void SimpleTask::task_function(void *arg) {
   SimpleTask *task = static_cast<SimpleTask *>(arg);
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
+  if(task->before_task_task != nullptr)
+    task->before_task_task(*task, task->args);
   for(;;) {
     task->task(*task, task->args);
     TickType_t xFrequency = pdMS_TO_TICKS(task->period_ms);

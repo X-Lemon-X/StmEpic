@@ -108,11 +108,8 @@ Status I2C::hardware_reset() {
 
   _gpio_sda.write(1);
   _gpio_scl.write(1);
-  // HAL_GPIO_WritePin(&_gpio_sda.port, _gpio_sda.pin, GPIO_PIN_SET);
-  // HAL_GPIO_WritePin(&_gpio_scl.port, _gpio_scl.pin, GPIO_PIN_SET);
 
   for(size_t i = 0; i < 20; i++) {
-    // HAL_GPIO_TogglePin(_gpio_scl.port, _gpio_scl.pin);
     _gpio_scl.toggle();
     Ticker::get_instance().delay(1000);
   }
@@ -223,82 +220,3 @@ Status I2C::is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout)
   xSemaphoreGive(_mutex);
   return status;
 }
-
-// Status I2C::read_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
-//   auto s = xTaskGetSchedulerState();
-//   if(s == taskSCHEDULER_RUNNING)
-//     vPortEnterCritical();
-
-//   task_handle = xTaskGetCurrentTaskHandle();
-//   dma_lock    = true;
-//   auto stat   = HAL_I2C_Mem_Read_DMA(_hi2c, address, mem_address, mem_size, data, size);
-
-//   if(s == taskSCHEDULER_RUNNING)
-//     vPortExitCritical();
-
-//   if(stat == HAL_OK && task_handle != nullptr) {
-//     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-//   } else if(stat == HAL_OK && task_handle == nullptr) {
-//     while(dma_lock)
-//       __NOP();
-//   }
-//   return stat;
-// }
-
-// Status I2C::read_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
-//   vPortEnterCritical();
-//   task_handle = xTaskGetCurrentTaskHandle();
-//   dma_lock    = true;
-//   auto stat   = HAL_I2C_Mem_Read_DMA(_hi2c, address, mem_address, mem_size, data, size);
-//   vPortExitCritical();
-//   if(stat == HAL_OK && task_handle != nullptr) {
-//     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-//   } else if(stat == HAL_OK && task_handle == nullptr) {
-//     while(dma_lock)
-//       __NOP();
-//   }
-//   return stat;
-// }
-
-// Status I2C::read_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
-//   vPortEnterCritical();
-//   auto stat = HAL_I2C_Mem_Read(_hi2c, address, mem_address, mem_size, data, size, HAL_MAX_DELAY);
-//   vPortExitCritical();
-//   return stat;
-// }
-
-// Status I2C::write_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
-//   vPortEnterCritical();
-//   task_handle = xTaskGetCurrentTaskHandle();
-//   dma_lock    = true;
-//   auto stat   = HAL_I2C_Mem_Write_DMA(_hi2c, address, mem_address, mem_size, data, size);
-//   vPortExitCritical();
-//   if(stat == HAL_OK && task_handle != nullptr) {
-//     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-//   } else if(stat == HAL_OK && task_handle == nullptr) {
-//     while(dma_lock)
-//       __NOP();
-//   }
-//   return stat;
-// }
-
-// Status I2C::write_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
-//   vPortEnterCritical();
-//   task_handle = xTaskGetCurrentTaskHandle();
-//   auto stat   = HAL_I2C_Mem_Write_IT(_hi2c, address, mem_address, mem_size, data, size);
-//   vPortExitCritical();
-//   if(stat == HAL_OK && task_handle != nullptr) {
-//     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-//   } else if(stat == HAL_OK && task_handle == nullptr) {
-//     while(dma_lock)
-//       __NOP();
-//   }
-//   return stat;
-// }
-
-// Status I2C::write_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size) {
-//   vPortEnterCritical();
-//   auto stat = HAL_I2C_Mem_Write(_hi2c, address, mem_address, mem_size, data, size, HAL_MAX_DELAY);
-//   vPortExitCritical();
-//   return stat;
-// }

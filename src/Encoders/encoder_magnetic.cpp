@@ -2,6 +2,7 @@
 #include "encoder_magnetic.hpp"
 #include "stmepic.hpp"
 #include "status.hpp"
+#include "simple_task.hpp"
 #include <cmath>
 #include <cstdint>
 
@@ -18,8 +19,9 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
                                                  std::shared_ptr<filters::FilterBase> _filter_angle,
                                                  std::shared_ptr<filters::FilterBase> _filter_velocity)
 : hi2c(_hi2c), filter_angle(_filter_angle), filter_velocity(_filter_velocity), resolution(_resolution),
-  last_time(stmepic::Ticker::get_instance().get_seconds()), current_velocity(0), over_drive_angle(0),
-  device_status(Status::Disconnected("Encoder is not connected")) {
+  ratio(1), last_time(stmepic::Ticker::get_instance().get_seconds()), current_velocity(0),
+  prev_angle_velocity(0), offset(0), absolute_angle(0), over_drive_angle(0), dead_zone_correction_angle(0),
+  prev_angle_rad_raw(0), reverse(false), device_status(Status::Disconnected("Encoder is not connected")) {
 }
 
 
@@ -55,7 +57,7 @@ float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
 float EncoderAbsoluteMagnetic::read_angle_rads() {
   auto maybe_reg = read_raw_angle();
   if(!maybe_reg.ok())
-    return 0;
+    return prev_angle_rad_raw;
   float angle = (float)maybe_reg.valueOrDie() * PI_m2 / (float)this->resolution;
   if(this->reverse)
     angle = PI_m2 - angle;
@@ -64,6 +66,7 @@ float EncoderAbsoluteMagnetic::read_angle_rads() {
     angle -= PI_m2;
   if(angle < 0)
     angle += PI_m2;
+  prev_angle_rad_raw = angle;
   return angle;
 }
 
@@ -155,15 +158,19 @@ stmepic::Status EncoderAbsoluteMagnetic::device_stop() {
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::do_device_task_start() {
-  return DeviceThreadedBase::do_default_task_start(task_encoder, this);
+  return DeviceThreadedBase::do_default_task_start(task_encoder, task_encoder_before, this);
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::do_device_task_stop() {
   return DeviceThreadedBase::do_default_task_stop();
 }
 
+void EncoderAbsoluteMagnetic::task_encoder_before(SimpleTask &handler, void *arg) {
+  EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
+  encoder->init();
+}
 
-void EncoderAbsoluteMagnetic::task_encoder(void *arg) {
+void EncoderAbsoluteMagnetic::task_encoder(SimpleTask &handler, void *arg) {
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
   encoder->handle();
 }

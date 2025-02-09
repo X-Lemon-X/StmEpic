@@ -48,6 +48,7 @@ void Logger::debug(std::string msg, const char *file, const char *function_name)
 }
 
 void Logger::transmit(std::string msg, std::string prefix, const char *file, const char *function_name) {
+  // vPortEnterCritical();
   if(print_info) {
     std::string debug_info = "";
     if(file != nullptr && function_name != nullptr)
@@ -59,6 +60,7 @@ void Logger::transmit(std::string msg, std::string prefix, const char *file, con
   }
   if(transmit_function)
     transmit_function((uint8_t *)msg.c_str(), msg.length());
+  // vPortExitCritical();
 }
 
 std::string Logger::key_value_to_json(std::string key, std::string value) {
@@ -66,8 +68,10 @@ std::string Logger::key_value_to_json(std::string key, std::string value) {
 }
 
 Logger &Logger::get_instance() {
+  vPortEnterCritical();
   static Logger *logger_instance = nullptr;
   if(logger_instance == nullptr)
     logger_instance = new Logger();
+  vPortExitCritical();
   return *logger_instance;
 }

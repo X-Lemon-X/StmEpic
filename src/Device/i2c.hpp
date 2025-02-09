@@ -107,14 +107,6 @@ private:
 
   Status _read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size);
   Status _write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size);
-
-  // Status read_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  // Status read_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  // Status read_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-
-  // Status write_dma(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  // Status write_irq(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
-  // Status write_bl(uint16_t address, uint16_t mem_address, uint16_t mem_size, uint8_t *data, uint16_t size);
 };
 
 } // namespace stmepic

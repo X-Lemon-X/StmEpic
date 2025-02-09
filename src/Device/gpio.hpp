@@ -5,33 +5,8 @@
 
 /**
  * @file gpio.hpp
- * @brief Gpio pin definitions for quicker implementation.
+ * @brief Gpio pin definitions for quicker implementation and easy passing to other structures.
  */
-
-
-#ifndef ANALOG_ADC_VAKUE_TO_VOLTAGE
-#define ANALOG_ADC_VAKUE_TO_VOLTAGE 0.000805861f
-#endif
-
-
-/// @brief  write gpio pin binary value 1 or 0
-/// @param gpio_pin  the pin to write to
-/// @param value  the value to write
-// #define WRITE_GPIO(gpio_pin, value) \
-//   HAL_GPIO_WritePin(&(gpio_pin.port), gpio_pin.pin, static_cast<GPIO_PinState>(value))
-
-// /// @brief  read gpio pin binary value 1 or 0
-// /// @param gpio_pin  the pin to read
-// #define READ_GPIO(gpio_pin) (uint8_t) HAL_GPIO_ReadPin(&(gpio_pin.port), gpio_pin.pin)
-
-// /// @brief  toggle gpio pin
-// /// @param gpio_pin  the pin to toggle
-// #define TOGGLE_GPIO(gpio_pin) HAL_GPIO_TogglePin(&(gpio_pin.port), gpio_pin.pin)
-
-// /// @brief  get the voltage value from the analog pin only for 12 bit ADC and 3.3V reference voltage
-// /// @param gpio_pin  the pin to read the voltage from
-// #define VOLTAGE_VALUE(gpio_pin) (float)gpio_pin.analog_value *ANALOG_ADC_VAKUE_TO_VOLTAGE
-
 namespace stmepic {
 
 /**
