@@ -20,13 +20,13 @@ namespace stmepic {
  * @var HardwareType::DMA
  * Direct Memory Access hardware.
  *
- * @var HardwareType::IRQ
+ * @var HardwareType::IT
  * Interrupt Request hardware.
  *
  * @var HardwareType::BLOCKING
  * Blocking hardware.
  */
-enum class HardwareType { DMA, IRQ, BLOCKING };
+enum class HardwareType { DMA, IT, BLOCKING };
 
 
 /**

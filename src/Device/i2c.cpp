@@ -3,50 +3,18 @@
 
 using namespace stmepic;
 
-std::vector<std::shared_ptr<I2C>> I2C::i2c_instances;
-
-
 // @brief I2C callback for DMA and IRQ
 extern "C" {
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
-  I2C::run_tx_callbacks_from_irq(hi2c);
+  I2C::run_tx_callbacks_from_isr(hi2c);
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-  I2C::run_rx_callbacks_from_irq(hi2c);
+  I2C::run_rx_callbacks_from_isr(hi2c);
 }
 }
 
-Result<std::shared_ptr<I2C>> I2C::Make(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type) {
-  vPortEnterCritical();
-  for(const auto &instance : i2c_instances) {
-    if(instance->_hi2c->Instance == hi2c.Instance)
-      return Status::AlreadyExists();
-  }
-  std::shared_ptr<I2C> i2c(new I2C(hi2c, sda, scl, type));
-  i2c_instances.push_back(i2c);
-  vPortExitCritical();
-  return Result<decltype(i2c)>::OK(i2c);
-}
-
-void I2C::run_tx_callbacks_from_irq(I2C_HandleTypeDef *hi2c) {
-  for(auto &i2c : i2c_instances) {
-    if(i2c->_hi2c->Instance == hi2c->Instance) {
-      i2c->tx_callback(hi2c);
-      break;
-    }
-  }
-}
-
-void I2C::run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c) {
-  for(auto &i2c : i2c_instances) {
-    if(i2c->_hi2c->Instance == hi2c->Instance) {
-      i2c->rx_callback(hi2c);
-      break;
-    }
-  }
-}
-
+std::vector<std::shared_ptr<I2C>> I2C::i2c_instances;
 
 I2C::I2C(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type)
 : _hi2c(&hi2c), _gpio_sda(sda), _gpio_scl(scl), _hardwType(type) {
@@ -64,6 +32,38 @@ I2C::~I2C() {
   }
   vPortExitCritical();
 };
+
+
+Result<std::shared_ptr<I2C>> I2C::Make(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type) {
+  vPortEnterCritical();
+  for(const auto &instance : i2c_instances) {
+    if(instance->_hi2c->Instance == hi2c.Instance)
+      return Status::AlreadyExists();
+  }
+  std::shared_ptr<I2C> i2c(new I2C(hi2c, sda, scl, type));
+  i2c_instances.push_back(i2c);
+  vPortExitCritical();
+  return Result<decltype(i2c)>::OK(i2c);
+}
+
+void I2C::run_tx_callbacks_from_isr(I2C_HandleTypeDef *hi2c) {
+  for(auto &i2c : i2c_instances) {
+    if(i2c->_hi2c->Instance == hi2c->Instance) {
+      i2c->tx_callback(hi2c);
+      break;
+    }
+  }
+}
+
+void I2C::run_rx_callbacks_from_isr(I2C_HandleTypeDef *hi2c) {
+  for(auto &i2c : i2c_instances) {
+    if(i2c->_hi2c->Instance == hi2c->Instance) {
+      i2c->rx_callback(hi2c);
+      break;
+    }
+  }
+}
+
 
 void I2C::tx_callback(I2C_HandleTypeDef *hi2c) {
   if(hi2c == nullptr || hi2c->Instance != _hi2c->Instance)
@@ -129,7 +129,7 @@ Status I2C::hardware_stop() {
   return status;
 }
 
-Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {
+Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   task_handle = xTaskGetCurrentTaskHandle();
   address     = address << 1;
   if(task_handle != nullptr)
@@ -140,12 +140,12 @@ Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
     dma_lock = true;
     result   = HAL_I2C_Mem_Read_DMA(_hi2c, address, mem_address, mem_size, data, size);
     break;
-  case HardwareType::IRQ:
+  case HardwareType::IT:
     dma_lock = true;
     result   = HAL_I2C_Mem_Read_IT(_hi2c, address, mem_address, mem_size, data, size);
     break;
   case HardwareType::BLOCKING:
-    result = HAL_I2C_Mem_Read(_hi2c, address, mem_address, mem_size, data, size, HAL_MAX_DELAY);
+    result = HAL_I2C_Mem_Read(_hi2c, address, mem_address, mem_size, data, size, timeout_ms);
     break;
   }
   if(task_handle != nullptr)
@@ -154,7 +154,7 @@ Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
 }
 
 
-Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {
+Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   task_handle   = xTaskGetCurrentTaskHandle();
@@ -162,7 +162,7 @@ Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t
 
   if(_hardwType != HardwareType::BLOCKING) {
     if(result.ok() && task_handle != nullptr) {
-      ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+      ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(timeout_ms));
     } else if(result.ok() && task_handle == nullptr) {
       while(dma_lock)
         __NOP();
@@ -173,7 +173,7 @@ Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t
 }
 
 
-Status I2C::_write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {
+Status I2C::_write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   task_handle = xTaskGetCurrentTaskHandle();
   if(task_handle != nullptr)
     vPortEnterCritical();
@@ -183,12 +183,12 @@ Status I2C::_write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16
     dma_lock = true;
     result   = HAL_I2C_Mem_Write_DMA(_hi2c, address, mem_address, mem_size, data, size);
     break;
-  case HardwareType::IRQ:
+  case HardwareType::IT:
     dma_lock = true;
     result   = HAL_I2C_Mem_Write_IT(_hi2c, address, mem_address, mem_size, data, size);
     break;
   case HardwareType::BLOCKING:
-    result = HAL_I2C_Mem_Write(_hi2c, address, mem_address, mem_size, data, size, HAL_MAX_DELAY);
+    result = HAL_I2C_Mem_Write(_hi2c, address, mem_address, mem_size, data, size, timeout_ms);
     break;
   }
   if(task_handle != nullptr)
@@ -196,7 +196,7 @@ Status I2C::_write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16
   return result;
 }
 
-Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size) {
+Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   task_handle   = xTaskGetCurrentTaskHandle();
@@ -204,7 +204,7 @@ Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
 
   if(_hardwType != HardwareType::BLOCKING) {
     if(result.ok() && task_handle != nullptr) {
-      ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+      ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(timeout_ms));
     } else if(result.ok() && task_handle == nullptr) {
       while(dma_lock)
         __NOP();

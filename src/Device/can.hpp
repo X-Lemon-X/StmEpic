@@ -118,14 +118,14 @@ public:
   Status remove_callback(uint32_t frame_id);
 
   /**
-   * @brief Run this in  TX callbacks from the IRQ or DMA interrupt like HAL_CAN_TxMailboxXCompleteCallback
+   * @brief Run this in  TX callbacks from the IT or DMA interrupt like HAL_CAN_TxMailboxXCompleteCallback
    * @param hi2c the CAN handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
   static void run_tx_callbacks_from_irq(CAN_HandleTypeDef *hcan);
 
   /**
-   * @brief Run the RX callbacks from the IRQ or DMA interrupt like HAL_CAN_RxFifoXMsgPendingCallback
+   * @brief Run the RX callbacks from the IT or DMA interrupt like HAL_CAN_RxFifoXMsgPendingCallback
    * @param hi2c the I2C handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */

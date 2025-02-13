@@ -6,8 +6,8 @@
 namespace stmepic {
 
 /**
- * @brief Class for controlling the I2C interface with automatic DMA, IRQ or blocking mode
- * The best mode is DMA and IRQ since they allows other other tasks to run while the I2C is reading or writing
+ * @brief Class for controlling the I2C interface with automatic DMA, IT or blocking mode
+ * The best mode is DMA and ISR since they allows other other tasks to run while the I2C is reading or writing
  * all function to read and write data are blocking.
  */
 class I2C : public HardwareInterface {
@@ -20,7 +20,7 @@ public:
    * @param hi2c the I2C handle that will be used to communicate with the I2C device
    * @param sda the SDA pin of the I2C interface
    * @param scl the SCL pin of the I2C interface
-   * @param type the type of the I2C interface mode, DMA, IRQ or BLOCKING
+   * @param type the type of the I2C interface mode, DMA, ISR or BLOCKING
    * @return Result<std::shared_ptr<I2C>> will return AlreadyExists if the I2C interface was already initialized.
    */
   static Result<std::shared_ptr<I2C>> Make(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type);
@@ -34,7 +34,7 @@ public:
 
   /**
    * @brief Start the I2C interface init all required settings for the I2C interface
-   * Like setings for DMA, IRQ or blocking mode
+   * Like setings for DMA, ISR or blocking mode
    * @return Status
    */
   Status hardware_start() override;
@@ -56,7 +56,7 @@ public:
    * @param size the size of the data that will be read
    * @return Result<uint8_t *>
    */
-  Status read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1);
+  Status read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300);
 
   /**
    * @brief Write data to the I2C device in blocking mode with other tasks beeing able to freelu run in the
@@ -68,24 +68,24 @@ public:
    * @param size the size of the data that will be written
    * @return Status
    */
-  Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1);
+  Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300);
 
 
   Status is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout);
 
   /**
-   * @brief Run the TX callbacks from the IRQ or DMA interrupt
+   * @brief Run the TX callbacks from the ISR or DMA interrupt
    * @param hi2c the I2C handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
-  static void run_tx_callbacks_from_irq(I2C_HandleTypeDef *hi2c);
+  static void run_tx_callbacks_from_isr(I2C_HandleTypeDef *hi2c);
 
   /**
-   * @brief Run the RX callbacks from the IRQ or DMA interrupt
+   * @brief Run the RX callbacks from the ISR or DMA interrupt
    * @param hi2c the I2C handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
-  static void run_rx_callbacks_from_irq(I2C_HandleTypeDef *hi2c);
+  static void run_rx_callbacks_from_isr(I2C_HandleTypeDef *hi2c);
 
 private:
   I2C(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type);
@@ -105,8 +105,8 @@ private:
   void tx_callback(I2C_HandleTypeDef *hi2c);
   void rx_callback(I2C_HandleTypeDef *hi2c);
 
-  Status _read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size);
-  Status _write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size);
+  Status _read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms = 300);
+  Status _write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms = 300);
 };
 
 } // namespace stmepic

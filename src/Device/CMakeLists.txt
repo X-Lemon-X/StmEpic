@@ -10,5 +10,6 @@ target_sources(${UPPER_PROJECT_NAME} PRIVATE
   device.cpp
   gpio.cpp
   can.cpp
+  uart.cpp
   simple_task.cpp
 )
