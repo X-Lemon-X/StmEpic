@@ -131,7 +131,7 @@ public:
   void set_torque(float torque);
 
   /// @brief Enable or disable the engine
-  /// @param enable True to turn on the endine-brake, false to turn off the engine-brake
+  /// @param enable True to turn ON the motor false to turn OFF the motor
   void set_enable(bool enable);
 
   /// @brief Set the target position for the engine
@@ -168,6 +168,10 @@ public:
   /// @brief Get the current torque of the Motor
   /// @return The torque in Nm
   [[nodiscard]] float get_torque() const;
+
+  /// @brief Get if the motor is enabled
+  /// In most cases motor might get disbaled if error occurs on motor or encoders
+  [[nodiscard]] bool get_enable() const;
 
   /// @brief overide the limit position by turning off the limit position
   /// definitely not recommended to make it true for a regular use since it can damage the arm

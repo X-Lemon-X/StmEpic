@@ -41,12 +41,19 @@ void MovementControler::init(motor::MotorBase &_motor, MovementControlMode _cont
 }
 
 void MovementControler::handle(SimpleTask &task, void *args) {
+  if(args == nullptr)
+    return;
   auto mc = static_cast<MovementControler *>(args);
   if(!mc->initialized)
     return;
   mc->current_state.position = mc->motor->get_absolute_position();
   mc->current_state.velocity = mc->motor->get_velocity();
   mc->current_state.torque   = mc->motor->get_torque();
+  if(!mc->motor->device_get_status().ok()) {
+    mc->enable = false;
+    mc->motor->set_enable(mc->enable);
+    return;
+  }
 
   auto state = mc->movement_equation->calculate(mc->current_state, mc->target_state);
 
@@ -126,6 +133,10 @@ void MovementControler::override_limit_position(bool overide) {
 
 bool MovementControler::get_limit_position_achieved() const {
   return limit_positon_achieved;
+}
+
+bool MovementControler::get_enable() const {
+  return enable;
 }
 
 float MovementControler::overide_limit_abs(float value, float max, float min) {

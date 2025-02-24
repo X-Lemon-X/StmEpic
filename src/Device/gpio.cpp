@@ -10,7 +10,7 @@ static const uint16_t GPIO_ANALOG_RESOLUTION_12BIT = 4095;
 static const uint16_t GPIO_ANALOG_RESOLUTION_14BIT = 16383;
 static const uint16_t GPIO_ANALOG_RESOLUTION_16BIT = 65535;
 
-GpioPin::GpioPin(GPIO_TypeDef &port, uint16_t pin) : port(port), pin(pin), analog_value(0) {
+GpioPin::GpioPin(GPIO_TypeDef &port, uint16_t pin) : analog_value(0), port(port), pin(pin) {
 }
 void GpioPin::write(uint8_t value) {
   HAL_GPIO_WritePin(&port, pin, static_cast<GPIO_PinState>(value));

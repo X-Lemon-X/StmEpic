@@ -82,25 +82,79 @@ void MotorClosedLoop::set_reverse(bool reverse) {
 }
 
 bool MotorClosedLoop::device_ok() {
-  return motor.device_ok();
+  bool ok = true;
+  if(encoder_pos != nullptr)
+    ok &= encoder_pos->device_ok();
+
+  if(encoder_vel != nullptr)
+    ok &= encoder_vel->device_ok();
+
+  if(encoder_torque != nullptr)
+    ok &= encoder_torque->device_ok();
+
+  ok &= motor.device_ok();
+  return ok;
 }
 
 Result<bool> MotorClosedLoop::device_is_connected() {
+  if(encoder_pos != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_pos->device_is_connected());
+
+  if(encoder_vel != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_vel->device_is_connected());
+
+  if(encoder_torque != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_torque->device_is_connected());
   return motor.device_is_connected();
 }
 
 [[nodiscard]] Status MotorClosedLoop::device_get_status() {
+  if(encoder_pos != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_pos->device_get_status());
+
+  if(encoder_vel != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_vel->device_get_status());
+
+  if(encoder_torque != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_torque->device_get_status());
   return motor.device_get_status();
 }
 
 [[nodiscard]] Status MotorClosedLoop::device_reset() {
+  if(encoder_pos != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_pos->device_reset());
+
+  if(encoder_vel != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_vel->device_reset());
+
+  if(encoder_torque != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_torque->device_reset());
+
   return motor.device_reset();
 }
 
 [[nodiscard]] Status MotorClosedLoop::device_start() {
+
+  if(encoder_pos != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_pos->device_start());
+
+  if(encoder_vel != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_vel->device_start());
+
+  if(encoder_torque != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_torque->device_start());
   return motor.device_start();
 }
 
 [[nodiscard]] Status MotorClosedLoop::device_stop() {
+  if(encoder_pos != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_pos->device_stop());
+
+  if(encoder_vel != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_vel->device_stop());
+
+  if(encoder_torque != nullptr)
+    STMEPIC_RETURN_ON_ERROR(encoder_torque->device_stop());
+
   return motor.device_stop();
 }
