@@ -164,7 +164,7 @@ enum class BNO055_PAGE_t { BNO055_PAGE_0, BNO055_PAGE_1 };
 
 namespace stmepic::sensors::imu {
 
-struct BNO055_Data_t {
+struct BNO055_Data {
   int8_t temp;
   Vector3d_t<int16_t> acc;
   Vector3d_t<int16_t> gyr;
@@ -179,7 +179,7 @@ class BNO055 : public stmepic::DeviceBase {
 
 public:
   BNO055(I2C_HandleTypeDef &i2c, GpioPin *reset = nullptr);
-  Result<BNO055_Data_t> get_data();
+  Result<BNO055_Data> get_data();
 
   Result<bool> device_is_connected();
   bool device_ok();
