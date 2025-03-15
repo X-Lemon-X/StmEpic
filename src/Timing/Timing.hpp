@@ -46,7 +46,7 @@ public:
   /// and timer COUNT register should represent single microsecond
   /// COUNT have to be set to 1000 to represent 1ms
 
-  void init(TIM_HandleTypeDef *timer);
+  void init(TIM_HandleTypeDef *timer, TIM_HandleTypeDef *timer2 = nullptr);
 
   /// @brief this function should be executed once in a timer interrupt for each passing 1ms, therefore the frequency of the imer interrupt shoul dbe set to exactly 1ms
   void irq_update_ticker();
@@ -75,42 +75,43 @@ private:
   uint32_t tick_millis;
   uint32_t tick_micros;
   TIM_HandleTypeDef *timer;
+  TIM_HandleTypeDef *timer2;
   static Ticker *ticker;
 };
 
 
 /**
- * @class Timing
+ * @class Timer
  * @brief Class for handling time-based operations.
  *
  * This class provides functionalities for handling time-based operations.
  * It can be used to create timers that can be trigered after specified period of time.
- * usefull for operation that cehck if something was done in a specific time period.
+ * usefull for operation that check if something was done in a specific time period.
  * Or for creatign simple task for whitch runing separate thread would be an overkill.
  * In task scenario Timing should be used with TimeScheduler.
  */
 
-class Timing {
+class Timer {
 private:
   Ticker &ticker;
   uint32_t period;
   bool repeat, triggered_flag;
   bool timer_enabled;
-  void (*function)(Timing &);
+  void (*function)(Timer &);
 
 public:
-  using callback_funciton = void (*)(Timing &);
+  using callback_funciton = void (*)(Timer &);
   uint32_t last_time;
   uint32_t difference_d;
   uint32_t current_time_d;
 
   /// @brief Construct a new Timing object
   /// @param ticker reference to the ticker object with us resolution
-  Timing(Ticker &ticker);
+  Timer(Ticker &ticker);
 
   /// @brief Make a new Timing object and assign function to be called when the timer triggers
   /// @return Technicaly it always returns OK so no need to check the status for now.
-  static Result<std::shared_ptr<Timing>>
+  static Result<std::shared_ptr<Timer>>
   Make(uint32_t period, bool repeat = true, callback_funciton function = nullptr, Ticker &ticker = Ticker::get_instance());
 
   /// @brief Set the behaviour of the timer
@@ -131,37 +132,6 @@ public:
   /// @brief allows to disbale and enabel timer freely
   void enable(bool timer_enabled);
 };
-
-/**
- * @class TimeScheduler
- * @brief Class for handling multiple timers.
- *
- * This class provides functionalities for handling multiple timers.
- * It can be used to add multiple then the class will handle them in the blocking or non-blocking mode.
- */
-class TimeScheduler {
-public:
-  /// @brief Construct a new Time Scheduler object
-  /// @param ticker reference to the ticker object with us resolution
-  TimeScheduler(Ticker &ticker);
-
-  /// @brief Add a timer to the scheduler
-  /// @param timer shared pointer to the timer object
-  [[nodiscard]] Status add_timer(std::shared_ptr<Timing> timer);
-
-  /// @brief Handle all timers
-  /// @note this function will never leave the loop and only run the timers
-  void schedules_handle_blocking();
-
-  /// @brief Handle all timers
-  /// @note this function will run once over all timers and return, there forse should be called in a loop
-  void schedules_handle_non_blocking();
-
-private:
-  Ticker &ticker;
-  std::vector<std::shared_ptr<Timing>> timers;
-};
-
 
 } // namespace stmepic
 
