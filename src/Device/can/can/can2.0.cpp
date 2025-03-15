@@ -2,6 +2,7 @@
 #include "hardware.hpp"
 #include "can.hpp"
 #include <cstring>
+#include "can2.0.hpp"
 
 
 using namespace stmepic;
@@ -261,7 +262,7 @@ void CAN::rx_callback(CAN_HandleTypeDef *hcan) {
   portYIELD_FROM_ISR(hptw);
 }
 
-void CAN::default_callback_function(CAN &can, CanDataFrame &msg, void *args) {
+void CAN::default_callback_function(CanBase &can, CanDataFrame &msg, void *args) {
   (void)can;
   (void)args;
   (void)msg;

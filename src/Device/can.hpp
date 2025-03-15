@@ -57,8 +57,8 @@ struct CanCallbackTask {
 class CanBase : public HardwareInterface {
 
 public:
-  CanBase();
-  virtual ~CanBase()       = 0;
+  CanBase(){};
+  virtual ~CanBase(){};
   CanBase(const CanBase &) = delete;
 
   /**

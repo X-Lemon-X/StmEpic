@@ -135,7 +135,7 @@ private:
    * @param frame the data frame that was received
    * @param args the arguments that will be passed to the callback function
    */
-  static void default_callback_function(CAN &can, CanDataFrame &frame, void *args);
+  static void default_callback_function(CanBase &can, CanDataFrame &frame, void *args);
 };
 
 
