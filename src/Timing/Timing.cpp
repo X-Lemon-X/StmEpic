@@ -12,10 +12,7 @@ uint32_t stmepic::frequency_to_period_us(float frequency) {
   return (uint32_t)(1000000.0f / frequency);
 }
 
-Ticker::Ticker() {
-  tick_millis = 0;
-  tick_micros = 0;
-  timer       = nullptr;
+Ticker::Ticker() : tick_millis(0), tick_micros(0), timer(nullptr), timer2(nullptr) {
 }
 
 void Ticker::irq_update_ticker() {
@@ -31,8 +28,9 @@ Ticker &Ticker::get_instance() {
   return *ticker;
 }
 
-void Ticker::init(TIM_HandleTypeDef *_timer) {
+void Ticker::init(TIM_HandleTypeDef *_timer, TIM_HandleTypeDef *_timer2) {
   timer       = _timer;
+  timer2      = _timer2;
   tick_micros = 0;
   tick_millis = 0;
 }
@@ -60,12 +58,12 @@ void Ticker::delay(uint32_t delay) {
   }
 }
 
-void Timing::set_behaviour(uint32_t _period, bool _repeat) {
+void Timer::set_behaviour(uint32_t _period, bool _repeat) {
   period = _period;
   repeat = _repeat;
 }
 
-Timing::Timing(Ticker &_ticker) : ticker(_ticker) {
+Timer::Timer(Ticker &_ticker) : ticker(_ticker) {
   period         = 0;
   last_time      = ticker.get_micros();
   repeat         = true;
@@ -74,24 +72,24 @@ Timing::Timing(Ticker &_ticker) : ticker(_ticker) {
   triggered_flag = false;
 }
 
-Result<std::shared_ptr<Timing>> Timing::Make(uint32_t period, bool repeat, void (*function)(Timing &), Ticker &ticker) {
-  auto new_timer = new Timing(ticker);
+Result<std::shared_ptr<Timer>> Timer::Make(uint32_t period, bool repeat, void (*function)(Timer &), Ticker &ticker) {
+  auto new_timer = new Timer(ticker);
   new_timer->set_behaviour(period, repeat);
   new_timer->function = function;
-  auto timer          = std::shared_ptr<Timing>(new_timer);
+  auto timer          = std::shared_ptr<Timer>(new_timer);
   return Result<decltype(timer)>::OK(timer);
 }
 
-void Timing::reset() {
+void Timer::reset() {
   this->last_time      = ticker.get_micros() - 1001;
   this->triggered_flag = false;
 }
 
-void Timing::enable(bool timer_enabled) {
+void Timer::enable(bool timer_enabled) {
   this->timer_enabled = timer_enabled;
 }
 
-bool Timing::triggered() {
+bool Timer::triggered() {
   uint32_t dif;
   uint32_t current_time = ticker.get_micros();
 
@@ -114,32 +112,10 @@ bool Timing::triggered() {
   return true;
 }
 
-void Timing::run_function() {
+void Timer::run_function() {
   if(!triggered())
     return;
   if(this->function == nullptr)
     return;
   this->function(*this);
-}
-
-TimeScheduler::TimeScheduler(Ticker &_ticker) : ticker(_ticker) {
-}
-
-Status TimeScheduler::add_timer(std::shared_ptr<Timing> timer) {
-  if(timer == nullptr)
-    return Status::RError("Timer is nullptr");
-  timers.push_back(timer);
-  return Status::OK();
-}
-
-void TimeScheduler::schedules_handle_non_blocking() {
-  for(auto &timer : timers) {
-    timer->run_function();
-  }
-}
-
-void TimeScheduler::schedules_handle_blocking() {
-  while(true) {
-    schedules_handle_non_blocking();
-  }
 }
