@@ -15,7 +15,7 @@ set(EXPORT_COMPILE_COMMANDS ON PARENT_SCOPE)
 # STMEPIC MODULES OPTIONS
 option(STMEPIC_GENERATE_DOCS "Enable documentaion genration" OFF)
 option(STMEPIC_ENABLE_EMBEDED_FREERTOS "Enable Memory module" OFF)
-option(STMEPIC_CAN_CONTROLER "Enable CAN Controler" ON)
+option(STMEPIC_FDCAN "Enable FDCAN Controler / if not enabled regualr CAN in enabled" OFF)
 option(STMEPIC_ENCODERS "Enable Encoders module" ON)
 option(STMEPIC_LOGGER "Enable LOGGER module" ON)
 option(STMEPIC_MOVEMENT "Enable Movement controler module" ON)
