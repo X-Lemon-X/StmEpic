@@ -81,7 +81,7 @@ private:
 
 
 /**
- * @class Timing
+ * @class Timer
  * @brief Class for handling time-based operations.
  *
  * This class provides functionalities for handling time-based operations.
