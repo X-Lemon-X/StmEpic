@@ -66,9 +66,8 @@ void FDCAN::run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan) {
 }
 
 FDCAN::FDCAN(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &_filter, GpioPin *tx_led, GpioPin *rx_led)
-: is_initiated(false), _hcan(&hcan), last_tx_mailbox(0),
-  filter(_filter), _gpio_tx_led(tx_led), _gpio_rx_led(rx_led), task_handle_tx(nullptr),
-  task_handle_rx(nullptr), tx_queue_handle(nullptr), rx_queue_handle(nullptr) {
+: is_initiated(false), _hcan(&hcan), last_tx_mailbox(0), filter(_filter), _gpio_tx_led(tx_led), _gpio_rx_led(rx_led),
+  task_handle_tx(nullptr), task_handle_rx(nullptr), tx_queue_handle(nullptr), rx_queue_handle(nullptr) {
   tx_queue_handle = xQueueCreate(CAN_QUEUE_SIZE, sizeof(CanDataFrame));
   rx_queue_handle = xQueueCreate(CAN_QUEUE_SIZE, sizeof(CanDataFrame));
   // can_fifo        = filter.;
@@ -107,8 +106,8 @@ Status FDCAN::hardware_stop() {
   xQueueReset(tx_queue_handle);
   xQueueReset(rx_queue_handle);
   // STMEPIC_RETURN_ON_ERROR(
-  // Status(HAL_CAN_DeactivateNotification(_hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING)));
-  // STMEPIC_RETURN_ON_ERROR(Status(HAL_CAN_Stop(_hcan)));
+  // Status(HAL_CAN_DeactivateNotification(_hcan, CAN_IT_RX_FIFO0_MSG_PENDING |
+  // CAN_IT_RX_FIFO1_MSG_PENDING))); STMEPIC_RETURN_ON_ERROR(Status(HAL_CAN_Stop(_hcan)));
   // STMEPIC_RETURN_ON_ERROR(Status(HAL_CAN_DeInit(_hcan)));
   is_initiated = false;
   return Status::OK();
@@ -167,27 +166,27 @@ Status FDCAN::remove_callback(uint32_t frame_id) {
 }
 
 void FDCAN::task_rx(void *arg) {
-//   auto can                                  = static_cast<FDCAN *>(arg);
-//   CanDataFrame msg                          = {};
-//   stmepic::internall::CanCallbackTask *task = nullptr;
-//   while(true) {
-//     if(xQueueReceive(can->rx_queue_handle, &msg, 100) != pdTRUE)
-//       continue;
+  //   auto can                                  = static_cast<FDCAN *>(arg);
+  //   CanDataFrame msg                          = {};
+  //   stmepic::internall::CanCallbackTask *task = nullptr;
+  //   while(true) {
+  //     if(xQueueReceive(can->rx_queue_handle, &msg, 100) != pdTRUE)
+  //       continue;
 
-//     vPortEnterCritical();
-//     auto mayby_task = can->callbacks.find(msg.frame_id);
-//     if(mayby_task != can->callbacks.end()) {
-//       task = &mayby_task->second;
-//     } else {
-//       task = &can->default_callback_task_data;
-//     }
-//     vPortExitCritical();
+  //     vPortEnterCritical();
+  //     auto mayby_task = can->callbacks.find(msg.frame_id);
+  //     if(mayby_task != can->callbacks.end()) {
+  //       task = &mayby_task->second;
+  //     } else {
+  //       task = &can->default_callback_task_data;
+  //     }
+  //     vPortExitCritical();
 
-//     if(can->_gpio_rx_led)
-//       can->_gpio_rx_led->write(0);
-//     // call the callback on a message
-//     task->callback(*can, msg, task->args);
-//   }
+  //     if(can->_gpio_rx_led)
+  //       can->_gpio_rx_led->write(0);
+  //     // call the callback on a message
+  //     task->callback(*can, msg, task->args);
+  //   }
 }
 
 void FDCAN::task_tx(void *arg) {

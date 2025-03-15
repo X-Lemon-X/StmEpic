@@ -58,7 +58,7 @@ class CanBase : public HardwareInterface {
 
 public:
   CanBase();
-  virtual ~CanBase() = 0;
+  virtual ~CanBase()       = 0;
   CanBase(const CanBase &) = delete;
 
   /**
@@ -66,7 +66,7 @@ public:
    * @param msg data frame that will be send
    * @return Status::OK if the data frame was added successfully
    */
-  virtual Status write(const CanDataFrame &msg)=0;
+  virtual Status write(const CanDataFrame &msg) = 0;
 
   /**
    * @brief Add a callback function to the CAN interface for specific frame id
@@ -78,7 +78,8 @@ public:
    * @param args the arguments that will be passed to the callback function
    * @return Status OK if the callback was added successfully
    */
-  virtual Status add_callback(uint32_t frame_id, internall::hardware_can_function_pointer callback, void *args = nullptr)=0;
+  virtual Status
+  add_callback(uint32_t frame_id, internall::hardware_can_function_pointer callback, void *args = nullptr) = 0;
 
   /**
    * @brief Remove the callback function for the specific frame id
@@ -86,8 +87,7 @@ public:
    * @param frame_id the ID of the CAN data frame on which the callback will be removed
    * @return Status OK if the callback was removed successfully
    */
-  virtual Status remove_callback(uint32_t frame_id)=0;
-
+  virtual Status remove_callback(uint32_t frame_id) = 0;
 };
 
 
