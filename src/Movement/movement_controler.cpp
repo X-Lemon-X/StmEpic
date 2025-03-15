@@ -27,51 +27,57 @@ MovementControler::~MovementControler() {
   (void)task.task_stop();
 }
 
-void MovementControler::init(motor::MotorBase &_motor, MovementControlMode _control_mode, MovementEquation &_movement_equation) {
-  motor                  = &_motor;
-  movement_equation      = &_movement_equation;
+void MovementControler::init(std::shared_ptr<motor::MotorBase> _motor,
+                             MovementControlMode _control_mode,
+                             std::shared_ptr<MovementEquation> _movement_equation) {
+  if(motor != nullptr)
+    motor->set_enable(false);
+  (void)task.task_stop();
+  motor                  = _motor;
+  movement_equation      = _movement_equation;
   control_mode           = _control_mode;
   initialized            = true;
   current_state.position = motor->get_absolute_position();
   current_state.velocity = motor->get_velocity();
   current_state.torque   = motor->get_torque();
   movement_equation->begin_state(current_state, Ticker::get_instance().get_seconds());
-  (void)task.task_stop();
   task.task_run();
+}
+
+void MovementControler::handle_internal() {
+  if(!initialized)
+    return;
+
+  if(!motor->device_get_status().ok()) {
+    enable = false;
+    motor->set_enable(false);
+    return;
+  }
+
+  current_state.position = motor->get_absolute_position();
+  current_state.velocity = motor->get_velocity();
+  current_state.torque   = motor->get_torque();
+  MovementState state    = movement_equation->calculate(current_state, target_state);
+  state.velocity         = overide_limit_abs(state.velocity, max_velocity);
+  state.torque           = overide_limit_abs(state.torque, max_torque);
+  if(dont_override_limit_position && (current_state.position < min_position || current_state.position > max_position)) {
+    state.velocity         = 0;
+    state.torque           = 0;
+    state.position         = overide_limit(current_state.position, max_position, min_position);
+    limit_positon_achieved = true;
+  } else {
+    limit_positon_achieved = false;
+  }
+
+  motor->set_enable(enable);
+  set_motor_state(state);
 }
 
 void MovementControler::handle(SimpleTask &task, void *args) {
   if(args == nullptr)
     return;
   auto mc = static_cast<MovementControler *>(args);
-  if(!mc->initialized)
-    return;
-  mc->current_state.position = mc->motor->get_absolute_position();
-  mc->current_state.velocity = mc->motor->get_velocity();
-  mc->current_state.torque   = mc->motor->get_torque();
-  if(!mc->motor->device_get_status().ok()) {
-    mc->enable = false;
-    mc->motor->set_enable(mc->enable);
-    return;
-  }
-
-  auto state = mc->movement_equation->calculate(mc->current_state, mc->target_state);
-
-  state.velocity = overide_limit_abs(state.velocity, mc->max_velocity);
-  state.torque   = overide_limit_abs(state.torque, mc->max_torque);
-
-  if(mc->dont_override_limit_position &&
-     (mc->current_state.position < mc->min_position || mc->current_state.position > mc->max_position)) {
-    state.velocity = 0;
-    state.torque   = 0;
-    state.position = overide_limit(mc->current_state.position, mc->max_position, mc->min_position);
-    mc->limit_positon_achieved = true;
-  } else {
-    mc->limit_positon_achieved = false;
-  }
-
-  mc->motor->set_enable(mc->enable);
-  mc->set_motor_state(state);
+  mc->handle_internal();
 }
 
 void MovementControler::set_motor_state(MovementState state) {

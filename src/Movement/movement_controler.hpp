@@ -117,7 +117,9 @@ public:
   /// when you have two encoders one on the engine and one on the other shaft. However if
   /// second encoder is not used it is recommended to pass
   // the pass the same encoder_velocity as the encoder_pos.
-  void init(motor::MotorBase &motor, MovementControlMode control_mode, MovementEquation &movement_equation);
+  void init(std::shared_ptr<motor::MotorBase> motor,
+            MovementControlMode control_mode,
+            std::shared_ptr<MovementEquation> movement_equation);
 
   /// @brief Set the target velocity for the engine
   /// @param velocity Target velocity in rad/s
@@ -179,8 +181,9 @@ public:
   void override_limit_position(bool override);
 
 private:
-  motor::MotorBase *motor;
-  MovementEquation *movement_equation;
+  // motor::MotorBase *motor;
+  std::shared_ptr<motor::MotorBase> motor;
+  std::shared_ptr<MovementEquation> movement_equation;
   MovementControlMode control_mode;
   bool initialized;
   SimpleTask task;
@@ -200,6 +203,8 @@ private:
   [[nodiscard]] static float overide_limit(float value, float max, float min = 0);
 
   void set_motor_state(MovementState state);
+
+  void handle_internal();
 
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
   static void handle(SimpleTask &task, void *args);
