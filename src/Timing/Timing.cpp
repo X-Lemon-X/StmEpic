@@ -33,6 +33,8 @@ void Ticker::init(TIM_HandleTypeDef *_timer, TIM_HandleTypeDef *_timer2) {
   timer2      = _timer2;
   tick_micros = 0;
   tick_millis = 0;
+
+  //
 }
 
 uint32_t Ticker::get_micros() {

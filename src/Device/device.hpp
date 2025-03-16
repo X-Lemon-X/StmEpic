@@ -8,7 +8,7 @@
 
 /**
  * @file device.hpp
- * @brief This file contains the MotorBase class definition.
+ * @brief This file contains the Device class definition.
  */
 
 

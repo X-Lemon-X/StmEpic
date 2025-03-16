@@ -8,9 +8,9 @@
 
 
 /**
- * @file can.hpp
- * @brief CAN interface wrapper classthat alow to do handle the CAN interface with ease. By adding callbacks
- * for specific frame ids. with nice rx and tx tasks that handle the traffic in not blocking mode.
+ * @file can2.0.hpp
+ * @brief CAN2.0 interface wrapper class that alow to do handle the CAN interface with ease. By adding
+ * callbacks for specific frame ids. with nice rx and tx tasks that handle the traffic in not blocking mode.
  */
 
 namespace stmepic {

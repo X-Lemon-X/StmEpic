@@ -23,21 +23,27 @@ The library is written in C++ and is designed to be used with the code generatio
 
 - **FreeRTOS** embeded FreeRTOS as task scheduler.
 - **ETL** Included **Embedded Template Library** library for containers and so on [link](https://github.com/ETLCPP/etl).
-- **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers.
+- **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers with unified interface.
 - **Dfu**: Class that can be used to enable the USB as programing using DFU [hardware support required].
-- **Drivers**: Set of drivers that enable power usage of intwerfaces like I2C, SPI, UART, CAN, USB that out of the box allow to
-  multi task withou blocking the CPU while simultaniously reading and writing data in "Blocking mode" for the interacting thread, as well as add handy interfaces to inetract with specific protocols in a simple way.
+- **Drivers**: Set of drivers that enable usage of interfaces like I2C, SPI, UART, CAN with FreeRtos with ease out of the box, adding few usefull feachures in using them.
+  Interfaces drivers allows multiple tasks to use them without blocking the CPU while simultaniously reading and writing data for the interacting thread, as well as add handy interfaces to inetract with specific protocols in a simple way.
 - **Encoders**: Interface to read data from different types of encoders.
 - **Filters**: Set of filters that can be used to filter data.
 - **Gpio**: Wraper for the GPIO pins on the microcontroller.
-- **Hash**: Hashing algoritms.
+- **Hash**: Hashing algoritms, hadrware support Coming soon.
 - **Logger**: Log data to the console via USB in json format with usefull fields like current time or software version and so on (debug,info,warning,and error).
 - **Memory**: Set of classes that can be used to read and write data to FRAM or FLASH memory.
 - **Motors**: Interface that can be used to control different type of engines STEPERS, BLDC, DC motors. With the same control algoritms and interfaces.
-- **Movement**: Interface that can be used to control different type of engines STEPERS, BLDC, dc and so on. Using the same control algoritms and interfaces.
+- **Movement**: Interface and algorithms that can be used to control different motors, usually with closed loop control.
 - **Sensors**: Set of classes that can be used to read data from different sensors.
-- **Status** Return types for proper error return types from functions.
-- **Timing**: Interface to add task that run at very specifi fequency (it's not a replacement for RTOS, it's simple if stemnt replacement with proper time handling).
+- **Status** Return types for proper error handling.
+- **Timing**: Interface to creat software timers for some stuff.
+
+## Supported STM32 microcontrollers series
+
+- **STM32F4**
+- **STM32H7** (in progress)
+- **STM32U5** (comming soon)
 
 ## How to add the library to your project
 
