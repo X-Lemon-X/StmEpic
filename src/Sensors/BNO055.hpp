@@ -4,6 +4,7 @@
 #include "gpio.hpp"
 #include "stmepic.hpp"
 #include "vectors3d.hpp"
+#include "i2c.hpp"
 
 using namespace stmepic;
 using namespace stmepic::algorithm;
@@ -164,7 +165,7 @@ enum class BNO055_PAGE_t { BNO055_PAGE_0, BNO055_PAGE_1 };
 
 namespace stmepic::sensors::imu {
 
-struct BNO055_Data {
+struct BNO055_Data_t {
   int8_t temp;
   Vector3d_t<int16_t> acc;
   Vector3d_t<int16_t> gyr;
@@ -175,27 +176,42 @@ struct BNO055_Data {
   Vector4d_t<int16_t> qua;
 };
 
-class BNO055 : public stmepic::DeviceBase {
+class BNO055 : public stmepic::DeviceThreadedBase {
+  public:
+  //w argumentach wywoałania 2 gpio =nullptr któr moga być użyte ale nie musza i są jako sharedptr
+    BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
+    // Removed duplicate declaration of get_data()
+    Result<bool> device_is_connected();
+    bool device_ok();
+    Status device_init();
+    void gpio_handling();
 
-public:
-  BNO055(I2C_HandleTypeDef &i2c, GpioPin *reset = nullptr);
-  Result<BNO055_Data> get_data();
-
-  Result<bool> device_is_connected();
-  bool device_ok();
-  Status device_get_status();
-  Status device_reset();
-  Status device_start();
-  Status device_stop();
-
-private:
+    
+  //
+  protected:
+  
+  private:
+  BNO055_Data_t data;
+  stmepic::Status do_device_task_start() override;
+  stmepic::Status do_device_task_stop() override;
+  Result<BNO055_Data_t> get_data();
+  void reset();
+  Result<BNO055_Data_t> read_data();
+  static void task_imu_before(SimpleTask &handler, void *arg);
+  static void task_imu(SimpleTask &handler, void *arg);
+  void handle();
   Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);
   Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(internal::BNO055_PAGE_t page);
+  void setPage(internal::BNO055_PAGE_t page);
+  
+  
+  std::shared_ptr<I2C> hi2c;
+  Status device_status;
+  Status reading_status;
+  GpioPin *nreset;
+  GpioPin *interrupt;
 
-  I2C_HandleTypeDef &i2c;
-  GpioPin *reset;
-};
-
+  };
 
 } // namespace stmepic::sensors::imu
