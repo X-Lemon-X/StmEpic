@@ -323,8 +323,8 @@ public:
     return Result<T>(value, Status::OK());
   }
 
-  static auto Propagate(const T&value,const Status &status) -> Result<T> {
-    return Result<T>(value,status);
+  static auto Propagate(const T &value, const Status &status) -> Result<T> {
+    return Result<T>(value, status);
   }
 
   /// @brief Get the value of the result or weard error if the status is not OK.
