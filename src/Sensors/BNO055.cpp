@@ -9,11 +9,11 @@ using namespace stmepic::sensors::imu;
 
 BNO055::BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt)
 : hi2c(hi2c), nreset(nreset), interrupt(interrupt), _device_status(Status::OK()), reading_status(Status::OK()) {
-		device_reset();
-	}
-	
-	Status BNO055::do_device_task_start(){
-		return DeviceThreadedBase::do_default_task_start(task_imu, task_imu_before, this);
+  device_reset();
+}
+
+Status BNO055::do_device_task_start() {
+  return DeviceThreadedBase::do_default_task_start(task_imu, task_imu_before, this);
 }
 
 Status BNO055::do_device_task_start() {
@@ -55,7 +55,7 @@ void BNO055::reset() {
   vTaskDelay(650);
 }
 
-bool BNO055::device_ok(){
+bool BNO055::device_ok() {
   return _device_status.ok();
 }
 
