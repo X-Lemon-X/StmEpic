@@ -7,8 +7,8 @@
 using namespace stmepic::sensors::imu;
 
 
-BNO055::BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt)
-: hi2c(hi2c), nreset(nreset), interrupt(interrupt), device_status(Status::OK()), reading_status(Status::OK()) {
+BNO055::BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt)
+: hi2c(hi2c), nreset(nreset), interrupt(interrupt), _device_status(Status::OK()), reading_status(Status::OK()) {
 		device_reset();
 	}
 	
@@ -55,7 +55,7 @@ void BNO055::reset() {
 }
 
 bool BNO055::device_ok(){
-  return device_status.ok();
+  return _device_status.ok();
 }
 
 void BNO055::handle() {

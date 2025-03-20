@@ -5,6 +5,7 @@
 #include "stmepic.hpp"
 #include "vectors3d.hpp"
 #include "i2c.hpp"
+#include <memory>
 
 using namespace stmepic;
 using namespace stmepic::algorithm;
@@ -179,17 +180,18 @@ struct BNO055_Data_t {
 class BNO055 : public stmepic::DeviceThreadedBase {
   public:
   //w argumentach wywoałania 2 gpio =nullptr któr moga być użyte ale nie musza i są jako sharedptr
-    BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
+    BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
     // Removed duplicate declaration of get_data()
-    Result<bool> device_is_connected();
-    bool device_ok();
-    Status device_init();
-    void gpio_handling();
+    
+    Result<bool> device_is_connected() override;
+    bool device_ok() override;
+    Status device_get_status() override;
+    Status device_reset() override;
+    Status device_start() override;
+    Status device_stop() override;
+
 
     
-  //
-  protected:
-  
   private:
   BNO055_Data_t data;
   stmepic::Status do_device_task_start() override;
@@ -204,13 +206,17 @@ class BNO055 : public stmepic::DeviceThreadedBase {
   Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(internal::BNO055_PAGE_t page);
   void setPage(internal::BNO055_PAGE_t page);
+
   
+  Status device_init();
+  void gpio_handling();
   
   std::shared_ptr<I2C> hi2c;
-  Status device_status;
+  Status _device_status;
   Status reading_status;
-  GpioPin *nreset;
-  GpioPin *interrupt;
+  
+  std::shared_ptr<GpioPin> nreset;
+  std::shared_ptr<GpioPin> interrupt;
 
   };
 
