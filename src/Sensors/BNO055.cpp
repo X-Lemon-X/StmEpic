@@ -7,11 +7,12 @@
 using namespace stmepic::sensors::imu;
 
 
-Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt) {
-  
-  
+Result<std::shared_ptr<BNO055>>
+BNO055::Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt) {
+
+
   if(hi2c == nullptr)
-  return Status::ExecutionError("I2C is not initialized");
+    return Status::ExecutionError("I2C is not initialized");
   auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, nreset, interrupt));
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
@@ -28,30 +29,29 @@ Status BNO055::device_get_status() {
 
 Status BNO055::device_stop() {
   if(nreset != nullptr)
-  nreset->write(1);
+    nreset->write(1);
 
-  else { 
-  uint8_t reg = 0;
-  
-  set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0);
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
-  reg |= (1 << 5);
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
-  
-  vTaskDelay(650);
+  else {
+    uint8_t reg = 0;
+
+    set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0);
+    STMEPIC_RETURN_ON_ERROR(hi2c->read(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
+    reg |= (1 << 5);
+    STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
+
+    vTaskDelay(650);
   }
 }
 
 
 Status BNO055::device_start() {
   if(nreset != nullptr)
-  nreset->write(0);
+    nreset->write(0);
   return device_init();
-  
 }
 
-Status BNO055::device_reset(){
-  
+Status BNO055::device_reset() {
+
   device_stop();
   device_start();
 
@@ -92,13 +92,12 @@ void BNO055::gpio_handling() {
 }
 
 
-
 bool BNO055::device_ok() {
   return _device_status.ok();
 }
 
 void BNO055::handle() {
- auto maybe_data = read_data();
+  auto maybe_data = read_data();
   if(maybe_data.ok()) {
     imu_data = maybe_data.valueOrDie();
   }
@@ -112,7 +111,7 @@ Status BNO055::device_init() {
   uint8_t acc_config = 0x02;
   STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_ACC_SLEEP_CONFIG, &acc_config, 1));
 
-// dla każdego tak zrobić 
+  // dla każdego tak zrobić
   uint8_t mag_config = 0x0D;
   STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_MAG_CONFIG, &mag_config, 1));
   uint8_t gyr_config_0 = 0x0B;
@@ -123,16 +122,16 @@ Status BNO055::device_init() {
   STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
 
   uint8_t unit_sel = 0x06;
-  STMEPIC_RETURN_ON_ERROR (hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_UNIT_SEL, &unit_sel, 1));
+  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_UNIT_SEL, &unit_sel, 1));
   uint8_t temp_source = 0x00;
-  STMEPIC_RETURN_ON_ERROR (hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_TEMP_SOURCE, &temp_source, 1));
+  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_TEMP_SOURCE, &temp_source, 1));
 
   STMEPIC_RETURN_ON_ERROR(set_operation_mode(internal::BNO055_OPR_MODE_t::BNO055_OPR_MODE_NDOF));
 
   vTaskDelay(50);
 
   // reset();
-  //nie wiaodmo co z tym zrobić i dlaczego tutaj jest, jeśli nie będzie działać to możliwe, że jednak jest potrzebny ale wtedy
+  // nie wiaodmo co z tym zrobić i dlaczego tutaj jest, jeśli nie będzie działać to możliwe, że jednak jest potrzebny ale wtedy
 
   return Status::OK();
 }
@@ -142,7 +141,7 @@ Result<BNO055_Data_t> BNO055::read_data() {
 
   STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
   STMEPIC_RETURN_ON_ERROR(hi2c->read(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_TEMP, regs, 45).status());
-  
+
   BNO055_Data_t data;
 
   data.acc.x = ((uint16_t)regs[1] << 8) | regs[0];
@@ -180,7 +179,7 @@ Result<BNO055_Data_t> BNO055::read_data() {
 }
 
 Result<BNO055_Data_t> BNO055::get_data() {
-  return Result<BNO055_Data_t>::Propagate(imu_data,_device_status);
+  return Result<BNO055_Data_t>::Propagate(imu_data, _device_status);
 }
 
 Result<bool> BNO055::device_is_connected() {

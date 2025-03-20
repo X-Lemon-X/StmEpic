@@ -178,10 +178,11 @@ struct BNO055_Data_t {
 };
 
 class BNO055 : public stmepic::DeviceThreadedBase {
-  public:
-  //w argumentach wywoałania 2 gpio =nullptr któr moga być użyte ale nie musza i są jako sharedptr
-  // Removed duplicate declaration of get_data()
-  static Result<std::shared_ptr<BNO055>> Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
+public:
+  // w argumentach wywoałania 2 gpio =nullptr któr moga być użyte ale nie musza i są jako sharedptr
+  //  Removed duplicate declaration of get_data()
+  static Result<std::shared_ptr<BNO055>>
+  Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
   Result<bool> device_is_connected() override;
   bool device_ok() override;
   Status device_get_status() override;
@@ -190,8 +191,7 @@ class BNO055 : public stmepic::DeviceThreadedBase {
   Status device_stop() override;
 
 
-  
-  private:
+private:
   BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
@@ -204,19 +204,19 @@ class BNO055 : public stmepic::DeviceThreadedBase {
   Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(internal::BNO055_PAGE_t page);
   void setPage(internal::BNO055_PAGE_t page);
-  
-  
+
+
   Status device_init();
   void gpio_handling();
-  
+
   BNO055_Data_t imu_data;
   std::shared_ptr<I2C> hi2c;
-  
+
   std::shared_ptr<GpioPin> interrupt;
   std::shared_ptr<GpioPin> nreset;
-  
+
   Status _device_status;
   Status reading_status;
-  };
+};
 
 } // namespace stmepic::sensors::imu
