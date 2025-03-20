@@ -180,24 +180,22 @@ struct BNO055_Data_t {
 class BNO055 : public stmepic::DeviceThreadedBase {
   public:
   //w argumentach wywoałania 2 gpio =nullptr któr moga być użyte ale nie musza i są jako sharedptr
-    BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
-    // Removed duplicate declaration of get_data()
-    
-    Result<bool> device_is_connected() override;
-    bool device_ok() override;
-    Status device_get_status() override;
-    Status device_reset() override;
-    Status device_start() override;
-    Status device_stop() override;
+  // Removed duplicate declaration of get_data()
+  static Result<std::shared_ptr<BNO055>> Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
+  Result<bool> device_is_connected() override;
+  bool device_ok() override;
+  Status device_get_status() override;
+  Status device_reset() override;
+  Status device_start() override;
+  Status device_stop() override;
 
 
-    
+  
   private:
-  BNO055_Data_t data;
+  BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
   Result<BNO055_Data_t> get_data();
-  void reset();
   Result<BNO055_Data_t> read_data();
   static void task_imu_before(SimpleTask &handler, void *arg);
   static void task_imu(SimpleTask &handler, void *arg);
@@ -206,18 +204,19 @@ class BNO055 : public stmepic::DeviceThreadedBase {
   Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(internal::BNO055_PAGE_t page);
   void setPage(internal::BNO055_PAGE_t page);
-
+  
   
   Status device_init();
   void gpio_handling();
   
+  BNO055_Data_t imu_data;
   std::shared_ptr<I2C> hi2c;
+  
+  std::shared_ptr<GpioPin> interrupt;
+  std::shared_ptr<GpioPin> nreset;
+  
   Status _device_status;
   Status reading_status;
-  
-  std::shared_ptr<GpioPin> nreset;
-  std::shared_ptr<GpioPin> interrupt;
-
   };
 
 } // namespace stmepic::sensors::imu
