@@ -112,12 +112,14 @@ target_link_libraries(stmepic INTERFACE ${LIBRARIES_INCLUDED})
 ############################################
 ## C++ compiler flags
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" PARENT_SCOPE)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -u_printf_float -Wreturn-type" PARENT_SCOPE)
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}  -u_printf_float -Wreturn-type" PARENT_SCOPE)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -u_printf_float -Wreturn-type -ffunction-sections -fdata-sections " PARENT_SCOPE)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -u_printf_float -Wreturn-type -ffunction-sections -fdata-sections -fno-exceptions " PARENT_SCOPE)
 
 # aditional linker flags
-set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type" PARENT_SCOPE)
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type" PARENT_SCOPE)
+set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type -print-memory-usage" PARENT_SCOPE)
+
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS}  -u_printf_float -Wreturn-type -Wl,--gc-sections" PARENT_SCOPE)
 
 enable_language(CXX C ASM)
 
