@@ -4,7 +4,7 @@
 
 using namespace stmepic;
 
-DeviceThrededSettings::DeviceThrededSettings()
+DeviceThreadedSettings::DeviceThreadedSettings()
 : uxStackDepth(456), uxPriority(tskIDLE_PRIORITY + 2), period(0) {
 }
 
@@ -32,7 +32,7 @@ Status DeviceThreadedBase::device_task_stop() {
   return ret;
 }
 
-Status DeviceThreadedBase::device_task_set_settings(const DeviceThrededSettings &settings) {
+Status DeviceThreadedBase::device_task_set_settings(const DeviceThreadedSettings &settings) {
   if(task_running)
     return Status::Cancelled("Task is running");
   this->settings = settings;
