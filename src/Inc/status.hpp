@@ -41,20 +41,20 @@ class Status;
 #define STMEPIC_ASSING_OR_RETURN(assign, result) \
   auto _xsar##assign = result;                   \
   do {                                           \
-    if(!_xsar##assign.ok())                                 \
-      return _xsar##assign;                                 \
-    } while(false)                     \
-  auto assign = std::move(_xsar##assign.valueOrDie());        
+    if(!_xsar##assign.ok())                      \
+      return _xsar##assign;                      \
+  } while(false) auto assign = std::move(_xsar##assign.valueOrDie());
 
 #define STMEPIC_ASSING_TO_OR_RETURN(assign, result) \
-auto _xsar##assign = result;                   \
-do {                                           \
-  if(!_xsar##assign.ok())                                 \
-    return _xsar##assign;                                 \
-    assign = std::move(_xsar##assign.valueOrDie());       \ 
-} while(false)                     
+  auto _xsar##assign = result;                      \
+  do {                                              \
+    if(!_xsar##assign.ok())                         \
+      return _xsar##assign;                         \
+    assign = std::move(_xsar##assign.valueOrDie()); \
+  \ 
+} while(false)
 
-  
+
 /**
  * @brief Macro for assigning a value from a result and resetting the device on error in a single line.
  *
@@ -69,7 +69,7 @@ do {                                           \
 
 /**
  * @brief Macro for assigning a value to a already exisiting veriable from a result and resetting the device on error in a single line.
- * 
+ *
  */
 #define STMEPIC_ASSING_TO_OR_HRESET(assign, result) \
   do {                                              \
@@ -77,7 +77,7 @@ do {                                           \
     if(!_xr.ok())                                   \
       HAL_NVIC_SystemReset();                       \
     assign = _xr.valueOrDie();                      \
-  } while(false);                                
+  } while(false);
 
 
 #define STMEPIC_NONE_OR_HRESET(result)    \
