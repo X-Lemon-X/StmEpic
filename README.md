@@ -69,4 +69,4 @@ The library is designed to be used with the code generation tool STM32CubeMX.
 
 ## Documentation
 
-You can find StmEpic documentation on our [website](https://stmepic.nihilia.xyz).
+You can find StmEpic documentation on our [website](https://stmepic.d3lab.dev).
