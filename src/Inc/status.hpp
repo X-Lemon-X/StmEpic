@@ -39,20 +39,45 @@ class Status;
  * This macro is used to assign a value from a result and return from a function if the result is not OK.
  */
 #define STMEPIC_ASSING_OR_RETURN(assign, result) \
-  STMEPIC_RETURN_ON_ERROR(result);               \
-  auto assign = result.valueOrDie();
+  auto _xsar##assign = result;                   \
+  do {                                           \
+    if(!_xsar##assign.ok())                                 \
+      return _xsar##assign;                                 \
+    } while(false)                     \
+  auto assign = std::move(_xsar##assign.valueOrDie());        
 
+#define STMEPIC_ASSING_TO_OR_RETURN(assign, result) \
+auto _xsar##assign = result;                   \
+do {                                           \
+  if(!_xsar##assign.ok())                                 \
+    return _xsar##assign;                                 \
+    assign = std::move(_xsar##assign.valueOrDie());       \ 
+} while(false)                     
+
+  
 /**
  * @brief Macro for assigning a value from a result and resetting the device on error in a single line.
  *
  */
 #define STMEPIC_ASSING_OR_HRESET(assign, result) \
   do {                                           \
-    stmepic::Status _x = result.status();        \
-    if(!_x.ok())                                 \
+    auto _xr = result;                           \
+    if(!_xr.ok())                                \
       HAL_NVIC_SystemReset();                    \
   } while(false);                                \
-  auto assign = result.valueOrDie();
+  auto assign = _xr.valueOrDie();
+
+/**
+ * @brief Macro for assigning a value to a already exisiting veriable from a result and resetting the device on error in a single line.
+ * 
+ */
+#define STMEPIC_ASSING_TO_OR_HRESET(assign, result) \
+  do {                                              \
+    auto _xr = result;                              \
+    if(!_xr.ok())                                   \
+      HAL_NVIC_SystemReset();                       \
+    assign = _xr.valueOrDie();                      \
+  } while(false);                                
 
 
 #define STMEPIC_NONE_OR_HRESET(result)    \
@@ -62,7 +87,7 @@ class Status;
       HAL_NVIC_SystemReset();             \
   } while(false);
 
-void HardFault_Handler(void);
+extern void HardFault_Handler(void);
 
 #define STMEPIC_NONE_OR_HARD_FAULT(result) \
   do {                                     \
