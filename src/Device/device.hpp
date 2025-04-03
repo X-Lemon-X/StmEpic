@@ -59,17 +59,17 @@ public:
   [[nodiscard]] virtual Status device_get_status() = 0;
 
   /**
-   * @brief Reset the device. This will usually require the hardware suport to work
+   * @brief Reset the device. This will usually require the hardware support to work
    * normally. For example is some IC have reset pin, this will be used to reset the
-   * device or if the IC power can be turned off and on. sometimes baybe it might be even
-   * some somamnd send over some communication interface to reset the device.
+   * device or if the IC power can be turned off and on. Sometimes maybe it might be even
+   * a command send over  communication interface to reset the device.
    * If the device don't have start/stop functionality, this function should return OK.
    * @return Status Status of the operation.
    */
   [[nodiscard]] virtual Status device_reset() = 0;
 
   /**
-   * @brief Enables the device. This will usually require the hardware suport to work
+   * @brief Enables the device. This will usually require the hardware support to work
    * normally. For example is some IC have reset pin, this will be used to enable the
    * device. Similar to reset but this is to start the device.
    * If the device don't have start/stop functionality, this function should return OK.
@@ -78,7 +78,7 @@ public:
   [[nodiscard]] virtual Status device_start() = 0;
 
   /**
-   * @brief Disables the device. This will usually require the hardware suport to work
+   * @brief Disables the device. This will usually require the hardware support to work
    * normally. For example is some IC have reset pin, this will be used to disable the
    * device. Similar to reset but this is to stop the device.
    * If the device don't have start/stop functionality, this function should return OK.
@@ -92,7 +92,7 @@ public:
  * @brief Abstract base struct to hold all setings for a device task to be run on the device.
  * usua;;y will be cast to the specific settings struct for specific device.
  */
-struct DeviceThrededSettings {
+struct DeviceThreadedSettings {
   /// @brief  Stack size for the task that will run on the device.
   StackType_t uxStackDepth;
 
@@ -102,7 +102,7 @@ struct DeviceThrededSettings {
   /// @brief Period in ms for the task that will run on the device.
   uint32_t period;
 
-  DeviceThrededSettings();
+  DeviceThreadedSettings();
 };
 
 /**
@@ -123,7 +123,7 @@ public:
    * This function is used to start a task that runs on the device to do some work.
    * For example, if the device is a sensor, this function can be used to start reading
    * data from the sensor. Example for encoder this function would start a task that would
-   * start reading the angles from the encoder in continous loop.
+   * start reading the angles from the encoder in continuous loop.
    * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
    * @return Status Status of the operation.
    */
@@ -142,7 +142,7 @@ public:
    * This function is used to set the settings for the task that will run on the device to do some work.
    * @param settings Settings for the task
    */
-  Status device_task_set_settings(const DeviceThrededSettings &settings);
+  Status device_task_set_settings(const DeviceThreadedSettings &settings);
 
   /**
    * @brief Check if the task is running.
@@ -153,9 +153,9 @@ public:
 protected:
   /**
    * @brief Pure virtual function to start the task that runs on the device.
-   * This funciton should be overriden by the specific device to start the task that will run on the device.
+   * This function should be overriden by the specific device to start the task that will run on the device.
    * to do some work. For example, if the device is a sensor, this function can be used to start reading sensor data.
-   * However if you don't wont to add this fucntionity your self then simply make this function run the do_default_task_start
+   * However if you don't wont to add this functionality your self then simply make this function run the do_default_task_start
    * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
    * @return Status Status of the operation.
    */
@@ -173,17 +173,17 @@ protected:
   // TaskHandle_t task_handle;
 
   /**
-   * @brief Runs and Start task privided by the user. With specified frequency.
+   * @brief Runs and Start task provided by the user. With specified frequency.
    *
    * @param settings Settings for the task that will run on the device. Can be customized.
    * @param task Task function that will be run. This function should be static if it is a member function.
-   * @param before_task_funciton Function that will be run before the task function. inside a FreeRtos task.
+   * @param before_task_function Function that will be run before the task function. inside a FreeRtos task.
    * @param task_arg Argument that will be passed to the task and before_task_function function.
    * Class instance for example that will be used in the task to do some work on.
    * @return Status if the task was started successfully.
    */
   [[nodiscard]] Status
-  do_default_task_start(task_function_pointer task, task_function_pointer before_task_funciton, void *task_arg);
+  do_default_task_start(task_function_pointer task, task_function_pointer before_task_function, void *task_arg);
 
   /**
    * @brief Stops the task that runs default task on the device.
@@ -194,7 +194,7 @@ protected:
 
 
 private:
-  DeviceThrededSettings settings;
+  DeviceThreadedSettings settings;
   SimpleTask task_s;
   bool task_running;
 };

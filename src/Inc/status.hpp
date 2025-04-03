@@ -24,7 +24,7 @@ class Status;
  * @brief Macro for returning on error in a single line.
  *
  * This macro is used to return from a function if the result is not OK.
- * usefull to avoid having to check if the status is OK and return the status if not.
+ * usefull to avoid having to write the same check in every function.
  */
 #define STMEPIC_RETURN_ON_ERROR(x)   \
   do {                               \
@@ -34,25 +34,27 @@ class Status;
   } while(false)
 
 /**
- * @brief  Macro for assigning a value from a result and returning on error in a single line.
- *
- * This macro is used to assign a value from a result and return from a function if the result is not OK.
+ * @brief  Macro for creat new veriable with a value from a result and returning on error in a single line.
  */
 #define STMEPIC_ASSING_OR_RETURN(assign, result) \
   auto _xsar##assign = result;                   \
   do {                                           \
     if(!_xsar##assign.ok())                      \
-      return _xsar##assign;                      \
-  } while(false) auto assign = std::move(_xsar##assign.valueOrDie());
+      return _xsar##assign.status();             \
+  } while(false);                                \
+  auto assign = std::move(_xsar##assign.valueOrDie());
 
+/**
+ * @brief Macro for assigning a value to a already exisiting veriable from a result and returning on error in a single line.
+ *
+ */
 #define STMEPIC_ASSING_TO_OR_RETURN(assign, result) \
-  auto _xsar##assign = result;                      \
   do {                                              \
+    auto _xsar##assign = result;                    \
     if(!_xsar##assign.ok())                         \
-      return _xsar##assign;                         \
+      return _xsar##assign.status();                \
     assign = std::move(_xsar##assign.valueOrDie()); \
-  \ 
-} while(false)
+  } while(false);
 
 
 /**
@@ -60,12 +62,12 @@ class Status;
  *
  */
 #define STMEPIC_ASSING_OR_HRESET(assign, result) \
+  auto _xsar##assign = result;                   \
   do {                                           \
-    auto _xr = result;                           \
-    if(!_xr.ok())                                \
+    if(!_xsar##assign.ok())                      \
       HAL_NVIC_SystemReset();                    \
   } while(false);                                \
-  auto assign = _xr.valueOrDie();
+  auto assign = std::move(_xsar##assign.valueOrDie());
 
 /**
  * @brief Macro for assigning a value to a already exisiting veriable from a result and resetting the device on error in a single line.
@@ -73,13 +75,18 @@ class Status;
  */
 #define STMEPIC_ASSING_TO_OR_HRESET(assign, result) \
   do {                                              \
-    auto _xr = result;                              \
-    if(!_xr.ok())                                   \
+    auto _xsar##assign = result;                    \
+    if(!_xsar##assign.ok())                         \
       HAL_NVIC_SystemReset();                       \
-    assign = _xr.valueOrDie();                      \
-  } while(false);
+    assign = std::move(_xsar##assign.valueOrDie()); \
+    \ 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
+  } while(false)
 
-
+/**
+ * @brief Macro for checking the result and resetting the device on error in a single line.
+ *
+ */
 #define STMEPIC_NONE_OR_HRESET(result)    \
   do {                                    \
     stmepic::Status _x = result.status(); \
@@ -89,6 +96,10 @@ class Status;
 
 extern void HardFault_Handler(void);
 
+
+/**
+ * @brief Macro for checking the result if not OK and hard fault is called.
+ */
 #define STMEPIC_NONE_OR_HARD_FAULT(result) \
   do {                                     \
     stmepic::Status _x = result.status();  \
