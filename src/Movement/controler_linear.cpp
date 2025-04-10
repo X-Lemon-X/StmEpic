@@ -24,6 +24,7 @@ MovementState BasicLinearPosControler::calculate(MovementState current_state, Mo
   previous_time      = current_time;
 
   current_state.velocity = previous_state.velocity; // delete this line after velocity is implemented in the movement controler
+  target_state.velocity = std::abs(target_state.velocity);
 
   float error_position          = target_state.position - current_state.position;
   float deacceleration_time     = std::abs(current_state.velocity / max_acceleration);
