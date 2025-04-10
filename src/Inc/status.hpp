@@ -80,7 +80,7 @@ class Status;
       HAL_NVIC_SystemReset();                       \
     assign = std::move(_xsar##assign.valueOrDie()); \
     \ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
   } while(false)
 
 /**
