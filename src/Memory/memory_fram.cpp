@@ -32,29 +32,37 @@ Result<std::vector<uint8_t>> FRAM::encode_data(const std::vector<uint8_t> &data)
   encres_data[3] = encres & 0xFF;
 
   uint16_t checksum = calculate_checksum(data);
-  // auto mayby_encrypted_data = encrypt_data(data, encryption_key, encres);
-  STMEPIC_ASSING_OR_RETURN(encres_encrypted, encrypt_data(encres_data, encryption_key));
-  std::string key = std::to_string(encres) + encryption_key;
-  STMEPIC_ASSING_OR_RETURN(encrypted_data, encrypt_data(data, key));
-
   std::vector<uint8_t> da;
   da.resize(data.size() + frame_size);
   da[0] = magic_number_1;
   da[1] = (checksum >> 8) & 0xFF;
   da[2] = checksum & 0xFF;
-  da[3] = encres_encrypted[0];
-  da[4] = encres_encrypted[1];
-  da[5] = encres_encrypted[2];
-  da[6] = encres_encrypted[3];
-  // da[3] = (encres >> 24) & 0xFF;
-  // da[4] = (encres >> 16) & 0xFF;
-  // da[5] = (encres >> 8) & 0xFF;
-  // da[6] = encres & 0xFF;
-  da[7] = (encrypted_data.size() >> 8) & 0xFF;
-  da[8] = encrypted_data.size() & 0xFF;
   da[9] = magic_number_2;
-  for(size_t i = 0; i < encrypted_data.size(); i++)
-    da[i + 10] = encrypted_data[i];
+
+  // if encryption is disabled
+  if(encryption_key == FRAM::base_encryption_key) {
+    da[3] = 0;
+    da[4] = 0;
+    da[5] = 0;
+    da[6] = 0;
+    da[7] = (data.size() >> 8) & 0xFF;
+    da[8] = data.size() & 0xFF;
+    for(size_t i = 0; i < data.size(); i++)
+      da[i + 10] = data[i];
+  } else {
+    STMEPIC_ASSING_OR_RETURN(encres_encrypted, encrypt_data(encres_data, encryption_key));
+    std::string key = std::to_string(encres) + encryption_key;
+    STMEPIC_ASSING_OR_RETURN(encrypted_data, encrypt_data(data, key));
+
+    da[3] = encres_encrypted[0];
+    da[4] = encres_encrypted[1];
+    da[5] = encres_encrypted[2];
+    da[6] = encres_encrypted[3];
+    da[7] = (encrypted_data.size() >> 8) & 0xFF;
+    da[8] = encrypted_data.size() & 0xFF;
+    for(size_t i = 0; i < encrypted_data.size(); i++)
+      da[i + 10] = encrypted_data[i];
+  }
   return Result<std::vector<uint8_t>>::OK(da);
 }
 
@@ -73,22 +81,32 @@ Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t> &data)
     return Status::Invalid("Magic number 2 is not correct");
   if(size != data.size() - frame_size)
     return Status::Invalid("Size is not correct");
-  std::vector<uint8_t> encrypted_encres;
-  encrypted_encres.resize(4);
-  encrypted_encres[0] = data[3];
-  encrypted_encres[1] = data[4];
-  encrypted_encres[2] = data[5];
-  encrypted_encres[3] = data[6];
-  STMEPIC_ASSING_OR_RETURN(decrypted_encres, decrypt_data(encrypted_encres, encryption_key));
-  uint32_t encres =
-  (decrypted_encres[0] << 24) | (decrypted_encres[1] << 16) | (decrypted_encres[2] << 8) | decrypted_encres[3];
-  std::string key = std::to_string(encres) + encryption_key;
 
-  auto data_data = std::vector<uint8_t>(data.begin() + frame_size, data.end());
-  STMEPIC_ASSING_OR_RETURN(decrypted_data, decrypt_data(data_data, key));
-  if(calculate_checksum(decrypted_data) != checksum)
-    return Status::Invalid("Checksum is not correct");
-  return Result<decltype(decrypted_data)>::OK(decrypted_data);
+  // if encryption is disabled
+  if(encryption_key == FRAM::base_encryption_key) {
+    auto data_data = std::vector<uint8_t>(data.begin() + frame_size, data.end());
+    if(calculate_checksum(data_data) != checksum)
+      return Status::Invalid("Checksum is not correct");
+    return Result<decltype(data_data)>::OK(data_data);
+
+  } else {
+    std::vector<uint8_t> encrypted_encres;
+    encrypted_encres.resize(4);
+    encrypted_encres[0] = data[3];
+    encrypted_encres[1] = data[4];
+    encrypted_encres[2] = data[5];
+    encrypted_encres[3] = data[6];
+    STMEPIC_ASSING_OR_RETURN(decrypted_encres, decrypt_data(encrypted_encres, encryption_key));
+    uint32_t encres = (decrypted_encres[0] << 24) | (decrypted_encres[1] << 16) | (decrypted_encres[2] << 8) |
+                      decrypted_encres[3];
+    std::string key = std::to_string(encres) + encryption_key;
+
+    auto data_data = std::vector<uint8_t>(data.begin() + frame_size, data.end());
+    STMEPIC_ASSING_OR_RETURN(decrypted_data, decrypt_data(data_data, key));
+    if(calculate_checksum(decrypted_data) != checksum)
+      return Status::Invalid("Checksum is not correct");
+    return Result<decltype(decrypted_data)>::OK(decrypted_data);
+  }
 }
 
 
