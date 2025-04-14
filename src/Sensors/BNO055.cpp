@@ -17,7 +17,6 @@ BNO055::Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::sh
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
 BNO055::BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt)
-<<<<<<< HEAD
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::OK()), reading_status(Status::OK()) {
 }
@@ -54,15 +53,6 @@ Status BNO055::device_reset() {
 
   device_stop();
   device_start();
-
-=======
-: hi2c(hi2c), nreset(nreset), interrupt(interrupt), _device_status(Status::OK()), reading_status(Status::OK()) {
-  device_reset();
-}
-
-Status BNO055::do_device_task_start() {
-  return DeviceThreadedBase::do_default_task_start(task_imu, task_imu_before, this);
->>>>>>> 066476aaffdffe7131db26ff5ff1ba610ceb4aaa
 }
 
 Status BNO055::do_device_task_start() {
