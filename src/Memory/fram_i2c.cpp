@@ -8,6 +8,18 @@ using namespace stmepic::memory;
 using namespace stmepic;
 
 
+Result<std::shared_ptr<FramI2C>>
+FramI2C::Make(std::shared_ptr<I2C> _hi2c, uint8_t _device_address, uint16_t _begin_address, uint32_t _fram_size) {
+  if(_hi2c == nullptr)
+    return Status::Invalid("I2C is not initialized");
+  if(_device_address == 0)
+    return Status::Invalid("Device address is not valid");
+  if(_begin_address > _fram_size)
+    return Status::Invalid("Begin address is not valid");
+  std::shared_ptr<FramI2C> fram(new FramI2C(_hi2c, _device_address, _begin_address, _fram_size));
+  return Result<decltype(fram)>::OK(fram);
+}
+
 FramI2C::FramI2C(std::shared_ptr<I2C> _hi2c, uint8_t _device_address, uint16_t _begin_address, uint32_t _fram_size)
 : hi2c(_hi2c), device_address(_device_address), begin_address(_begin_address), fram_size(_fram_size) {
 }
@@ -65,16 +77,28 @@ Result<std::vector<uint8_t>> FramI2C::read(uint32_t address) {
   return FRAM::decode_data(data);
 }
 
+Result<std::shared_ptr<FramI2CFM24CLxx>>
+FramI2CFM24CLxx::Make(std::shared_ptr<I2C> _hi2c, uint16_t _begin_address, uint32_t _fram_size) {
+  if(_hi2c == nullptr)
+    return Status::Invalid("I2C is not initialized");
+  if(_begin_address > _fram_size)
+    return Status::Invalid("Begin address is not valid");
+  if(_fram_size == 0)
+    return Status::Invalid("FRAM size is not valid");
+  std::shared_ptr<FramI2CFM24CLxx> fram(new FramI2CFM24CLxx(_hi2c, _begin_address, _fram_size));
+  return Result<decltype(fram)>::OK(fram);
+}
 
 FramI2CFM24CLxx::FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size)
 : FramI2C(hi2c, 0xA0, begin_address, fram_size) {
 }
 
 Status FramI2CFM24CLxx::write(uint32_t address, const std::vector<uint8_t> &data) {
-  auto mayby_encoded_data = FRAM::encode_data(data);
-  if(!mayby_encoded_data.ok())
-    return mayby_encoded_data.status();
-  auto encoded_data = mayby_encoded_data.valueOrDie();
+  // auto mayby_encoded_data = FRAM::encode_data(data);
+  // if(!mayby_encoded_data.ok())
+  // return mayby_encoded_data.status();
+  STMEPIC_ASSING_OR_RETURN(encoded_data, FRAM::encode_data(data));
+  // auto encoded_data = mayby_encoded_data.valueOrDie();
   if(encoded_data.size() > fram_size)
     return Status::CapacityError("Data is too big for the FRAM");
   uint32_t memory_address = begin_address + address;

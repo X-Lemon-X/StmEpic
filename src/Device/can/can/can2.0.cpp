@@ -4,6 +4,7 @@
 #include <cstring>
 #include "can2.0.hpp"
 
+#define CAN_SEND_RETRY_COUNT 20
 
 using namespace stmepic;
 
@@ -199,10 +200,15 @@ void CAN::task_tx(void *arg) {
         can->_gpio_tx_led->write(0);
       continue;
     }
-
-    while(HAL_CAN_GetTxMailboxesFreeLevel(can->_hcan) == 0) {
+    uint8_t retrys_count = 0;
+    while(HAL_CAN_GetTxMailboxesFreeLevel(can->_hcan) == 0 && retrys_count <= CAN_SEND_RETRY_COUNT) {
       vTaskDelay(5);
     }
+    // if we are not able to send the message after somany retries then it won't be sent until kingdom come.
+    if(CAN_SEND_RETRY_COUNT == retrys_count) {
+      HAL_CAN_AbortTxRequest(can->_hcan, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2);
+    }
+
     CAN_TxHeaderTypeDef header;
     if(msg.extended_id) {
       header.ExtId = msg.frame_id;

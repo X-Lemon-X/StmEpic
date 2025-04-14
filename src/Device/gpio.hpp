@@ -29,7 +29,7 @@ static const uint16_t GPIO_ANALOG_RESOLUTION_16BIT = 65535;
 class GpioPin {
 public:
   /**
-   * @brief Construct a new Gpio Pin object to easyly pass gpio pins to other peripherals
+   * @brief Construct a new Gpio Pin object to easily pass gpio pins to other peripherals
    *
    * @param port GPIO port
    * @param pin GPIO pin

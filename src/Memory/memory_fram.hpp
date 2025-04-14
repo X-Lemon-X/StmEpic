@@ -87,7 +87,7 @@ public:
   }
 
   /// @brief Write a struct to the FRAM
-  /// the sturcture should't have pointers or any other dynamic data
+  /// the structure should't have pointers or any other dynamicly allocated data
   /// if the struct has pointers or dynamic data it will cause a memory leak if read
   /// @param address the address where the struct will be written
   /// @param data the struct that will be written
@@ -99,7 +99,7 @@ public:
   }
 
   /// @brief Write a vector of structs to the FRAM
-  /// the sturcture should't have pointers or any other dynamic data
+  /// the structure should't have pointers or any other dynamic data
   /// the vector can be any size
   /// @param address the address where the vector will be written
   /// @param data the vector that will be written
@@ -117,7 +117,7 @@ public:
   }
 
   /// @brief Read a vector of structs from the FRAM
-  /// the sturcture should't have pointers or any other dynamic data
+  /// the structure should't have pointers or any other dynamic data
   /// the vector can be any size and the size of the vector will be read from the FRAM
   /// @param address the address where the vector will be read
   /// @return the vector that was read or error if the vector was not read

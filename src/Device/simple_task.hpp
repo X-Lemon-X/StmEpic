@@ -8,7 +8,7 @@ namespace stmepic {
 
 
 /**
- * @brief Class for creating simple tasks that run in a loop with a veriable period.
+ * @brief Class for creating simple tasks that run in a loop with a variable period.
  */
 class SimpleTask {
 private:
