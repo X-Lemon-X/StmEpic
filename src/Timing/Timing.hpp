@@ -69,7 +69,14 @@ public:
   /// This shoule be initated otherwise bunch of other relying classes will not work
   static Ticker &get_instance();
 
-  void delay(uint32_t delay);
+  /// @brief Delay for a specified amount of time
+  /// @param delay time to delay in miliseconds [ms]
+  void delay(uint32_t miliseconds);
+
+  /// @brief Delay for a specified amount of time in more less miliseconds
+  /// @param delay time to delay in miliseconds [ms]
+  void delay_nop(uint32_t miliseconds);
+
 
 private:
   uint32_t tick_millis;

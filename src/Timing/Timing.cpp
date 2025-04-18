@@ -54,9 +54,16 @@ float Ticker::get_seconds() {
   return (float)get_micros() * 0.000001f;
 }
 
-void Ticker::delay(uint32_t delay) {
+void Ticker::delay(uint32_t miliseconds) {
   uint32_t start = get_micros();
-  while(get_micros() - start < delay) {
+  while(get_micros() - start < miliseconds) {
+  }
+}
+
+void Ticker::delay_nop(uint32_t miliseconds) {
+  miliseconds *= HAL_RCC_GetHCLKFreq() / 1000;
+  for(uint32_t i = 0; i < miliseconds; i++) {
+    __NOP();
   }
 }
 
