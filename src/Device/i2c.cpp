@@ -17,7 +17,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 std::vector<std::shared_ptr<I2C>> I2C::i2c_instances;
 
 I2C::I2C(I2C_HandleTypeDef &hi2c, GpioPin &sda, GpioPin &scl, const HardwareType type)
-: _hi2c(&hi2c), _gpio_sda(sda), _gpio_scl(scl), _hardwType(type) {
+: _hi2c(&hi2c), _gpio_sda(sda), _gpio_scl(scl), _hardwType(type), dma_lock(false), i2c_initialized(false) {
   _mutex = xSemaphoreCreateMutex();
 };
 
@@ -111,7 +111,7 @@ Status I2C::hardware_reset() {
 
   for(size_t i = 0; i < 20; i++) {
     _gpio_scl.toggle();
-    Ticker::get_instance().delay(1000);
+    Ticker::get_instance().delay(1);
   }
   // vPortExitCritical();
   return hardware_start();
@@ -119,19 +119,22 @@ Status I2C::hardware_reset() {
 
 Status I2C::hardware_start() {
   auto staus = HAL_I2C_Init(_hi2c);
-  if(_hardwType == HardwareType::DMA) {
-  }
+  if(staus != HAL_OK)
+    return Status(staus);
+  i2c_initialized = true;
   return staus;
 }
 
 Status I2C::hardware_stop() {
-  auto status = HAL_I2C_DeInit(_hi2c);
+  auto status     = HAL_I2C_DeInit(_hi2c);
+  i2c_initialized = false;
   return status;
 }
 
 Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   task_handle = xTaskGetCurrentTaskHandle();
-  address     = address << 1;
+
+  address = address << 1;
   if(task_handle != nullptr)
     vPortEnterCritical();
   Status result = Status::ExecutionError();
@@ -155,10 +158,13 @@ Status I2C::_read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
 
 
 Status I2C::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
+  if(!i2c_initialized)
+    return Status::ExecutionError("I2C is not initialized");
+
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   task_handle   = xTaskGetCurrentTaskHandle();
-  result        = _read(address, mem_address, data, size, mem_size);
+  result        = _read(address, mem_address, data, size, mem_size, timeout_ms);
 
   if(_hardwType != HardwareType::BLOCKING) {
     if(result.ok() && task_handle != nullptr) {
@@ -177,6 +183,7 @@ Status I2C::_write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16
   task_handle = xTaskGetCurrentTaskHandle();
   if(task_handle != nullptr)
     vPortEnterCritical();
+  address       = address << 1;
   Status result = Status::ExecutionError();
   switch(_hardwType) {
   case HardwareType::DMA:
@@ -197,10 +204,16 @@ Status I2C::_write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16
 }
 
 Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
+  if(!i2c_initialized)
+    return Status::ExecutionError("I2C is not initialized");
+
+  if(size != 0 && data == nullptr)
+    return Status::Invalid("Data pointer is null");
+
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   task_handle   = xTaskGetCurrentTaskHandle();
-  result        = _read(address, mem_address, data, size, mem_size);
+  result        = _write(address, mem_address, data, size, mem_size, timeout_ms);
 
   if(_hardwType != HardwareType::BLOCKING) {
     if(result.ok() && task_handle != nullptr) {
@@ -215,8 +228,29 @@ Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
 }
 
 Status I2C::is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) {
+  if(!i2c_initialized)
+    return Status::ExecutionError("I2C is not initialized");
+
   xSemaphoreTake(_mutex, portMAX_DELAY);
+  address       = address << 1;
   Status status = HAL_I2C_IsDeviceReady(_hi2c, address, trials, timeout);
   xSemaphoreGive(_mutex);
   return status;
+}
+
+
+Result<std::vector<uint8_t>> I2C::scan_for_devices() {
+  if(!i2c_initialized)
+    return Status::ExecutionError("I2C is not initialized");
+
+  std::vector<uint8_t> devices;
+  uint16_t max_address = _hi2c->Init.AddressingMode == I2C_ADDRESSINGMODE_7BIT ? 127 : 1023; // 7bit or 10bit
+
+  for(uint8_t address = 1; address < max_address; address++) {
+    auto status = is_device_ready(address, 1, 500);
+    if(status.ok()) {
+      devices.push_back(address);
+    }
+  }
+  return Result<std::vector<uint8_t>>::OK(devices);
 }

@@ -47,8 +47,8 @@ public:
 
 
   /**
-   * @brief Read data from the I2C device in blocking mode with other tasks beeing able to freely run in the
-   * meantime returns the data read from the device after the read is done
+   * @brief Read data from the I2C device from memory in blocking mode with other tasks beeing able to freely
+   * run in the meantime returns the data read from the device after the read is done
    *
    * @param address the address of the I2C device
    * @param mem_address the memory address from which the data will be read
@@ -57,6 +57,7 @@ public:
    * @return Result<uint8_t *>
    */
   Status read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300);
+
 
   /**
    * @brief Write data to the I2C device in blocking mode with other tasks beeing able to freelu run in the
@@ -70,8 +71,20 @@ public:
    */
   Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300);
 
-
+  /**
+   * @brief Check if the device is ready to communicate with specified address
+   * @param address the address of the I2C device
+   * @param trials the number of trials to check if the device is ready
+   * @param timeout the timeout for each trial
+   * @return Status
+   */
   Status is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout);
+
+  /**
+   * @brief Scan for all I2C devices on the bus
+   * @return  the addresses of the devices found on the bus
+   */
+  [[nodiscard]] Result<std::vector<uint8_t>> scan_for_devices();
 
   /**
    * @brief Run the TX callbacks from the ISR or DMA interrupt
@@ -96,6 +109,7 @@ private:
   SemaphoreHandle_t _mutex;
   I2C_HandleTypeDef *_hi2c;
   bool dma_lock;
+  bool i2c_initialized;
 
   /// @brief Task handle for the specific I2C interface
   TaskHandle_t task_handle;
