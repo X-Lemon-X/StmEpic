@@ -12,7 +12,7 @@ using namespace stmepic::algorithm;
 
 namespace stmepic::sensors::imu::internal {
 
-static const uint8_t BNO055_I2C_ADDRESS        = 0x50; // 0x28 << 1
+static const uint8_t BNO055_I2C_ADDRESS        = 0x29; // 0x28 << 1
 static const uint8_t BNO055_REG_MAG_RADIUS_MSB = 0x6A;
 static const uint8_t BNO055_REG_MAG_RADIUS_LSB = 0x69;
 static const uint8_t BNO055_REG_ACC_RADIUS_MSB = 0x68;
@@ -189,13 +189,13 @@ public:
   Status device_reset() override;
   Status device_start() override;
   Status device_stop() override;
+  Result<BNO055_Data_t> get_data();
 
 
 private:
   BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
-  Result<BNO055_Data_t> get_data();
   Result<BNO055_Data_t> read_data();
   static void task_imu_before(SimpleTask &handler, void *arg);
   static void task_imu(SimpleTask &handler, void *arg);

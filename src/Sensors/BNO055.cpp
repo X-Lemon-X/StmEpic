@@ -18,7 +18,8 @@ BNO055::Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::sh
 }
 BNO055::BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt)
 
-: hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::OK()), reading_status(Status::OK()) {
+: hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
+  reading_status(Status::OK()) {
 }
 
 Status BNO055::device_get_status() {
@@ -90,6 +91,9 @@ void BNO055::handle() {
   auto maybe_data = read_data();
   if(maybe_data.ok()) {
     imu_data = maybe_data.valueOrDie();
+  } else if(maybe_data.status().status_code() == StatusCode::HalBusy) {
+    hi2c->hardware_reset();
+    vTaskDelay(10);
   }
   _device_status = maybe_data.status();
 }
@@ -132,7 +136,7 @@ Result<BNO055_Data_t> BNO055::read_data() {
   STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
   STMEPIC_RETURN_ON_ERROR(hi2c->read(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_TEMP, regs, 45).status());
 
-  BNO055_Data_t data;
+  BNO055_Data_t data = {};
 
   data.acc.x = ((uint16_t)regs[1] << 8) | regs[0];
   data.acc.y = ((uint16_t)regs[3] << 8) | regs[2];
