@@ -79,8 +79,8 @@ class Status;
     if(!_xsar##assign.ok())                         \
       HAL_NVIC_SystemReset();                       \
     assign = std::move(_xsar##assign.valueOrDie()); \
-    \ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
+    \                                       
+          \
   } while(false)
 
 /**
