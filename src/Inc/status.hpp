@@ -80,7 +80,7 @@ class Status;
       HAL_NVIC_SystemReset();                       \
     assign = std::move(_xsar##assign.valueOrDie()); \
     \ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
   } while(false)
 
 /**
@@ -308,6 +308,10 @@ public:
   /// @return 0 if OK or some error code
   [[nodiscard]] StatusCode status_code() {
     return _status;
+  };
+
+  [[nodiscard]] Status valueOrDie() {
+    return *this;
   };
 
   /// @brief check if the status is OK
