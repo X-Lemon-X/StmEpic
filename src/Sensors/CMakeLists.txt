@@ -9,4 +9,5 @@ target_sources(${UPPER_PROJECT_NAME} PRIVATE
   ntc_termistors.cpp
   MCP9700AT.cpp
   BNO055.cpp
+  BMP280.cpp
 )
