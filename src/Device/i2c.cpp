@@ -111,7 +111,7 @@ Status I2C::hardware_reset() {
 
   for(size_t i = 0; i < 20; i++) {
     _gpio_scl.toggle();
-    Ticker::get_instance().delay(1);
+    Ticker::get_instance().delay_nop(1);
   }
   // vPortExitCritical();
   return hardware_start();
