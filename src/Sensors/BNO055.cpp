@@ -7,15 +7,14 @@
 using namespace stmepic::sensors::imu;
 
 
-Result<std::shared_ptr<BNO055>>
-BNO055::Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt) {
+Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt) {
 
   if(hi2c == nullptr)
     return Status::ExecutionError("I2C is nullpointer");
   auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, nreset, interrupt));
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
-BNO055::BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt)
+BNO055::BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt)
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
   reading_status(Status::OK()) {

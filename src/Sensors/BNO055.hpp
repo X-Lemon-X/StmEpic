@@ -204,7 +204,7 @@ public:
    * @return Brand new BNO055 object
    */
   static Result<std::shared_ptr<BNO055>>
-  Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
+  Make(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
 
   Result<bool> device_is_connected() override;
   bool device_ok() override;
@@ -221,7 +221,7 @@ public:
 
 
 private:
-  BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
+  BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
 
@@ -239,9 +239,8 @@ private:
 
   BNO055_Data_t imu_data;
   std::shared_ptr<I2C> hi2c;
-
-  std::shared_ptr<GpioPin> interrupt;
-  std::shared_ptr<GpioPin> nreset;
+  GpioPin *interrupt;
+  GpioPin *nreset;
 
   Status _device_status;
   Status reading_status;
