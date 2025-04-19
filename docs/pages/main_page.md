@@ -39,8 +39,10 @@ The library is written in C++ and is designed to be used with the code generatio
 - **Status** Return types for proper error handling.
 - **Timing**: Interface to creat software timers for some stuff.
 
-## Supported STM32 microcontrollers series
+## Tested STM32 microcontrollers series
+
+Disclaimer: The library will most likely work with other STM32 series, but it wasn't tested.
 
 - **STM32F4**
 - **STM32H7** (in progress)
-- **STM32U5** (comming soon)
+- **STM32U5** (in progress)
