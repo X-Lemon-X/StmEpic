@@ -123,9 +123,9 @@ Status FDCAN::hardware_start() {
   // STMEPIC_RETURN_ON_ERROR(
   // Status(HAL_CAN_ActivateNotification(_hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING)));
   if(task_handle_rx == nullptr)
-    xTaskCreate(FDCAN::task_rx, "CAN_RX", 1024, this, 1, &task_handle_rx);
+    xTaskCreate(FDCAN::task_rx, "FDCAN_RX", 1024, this, 1, &task_handle_rx);
   if(task_handle_tx == nullptr)
-    xTaskCreate(FDCAN::task_tx, "CAN_TX", 254, this, 1, &task_handle_tx);
+    xTaskCreate(FDCAN::task_tx, "FDCAN_TX", 254, this, 1, &task_handle_tx);
   is_initiated = true;
   return Status::OK();
 }
@@ -134,18 +134,18 @@ Status FDCAN::add_callback(uint32_t frame_id, internall::hardware_can_function_p
   if(callback == nullptr)
     return Status::Invalid("Callback function is null");
 
+  internall::CanCallbackTask calldata;
+  calldata.callback = callback;
+  calldata.args     = args;
+
   if(frame_id == 0) {
-    internall::CanCallbackTask dc = { args, callback };
-    default_callback_task_data    = dc;
+    default_callback_task_data = calldata;
     return Status::OK();
   }
 
   vPortEnterCritical();
   if(callbacks.find(frame_id) != callbacks.end())
     return Status::AlreadyExists("Callback for can mgs already exists");
-  internall::CanCallbackTask calldata;
-  calldata.callback   = callback;
-  calldata.args       = args;
   callbacks[frame_id] = calldata;
   vPortExitCritical();
   return Status::OK();
