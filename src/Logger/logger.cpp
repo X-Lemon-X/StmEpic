@@ -19,13 +19,16 @@ Logger::Logger() {
 Status Logger::init(LOG_LEVEL level, bool _print_info, transmit_data_func _transmi_function, bool _use_semihosting, std::string _version) {
   if(_transmi_function == nullptr && !_use_semihosting)
     return Status::ExecutionError("Transmit function nullptr ");
-  if(_transmi_function != nullptr && _use_semihosting)
-    return Status::ExecutionError("Transmit function and semihosting can't be used at the same time");
+
   log_level         = level;
   transmit_function = _transmi_function;
   print_info        = _print_info;
   version           = _version;
   use_semihosting   = _use_semihosting;
+
+  // Check if semihosting is enabled and if the debugger is connected. if not we can't use semihosting becouse the cpu will freeze
+  use_semihosting = use_semihosting && (bool)(CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk);
+
   if(use_semihosting) {
     initialise_monitor_handles();
     transmit_function = nullptr;
