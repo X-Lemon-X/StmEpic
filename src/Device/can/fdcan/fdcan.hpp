@@ -20,7 +20,7 @@ namespace stmepic {
  * automatically by allowing to add callbacks for specific frame ids.
  * as well as writing to interface from any task in a non blocking / thread safe fashion.
  */
-class FDCAN : public HardwareInterface {
+class FDCAN : public CanBase {
 
 public:
   ~FDCAN() override;
@@ -88,14 +88,14 @@ public:
    * @param hi2c the FDCAN handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
-  static void run_tx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan);
+  static void run_tx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs);
 
   /**
    * @brief Run the RX callbacks from the IT or DMA interrupt like HAL_CAN_RxFifoXMsgPendingCallback
    * @param hi2c the I2C handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
-  static void run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan);
+  static void run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes);
 
 private:
   FDCAN(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &filter, GpioPin *tx_led, GpioPin *rx_led);
@@ -113,16 +113,19 @@ private:
   TaskHandle_t task_handle_rx;
   QueueHandle_t tx_queue_handle;
   QueueHandle_t rx_queue_handle;
+  bool fdcan_in_fd_mode;
+  bool fdcan_in_bitrate_switching_mode;
+
   std::unordered_map<uint32_t, internall::CanCallbackTask> callbacks;
   internall::CanCallbackTask default_callback_task_data;
   static std::vector<std::shared_ptr<FDCAN>> can_instances;
   static const uint32_t CAN_QUEUE_SIZE = 64;
 
   /// @brief Task for handling the TX traffic for specific FDCAN interface
-  void tx_callback(FDCAN_HandleTypeDef *hcan);
+  void tx_callback(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes);
 
   /// @brief Task for handling the RX traffic for specific FDCAN interface
-  void rx_callback(FDCAN_HandleTypeDef *hcan);
+  void rx_callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs);
 
   /// @brief task that handles the TX traffic
   static void task_tx(void *arg);
