@@ -122,9 +122,13 @@ Status FDCAN::hardware_start() {
   }
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_Init(_hcan)));
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_ConfigFilter(_hcan, &filter)));
-  STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_Start(_hcan)));
+  STMEPIC_RETURN_ON_ERROR(Status(
+  HAL_FDCAN_ConfigGlobalFilter(_hcan, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE)));
+
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_ActivateNotification(
   _hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0)));
+
+  STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_Start(_hcan)));
   if(task_handle_rx == nullptr)
     xTaskCreate(FDCAN::task_rx, "FDCAN_RX", 1024, this, 1, &task_handle_rx);
   if(task_handle_tx == nullptr)
@@ -216,7 +220,7 @@ void FDCAN::task_tx(void *arg) {
     header.DataLength          = msg.data_size;
     header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     header.BitRateSwitch       = can->fdcan_in_bitrate_switching_mode ? FDCAN_BRS_ON : FDCAN_BRS_OFF;
-    header.FDFormat            = can->fdcan_in_fd_mode ? FDCAN_CLASSIC_CAN : FDCAN_FD_CAN;
+    header.FDFormat            = can->fdcan_in_fd_mode ? FDCAN_FD_CAN : FDCAN_CLASSIC_CAN;
     header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     header.MessageMarker       = 0;
     HAL_FDCAN_AddMessageToTxFifoQ(can->_hcan, &header, msg.data);
