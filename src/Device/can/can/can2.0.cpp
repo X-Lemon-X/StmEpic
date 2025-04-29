@@ -29,7 +29,8 @@ void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan) {
 }
 
 
-CanDataFrame::CanDataFrame() : frame_id(0), remote_request(false), extended_id(false), data_size(0), fdcan_frame(false) {
+CanDataFrame::CanDataFrame()
+: frame_id(0), remote_request(false), extended_id(false), data_size(0), fdcan_frame(false) {
   std::memset(data, 0, sizeof(data));
 }
 
