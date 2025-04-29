@@ -67,6 +67,7 @@ template <typename T> struct Vector3d_t {
 
 template <typename T> struct Vector4d_t {
   using type = T;
+  static_assert(std::is_arithmetic<type>::value, "Vector4d_t<type> requires type to be an arithmetic type");
   type x;
   type y;
   type z;
