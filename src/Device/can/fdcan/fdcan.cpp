@@ -36,12 +36,17 @@ CanDataFrame::CanDataFrame()
 std::vector<std::shared_ptr<FDCAN>> FDCAN::can_instances;
 
 Result<std::shared_ptr<FDCAN>>
-FDCAN::Make(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &filter, GpioPin *tx_led, GpioPin *rx_led) {
+FDCAN::Make(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &filter, GpioPin *tx_led, GpioPin *rx_led) {
   vPortEnterCritical();
   for(const auto &instance : can_instances) {
     if(instance->_hcan->Instance == hcan.Instance)
       return Status::AlreadyExists();
   }
+
+  if(filter.filters.size() == 0) {
+    return Status::Invalid("Filter configuration is empty");
+  }
+
   std::shared_ptr<FDCAN> can(new FDCAN(hcan, filter, tx_led, rx_led));
   can_instances.push_back(can);
   vPortExitCritical();
@@ -66,14 +71,20 @@ void FDCAN::run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo
   }
 }
 
-FDCAN::FDCAN(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &_filter, GpioPin *tx_led, GpioPin *rx_led)
+FDCAN::FDCAN(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &_filter, GpioPin *tx_led, GpioPin *rx_led)
 : is_initiated(false), _hcan(&hcan), last_tx_mailbox(0), filter(_filter), _gpio_tx_led(tx_led), _gpio_rx_led(rx_led),
   task_handle_tx(nullptr), task_handle_rx(nullptr), tx_queue_handle(nullptr), rx_queue_handle(nullptr) {
   tx_queue_handle                 = xQueueCreate(CAN_QUEUE_SIZE, sizeof(CanDataFrame));
   rx_queue_handle                 = xQueueCreate(CAN_QUEUE_SIZE, sizeof(CanDataFrame));
   fdcan_in_fd_mode                = hcan.Init.FrameFormat == FDCAN_FRAME_CLASSIC ? false : true;
   fdcan_in_bitrate_switching_mode = false;
-  // can_fifo        = filter.;
+
+  switch(filter.fifo_number) {
+  case FDCAN_FIFO::FDCAN_FIFO0: can_fifo = FDCAN_RX_FIFO0; break;
+  case FDCAN_FIFO::FDCAN_FIFO1: can_fifo = FDCAN_RX_FIFO1; break;
+  default: can_fifo = FDCAN_RX_FIFO0; break;
+  }
+
   add_callback(0, default_callback_function, nullptr);
 };
 
@@ -104,12 +115,18 @@ Status FDCAN::hardware_stop() {
   while(eTaskGetState(task_handle_rx) != eDeleted || eTaskGetState(task_handle_tx) != eDeleted) {
     vTaskDelay(pdMS_TO_TICKS(10));
   }
+
+  if(_gpio_tx_led)
+    _gpio_tx_led->write(0);
+  if(_gpio_rx_led)
+    _gpio_rx_led->write(0);
+
+
   task_handle_rx = nullptr;
   task_handle_tx = nullptr;
   xQueueReset(tx_queue_handle);
   xQueueReset(rx_queue_handle);
-  STMEPIC_RETURN_ON_ERROR(
-  Status(HAL_FDCAN_DeactivateNotification(_hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE)));
+  STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_DeactivateNotification(_hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))); //| FDCAN_IT_RX_FIFO1_NEW_MESSAGE
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_Stop(_hcan)));
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_DeInit(_hcan)));
   is_initiated = false;
@@ -121,18 +138,29 @@ Status FDCAN::hardware_start() {
     return Status::OK();
   }
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_Init(_hcan)));
-  STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_ConfigFilter(_hcan, &filter)));
+  for(auto &&fil : filter.filters) {
+    STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_ConfigFilter(_hcan, &fil)));
+  }
+
   STMEPIC_RETURN_ON_ERROR(Status(
-  HAL_FDCAN_ConfigGlobalFilter(_hcan, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE)));
+  HAL_FDCAN_ConfigGlobalFilter(_hcan, filter.globalFilter_NonMatchingStd, filter.globalFilter_NonMatchingExt,
+                               filter.globalFilter_RejectRemoteExt, filter.globalFilter_RejectRemoteStd)));
 
-  STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_ActivateNotification(
-  _hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0)));
-
+  // FDCAN_IT_RX_FIFO1_NEW_MESSAGE
   STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_Start(_hcan)));
+
+  uint32_t active_it;
+  if(filter.fifo_number == FDCAN_FIFO::FDCAN_FIFO0) {
+    active_it = FDCAN_IT_RX_FIFO0_NEW_MESSAGE;
+  } else {
+    active_it = FDCAN_IT_RX_FIFO1_NEW_MESSAGE;
+  }
+
+  STMEPIC_RETURN_ON_ERROR(Status(HAL_FDCAN_ActivateNotification(_hcan, active_it, 0)));
   if(task_handle_rx == nullptr)
     xTaskCreate(FDCAN::task_rx, "FDCAN_RX", 1024, this, 1, &task_handle_rx);
   if(task_handle_tx == nullptr)
-    xTaskCreate(FDCAN::task_tx, "FDCAN_TX", 554, this, 1, &task_handle_tx);
+    xTaskCreate(FDCAN::task_tx, "FDCAN_TX", 1024, this, 1, &task_handle_tx);
   is_initiated = true;
   return Status::OK();
 }
@@ -243,7 +271,7 @@ void FDCAN::tx_callback(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes) {
   //   _gpio_tx_led->write(0);
 }
 
-void FDCAN::rx_callback(FDCAN_HandleTypeDef *hcan, uint32_t can_fifo) {
+void FDCAN::rx_callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs) {
   if(hcan->Instance != _hcan->Instance || !is_initiated)
     return;
   CanDataFrame msg = {};

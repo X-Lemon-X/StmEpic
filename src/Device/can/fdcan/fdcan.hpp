@@ -15,10 +15,42 @@
 
 namespace stmepic {
 
+enum class FDCAN_FIFO {
+  FDCAN_FIFO0,
+  FDCAN_FIFO1,
+};
+
+/**
+ * @brief FDCAN filter configuration
+ * @note The filter is used to filter the FDCAN messages
+ * @param filters the filters that will be used to filter the FDCAN messages the vector size shoule not exceed
+ * the constraint of the FDCAN number of maximum filters.
+ * @param fifo_number the FIFO number that will be used to receive the FDCAN messages
+ * @param globalFilter_NonMatchingStd Defines how received messages with 11-bit IDs that do not match any
+ * element of the filter list are treated. This parameter can be a value of FDCAN_Non_Matching_Frames.
+ * @param globalFilter_NonMatchingExt Defines how received messages with 29-bit IDs that do not match any
+ * element of the filter list are treated. This parameter can be a value of FDCAN_Non_Matching_Frames.
+ * @param globalFilter_RejectRemoteStd Filter or reject all the remote 11-bit IDs frames. This parameter can
+ * be a value of FDCAN_Reject_Remote_Frames.
+ * @param globalFilter_RejectRemoteExt Filter or reject all the remote 29-bit IDs frames. This parameter can
+ * be a value of FDCAN_Reject_Remote_Frames.
+ */
+struct FDcanFilterConfig {
+  std::vector<FDCAN_FilterTypeDef> filters;
+  FDCAN_FIFO fifo_number;
+  uint32_t globalFilter_NonMatchingStd;
+  uint32_t globalFilter_NonMatchingExt;
+  uint32_t globalFilter_RejectRemoteStd;
+  uint32_t globalFilter_RejectRemoteExt;
+};
+
+
 /**
  * @brief Class for controlling the FDCAN interface
  * automatically by allowing to add callbacks for specific frame ids.
  * as well as writing to interface from any task in a non blocking / thread safe fashion.
+ *
+ * @note The FDCAN interface does not support the BUFFER mode only FIFO mode.
  */
 class FDCAN : public CanBase {
 
@@ -30,13 +62,13 @@ public:
    * @brief Make new FDCAN interface, the interface is added to the list of all FDCAN interfaces and will be automatically handled with other FDCAN interfaces
    *
    * @param hcan the FDCAN handle that will be used to communicate with the FDCAN device
-   * @param filter the filter that will be used to filter the FDCAN messages if
+   * @param filter the filter that will be used to filter the FDCAN messages
    * @param tx_led the TX led that will be used to indicate the TX activity
    * @param rx_led the RX led that will be used to indicate the RX activity
    * @return Result<std::shared_ptr<FDCAN>> will return AlreadyExists if the FDCAN interface was already initialized.
    */
   static Result<std::shared_ptr<FDCAN>>
-  Make(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &filter, GpioPin *tx_led = nullptr, GpioPin *rx_led = nullptr);
+  Make(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &filter, GpioPin *tx_led = nullptr, GpioPin *rx_led = nullptr);
 
   /**
    * @brief Reset the FDCAN interface
@@ -98,15 +130,16 @@ public:
   static void run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes);
 
 private:
-  FDCAN(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &filter, GpioPin *tx_led, GpioPin *rx_led);
+  FDCAN(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &filter, GpioPin *tx_led, GpioPin *rx_led);
   FDCAN(const FDCAN &)            = delete;
   FDCAN &operator=(const FDCAN &) = delete;
 
   bool is_initiated;
   FDCAN_HandleTypeDef *_hcan;
   uint32_t last_tx_mailbox;
+  FDCAN_FIFO fifo;
   uint32_t can_fifo;
-  FDCAN_FilterTypeDef filter;
+  FDcanFilterConfig filter;
   GpioPin *_gpio_tx_led;
   GpioPin *_gpio_rx_led;
   TaskHandle_t task_handle_tx;
