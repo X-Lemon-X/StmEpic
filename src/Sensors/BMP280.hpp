@@ -15,9 +15,22 @@ using namespace stmepic::algorithm;
  * @brief  BMP280  barometer sensor class definition.
  */
 
+
 /**
- * @defgroup Barometer_Sensors barometer sensors
+ * @defgroup Sensors
+ * @brief Functions related to different sensors.
+ * @{
+ */
+
+/**
+ * @defgroup barometers_sensors Barometers
  * @brief Functions related to barometer sensors.
+ * @{
+ */
+
+/**
+ * @defgroup BMP280_Barometers_Sensors BMP280
+ * @brief BMP280 sensors.
  * @{
  */
 

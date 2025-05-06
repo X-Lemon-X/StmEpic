@@ -11,8 +11,15 @@
  */
 
 /**
- * @defgroup Temperature_Sensors Temperature Sensors
+ * @defgroup Thermometers_Sensors Thermometers
  * @brief Functions related to temperature sensors.
+ * @{
+ */
+
+
+/**
+ * @defgroup  MCP9700AT_Thermometers_Sensors MCP9700AT
+ * @brief MCP9700AT  temperature sensor.
  * @{
  */
 

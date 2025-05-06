@@ -14,15 +14,22 @@
 
 
 /**
- * @defgroup Movement_Controler Controlers
+ * @defgroup Movement_Controller Controllers
+ * @{
+ */
+
+
+/**
+ * @defgroup PID_Controller PID
+ * @brief PID controller.
  * @{
  */
 
 namespace stmepic::movement {
 
 /**
- * @class PIDControler
- * @brief Class representing the PID controler.
+ * @class PIDController
+ * @brief Class representing the PID controller.
  *
  * PID controler.
  *

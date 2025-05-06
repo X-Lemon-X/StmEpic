@@ -13,7 +13,7 @@
 
 /**
  * @defgroup Movement
- * @brief Functions wrapers for actuators, control algorithms, encodrs, and movement control handlers for closed/open loop systems.
+ * @brief Functions warpers for actuators, control algorithms, encoders, and movement control handlers for closed/open loop systems.
  * @{
  */
 

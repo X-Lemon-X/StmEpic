@@ -14,9 +14,15 @@
 
 
 /**
- * @defgroup Movement_Controler Controlers
- * @brief Control algoritms for movement controler like PID etc..
+ * @defgroup Movement_Controller Controllers
+ * @brief Control algorithms for movement controller like PID etc..
  *
+ * @{
+ */
+
+/**
+ * @defgroup PassThrough_Movement_Controller PassThrough
+ * @brief PassThrough controller for remote control algorithms, for example through ROS.
  * @{
  */
 

@@ -17,9 +17,22 @@ using namespace stmepic::algorithm;
  */
 
 /**
- * @brief IMU_Sensors IMU sensors
- * @defgroup Function related to different IMU sensors
- *
+ * @defgroup Sensors
+ * @brief Functions related to different sensors.
+ * @{
+ */
+
+
+/**
+ * @defgroup imu_sensors IMU
+ * @brief Functions related to different IMU sensors.
+ * @{
+ */
+
+/**
+ * @defgroup BNO055_imu_sensors BNO055
+ * @brief BNO055 IMU sensors.
+ * @{
  */
 
 namespace stmepic::sensors::imu::internal {
