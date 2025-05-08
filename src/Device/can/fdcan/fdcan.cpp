@@ -6,6 +6,136 @@
 
 #define CAN_SEND_RETRY_COUNT 20
 
+
+// some FDCAN stm32 have up to 32 tx buffers
+#ifndef FDCAN_TX_BUFFER0
+#define FDCAN_TX_BUFFER0 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER1
+#define FDCAN_TX_BUFFER1 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER2
+#define FDCAN_TX_BUFFER2 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER3
+#define FDCAN_TX_BUFFER3 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER4
+#define FDCAN_TX_BUFFER4 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER5
+#define FDCAN_TX_BUFFER5 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER6
+#define FDCAN_TX_BUFFER6 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER7
+#define FDCAN_TX_BUFFER7 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER8
+#define FDCAN_TX_BUFFER8 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER9
+#define FDCAN_TX_BUFFER9 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER10
+#define FDCAN_TX_BUFFER10 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER11
+#define FDCAN_TX_BUFFER11 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER12
+#define FDCAN_TX_BUFFER12 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER13
+#define FDCAN_TX_BUFFER13 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER14
+#define FDCAN_TX_BUFFER14 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER15
+#define FDCAN_TX_BUFFER15 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER16
+#define FDCAN_TX_BUFFER16 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER17
+#define FDCAN_TX_BUFFER17 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER18
+#define FDCAN_TX_BUFFER18 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER19
+#define FDCAN_TX_BUFFER19 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER20
+#define FDCAN_TX_BUFFER20 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER21
+#define FDCAN_TX_BUFFER21 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER22
+#define FDCAN_TX_BUFFER22 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER23
+#define FDCAN_TX_BUFFER23 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER24
+#define FDCAN_TX_BUFFER24 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER25
+#define FDCAN_TX_BUFFER25 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER26
+#define FDCAN_TX_BUFFER26 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER27
+#define FDCAN_TX_BUFFER27 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER28
+#define FDCAN_TX_BUFFER28 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER29
+#define FDCAN_TX_BUFFER29 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER30
+#define FDCAN_TX_BUFFER30 0
+#endif
+
+#ifndef FDCAN_TX_BUFFER31
+#define FDCAN_TX_BUFFER31 0
+#endif
+
 static const uint32_t CAN_ALL_TX_BUFFERS =
 FDCAN_TX_BUFFER0 | FDCAN_TX_BUFFER1 | FDCAN_TX_BUFFER2 | FDCAN_TX_BUFFER3 | FDCAN_TX_BUFFER4 | FDCAN_TX_BUFFER5 |
 FDCAN_TX_BUFFER6 | FDCAN_TX_BUFFER7 | FDCAN_TX_BUFFER8 | FDCAN_TX_BUFFER9 | FDCAN_TX_BUFFER10 | FDCAN_TX_BUFFER11 |
