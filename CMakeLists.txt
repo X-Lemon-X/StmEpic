@@ -22,6 +22,10 @@ option(STMEPIC_MOVEMENT "Enable Movement controler module" ON)
 option(STMEPIC_SENSORS "Enable Sensors module" ON)
 option(STMEPIC_DFU_PROGRAMING "Enable Usb programing module" ON)
 option(STMEPIC_MEMORY "Enable Memory module" ON)
+option(STMEPIC_MIN_VERSION_REQUIRED_ENABLED "Enable minimum version required" OFF)
+if(NOT DEFINED STMEPIC_MIN_VERSION_REQUIRED)
+  set(STMEPIC_MIN_VERSION_REQUIRED 0.1)
+endif()
 
 
 ############################################
@@ -134,10 +138,10 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake)
 
 get_version_from_file(STMEPIC_VERSION_MAJOR STMEPIC_VERSION_MINOR)
 get_git_commit_info(STMEPIC_HEAD_VERSION)
-message(STATUS "StmEpic version (commit): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
-message(STATUS "StmEpic version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
+message(STATUS "StmEpic | Version (main): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
+message(STATUS "StmEpic | Version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
 update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
-
+check_min_version_required()
 
 
 
