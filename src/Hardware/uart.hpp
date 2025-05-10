@@ -3,6 +3,19 @@
 #include "stmepic.hpp"
 #include "hardware.hpp"
 
+
+/**
+ * @defgroup hardware Hardware
+ * @{
+ */
+
+/**
+ * @defgroup uart_hardware_devices UART
+ * @brief UART driver
+ * @{
+ */
+
+
 namespace stmepic {
 
 /**

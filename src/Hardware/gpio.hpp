@@ -4,6 +4,18 @@
 
 
 /**
+ * @defgroup hardware Hardware
+ * @{
+ */
+
+/**
+ * @defgroup gpio_hardware_devices GPIO
+ * @brief GPIO driver
+ * @{
+ */
+
+
+/**
  * @file gpio.hpp
  * @brief Gpio pin definitions for quicker implementation and easy passing to other structures.
  */

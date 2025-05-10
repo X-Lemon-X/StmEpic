@@ -3,6 +3,18 @@
 #include "stmepic.hpp"
 #include "hardware.hpp"
 
+
+/**
+ * @defgroup hardwareHardware
+ * @{
+ */
+
+/**
+ * @defgroup i2c_hardware_devices I2C
+ * @brief I2C driver
+ * @{
+ */
+
 namespace stmepic {
 
 /**

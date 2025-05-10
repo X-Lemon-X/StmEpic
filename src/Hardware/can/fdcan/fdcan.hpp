@@ -8,6 +8,17 @@
 
 
 /**
+ * @defgroup hardware Hardware
+ * @{
+ */
+
+/**
+ * @defgroup fdcan_hardware FDCAN
+ * @brief FDCAN driver FDCAN and CAN 2.0A 2.0B
+ * @{
+ */
+
+/**
  * @file fdcan.hpp
  * @brief FDCAN interface wrapper class that allow to do handle the FDCAN interface with ease. By adding
  * callbacks for specific frame ids. with nice rx and tx tasks that handle the traffic in not blocking mode.

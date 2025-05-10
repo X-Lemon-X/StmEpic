@@ -36,6 +36,7 @@ add_subdirectory(src/Filters)
 add_subdirectory(src/Inc)
 add_subdirectory(src/Device)
 add_subdirectory(src/Algorithm)
+add_subdirectory(src/Hardware)
 
 
 ############################################

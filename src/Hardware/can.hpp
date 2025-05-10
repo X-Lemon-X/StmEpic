@@ -8,6 +8,12 @@
 
 
 /**
+ * @defgroup hardware Hardware
+ * @{
+ */
+
+
+/**
  * @file can.hpp
  * @brief CAN interface wrapper that alow to do handle the CAN interface with ease to use callbacks. By adding
  * callbacks for specific frame ids. with nice rx and tx tasks that handle the traffic in the background.
