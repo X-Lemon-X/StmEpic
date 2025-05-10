@@ -132,12 +132,13 @@ enable_language(CXX C ASM)
 # SET THE VERSION
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake)
 
-get_version_from_file(STMEPIC_VERSION)
+get_version_from_file(STMEPIC_VERSION_MAJOR STMEPIC_VERSION_MINOR)
+get_git_commit_info(STMEPIC_HEAD_VERSION)
+message(STATUS "StmEpic version (commit): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
+message(STATUS "StmEpic version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
+update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
 
-get_git_commit_info(STMEPIC_COMMIT_NUMBER STMEPIC_COMMIT_HASH)
-message(STATUS "StmEpic version: ${STMEPIC_VERSION}")
-message(STATUS "StmEpic commit number: ${STMEPIC_COMMIT_NUMBER}")
-message(STATUS "StmEpic commit hash: ${STMEPIC_COMMIT_HASH}")
+
 
 
 ############################################
