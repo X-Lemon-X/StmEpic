@@ -5,7 +5,7 @@
 
 
 /**
- * @defgroup hardwareHardware
+ * @defgroup hardware Hardware
  * @{
  */
 
