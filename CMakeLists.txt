@@ -127,6 +127,19 @@ set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS}  -u_printf_float -Wreturn-type
 
 enable_language(CXX C ASM)
 
+
+#############################################
+# SET THE VERSION
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake)
+
+get_version_from_file(STMEPIC_VERSION)
+
+get_git_commit_info(STMEPIC_COMMIT_NUMBER STMEPIC_COMMIT_HASH)
+message(STATUS "StmEpic version: ${STMEPIC_VERSION}")
+message(STATUS "StmEpic commit number: ${STMEPIC_COMMIT_NUMBER}")
+message(STATUS "StmEpic commit hash: ${STMEPIC_COMMIT_HASH}")
+
+
 ############################################
 # DOCUMENTATION GENERATION
 if(STMEPIC_GENERATE_DOCS)
