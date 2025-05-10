@@ -46,3 +46,7 @@ Disclaimer: The library will most likely work with other STM32 series, but it wa
 - **STM32F4**
 - **STM32H7** (in progress)
 - **STM32U5** (in progress)
+
+## Repository can be found in GitHub
+
+- [StmEpic](https://github.com/X-Lemon-X/StmEpic)
