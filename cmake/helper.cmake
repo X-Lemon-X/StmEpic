@@ -34,8 +34,8 @@ function(update_version_files major_version minor_version)
 
   if((major_version GREATER current_major) OR
      (major_version EQUAL current_major AND minor_version GREATER current_minor))
-    file(WRITE "${CMAKE_CURRENT_LIST_DIR}/cmake/version_major.txt" "${major_version}")
-    file(WRITE "${CMAKE_CURRENT_LIST_DIR}/cmake/version_minor.txt" "${minor_version}")
+    file(WRITE "${CMAKE_CURRENT_LIST_DIR}/version_major.txt" "${major_version}")
+    file(WRITE "${CMAKE_CURRENT_LIST_DIR}/version_minor.txt" "${minor_version}")
     # message(STATUS "StmEpic | Version files updated to ${major_version}.${minor_version}")
     replace_project_number("${CMAKE_CURRENT_LIST_DIR}/Doxyfile" "${major_version}.${minor_version}")
   endif()
