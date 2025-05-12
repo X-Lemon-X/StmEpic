@@ -13,7 +13,14 @@
  */
 
 /**
- * @defgroup Movement_Controler Controlers
+ * @defgroup Movement_Controller Controllers
+ * @{
+ */
+
+
+/**
+ * @defgroup Linear_Movement_Controller Linear controller
+ * @brief Linear controller for position control.
  * @{
  */
 

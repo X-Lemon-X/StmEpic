@@ -22,6 +22,10 @@ option(STMEPIC_MOVEMENT "Enable Movement controler module" ON)
 option(STMEPIC_SENSORS "Enable Sensors module" ON)
 option(STMEPIC_DFU_PROGRAMING "Enable Usb programing module" ON)
 option(STMEPIC_MEMORY "Enable Memory module" ON)
+option(STMEPIC_MIN_VERSION_REQUIRED_ENABLED "Enable minimum version required" OFF)
+if(NOT DEFINED STMEPIC_MIN_VERSION_REQUIRED)
+  set(STMEPIC_MIN_VERSION_REQUIRED 0.1)
+endif()
 
 
 ############################################
@@ -32,6 +36,7 @@ add_subdirectory(src/Filters)
 add_subdirectory(src/Inc)
 add_subdirectory(src/Device)
 add_subdirectory(src/Algorithm)
+add_subdirectory(src/Hardware)
 
 
 ############################################
@@ -109,6 +114,7 @@ endif()
 ## LINK ALL THE STMEPIC MODULES
 target_link_libraries(stmepic INTERFACE ${LIBRARIES_INCLUDED})
 
+
 ############################################
 ## C++ compiler flags
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" PARENT_SCOPE)
@@ -116,19 +122,37 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -u_printf_float -Wreturn-type -ffunction-sec
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -u_printf_float -Wreturn-type -ffunction-sections -fdata-sections -fno-exceptions " PARENT_SCOPE)
 
-# aditional linker flags
-set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type -print-memory-usage" PARENT_SCOPE)
+# additional linker flags
 
-set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS}  -u_printf_float -Wreturn-type -Wl,--gc-sections" PARENT_SCOPE)
+set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type -print-memory-usage -lrdimon --specs=rdimon.specs" PARENT_SCOPE)
+# set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} ")
+
+
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS}  -u_printf_float -Wreturn-type -Wl,--gc-sections -lrdimon --specs=rdimon.specs" PARENT_SCOPE)
 
 enable_language(CXX C ASM)
+
+
+#############################################
+# SET THE VERSION
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake)
+
+
+# get_version_from_file(STMEPIC_VERSION_MAJOR STMEPIC_VERSION_MINOR)
+# get_git_commit_info(STMEPIC_HEAD_VERSION)
+# message(STATUS "StmEpic | Version (main): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
+# message(STATUS "StmEpic | Version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
+# update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
+# check_min_version_required()
+
+
 
 ############################################
 # DOCUMENTATION GENERATION
 if(STMEPIC_GENERATE_DOCS)
   find_package(Doxygen)
   if (DOXYGEN_FOUND)
-    message("Doxygen build started in: ${CMAKE_CURRENT_SOURCE_DIR}")
+    message("Doxygen build started in: ${+}")
     add_custom_target( doc_doxygen ALL
       COMMAND ${DOXYGEN_EXECUTABLE}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -139,3 +163,17 @@ if(STMEPIC_GENERATE_DOCS)
     message("Doxygen need to be installed to generate the doxygen documentation")
   endif (DOXYGEN_FOUND)
 endif()
+
+
+############################################
+# POST BUILD FUNCTION
+
+add_custom_target(stmepic_target_post
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake
+  COMMENT "Running post build function"
+)
+
+
+add_dependencies(${UPPER_PROJECT_NAME} stmepic_target_post)
+
+  

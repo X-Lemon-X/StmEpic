@@ -4,6 +4,13 @@
 #include "hardware.hpp"
 #include "device.hpp"
 #include <unordered_map>
+#include <cstring>
+
+
+/**
+ * @defgroup hardware Hardware
+ * @{
+ */
 
 
 /**
@@ -19,6 +26,7 @@ class CanBase;
 struct CanDataFrame {
 public:
   CanDataFrame();
+
   /// @brief frame_id of the message
   uint32_t frame_id;
 
@@ -28,11 +36,29 @@ public:
   /// @brief extended id flag
   bool extended_id;
 
+  /// @brief type of CAN communication
+  /// @note true = CAN FD, false = CAN2.0
+  bool fdcan_frame;
+
   /// @brief data of the message max 64 bits
-  uint8_t data[8];
+  uint8_t data[64];
 
   /// @brief size of the data
   uint8_t data_size;
+
+  std::string to_string() const {
+    std::string str = "\"can\":{ \"id\": \"" + std::to_string(frame_id) + "\", ";
+    str += "\"remote_request\": \"" + std::to_string(remote_request) + "\", ";
+    str += "\"extended_id\": \"" + std::to_string(extended_id) + "\", ";
+    str += "\"fdcan_frame\": \"" + std::to_string(fdcan_frame) + "\", ";
+    str += "\"data_size\": \"" + std::to_string(data_size) + "\", ";
+    str += "\"data\": [";
+    for(int i = 0; i < data_size; i++) {
+      str += std::to_string(data[i]) + " ";
+    }
+    str += "]}";
+    return str;
+  }
 };
 
 

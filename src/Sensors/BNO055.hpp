@@ -10,6 +10,31 @@
 using namespace stmepic;
 using namespace stmepic::algorithm;
 
+/**
+ * @file BNO055.hpp
+ * @brief  BNO055 IMU sensor class definition.
+ *
+ */
+
+/**
+ * @defgroup Sensors
+ * @brief Functions related to different sensors.
+ * @{
+ */
+
+
+/**
+ * @defgroup imu_sensors IMU
+ * @brief Functions related to different IMU sensors.
+ * @{
+ */
+
+/**
+ * @defgroup BNO055_imu_sensors BNO055
+ * @brief BNO055 IMU sensors.
+ * @{
+ */
+
 namespace stmepic::sensors::imu::internal {
 
 static const uint8_t BNO055_I2C_ADDRESS        = 0x29; // 0x28 << 1
@@ -177,25 +202,42 @@ struct BNO055_Data_t {
   Vector4d_t<int16_t> qua;
 };
 
+/**
+ * @brief BNO055 IMU sensor
+ * BNO055 is a 9-axis IMU sensor with a built-in microcontroller that can perform sensor fusion
+ */
 class BNO055 : public stmepic::DeviceThreadedBase {
 public:
-  // w argumentach wywoałania 2 gpio =nullptr któr moga być użyte ale nie musza i są jako sharedptr
-  //  Removed duplicate declaration of get_data()
+  /**
+   * @brief Make new BNO055 IMU sensor object
+   *
+   * @param hi2c the I2C handle that will be used to communicate with the BNO055 device
+   * @param nreset the reset pin of the BNO055 device
+   * @param interrupt the interrupt pin of the BNO055 device
+   * @return Brand new BNO055 object
+   */
   static Result<std::shared_ptr<BNO055>>
-  Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
+  Make(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
+
   Result<bool> device_is_connected() override;
   bool device_ok() override;
   Status device_get_status() override;
   Status device_reset() override;
   Status device_start() override;
   Status device_stop() override;
+
+  /**
+   * @brief Get the last read data from the BNO055 sensor
+   * @return This function will return the last read data from the BNO055 sensor along with the status of the last operation
+   */
   Result<BNO055_Data_t> get_data();
 
 
 private:
-  BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset = nullptr, std::shared_ptr<GpioPin> interrupt = nullptr);
+  BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
+
   Result<BNO055_Data_t> read_data();
   static void task_imu_before(SimpleTask &handler, void *arg);
   static void task_imu(SimpleTask &handler, void *arg);
@@ -207,13 +249,11 @@ private:
 
 
   Status device_init();
-  void gpio_handling();
 
   BNO055_Data_t imu_data;
   std::shared_ptr<I2C> hi2c;
-
-  std::shared_ptr<GpioPin> interrupt;
-  std::shared_ptr<GpioPin> nreset;
+  GpioPin *interrupt;
+  GpioPin *nreset;
 
   Status _device_status;
   Status reading_status;

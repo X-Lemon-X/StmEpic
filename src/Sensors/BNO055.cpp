@@ -7,16 +7,14 @@
 using namespace stmepic::sensors::imu;
 
 
-Result<std::shared_ptr<BNO055>>
-BNO055::Make(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt) {
-
+Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt) {
 
   if(hi2c == nullptr)
-    return Status::ExecutionError("I2C is not initialized");
+    return Status::ExecutionError("I2C is nullpointer");
   auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, nreset, interrupt));
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
-BNO055::BNO055(std::shared_ptr<I2C> hi2c, std::shared_ptr<GpioPin> nreset, std::shared_ptr<GpioPin> interrupt)
+BNO055::BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt)
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
   reading_status(Status::OK()) {
@@ -30,7 +28,6 @@ Status BNO055::device_get_status() {
 Status BNO055::device_stop() {
   if(nreset != nullptr)
     nreset->write(1);
-
   else {
     uint8_t reg = 0;
 
@@ -39,66 +36,15 @@ Status BNO055::device_stop() {
     reg |= (1 << 5);
     STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
 
-    vTaskDelay(650);
+    Ticker::get_instance().delay_nop(650);
   }
 }
 
 
 Status BNO055::device_start() {
   if(nreset != nullptr)
-    nreset->write(0);
-  return device_init();
-}
+    nreset->write(1);
 
-Status BNO055::device_reset() {
-
-  device_stop();
-  device_start();
-}
-
-Status BNO055::do_device_task_start() {
-  return DeviceThreadedBase::do_default_task_start(task_imu, task_imu_before, this);
-}
-
-Status BNO055::do_device_task_stop() {
-  return DeviceThreadedBase::do_default_task_stop();
-}
-
-void BNO055::task_imu_before(SimpleTask &handler, void *arg) {
-  (void)handler;
-  BNO055 *imu = static_cast<BNO055 *>(arg);
-  imu->device_init();
-}
-
-void BNO055::task_imu(SimpleTask &handler, void *arg) {
-  (void)handler;
-  BNO055 *imu = static_cast<BNO055 *>(arg);
-  imu->handle();
-}
-
-
-void BNO055::gpio_handling() {
-
-  vTaskDelay(1);
-}
-
-
-bool BNO055::device_ok() {
-  return _device_status.ok();
-}
-
-void BNO055::handle() {
-  auto maybe_data = read_data();
-  if(maybe_data.ok()) {
-    imu_data = maybe_data.valueOrDie();
-  } else if(maybe_data.status().status_code() == StatusCode::HalBusy) {
-    hi2c->hardware_reset();
-    vTaskDelay(10);
-  }
-  _device_status = maybe_data.status();
-}
-
-Status BNO055::device_init() {
   STMEPIC_RETURN_ON_ERROR(set_operation_mode(internal::BNO055_OPR_MODE_t::BNO055_OPR_MODE_CONFIGMODE));
   STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_1));
 
@@ -122,12 +68,53 @@ Status BNO055::device_init() {
 
   STMEPIC_RETURN_ON_ERROR(set_operation_mode(internal::BNO055_OPR_MODE_t::BNO055_OPR_MODE_NDOF));
 
-  vTaskDelay(50);
+  Ticker::get_instance().delay_nop(50);
 
   // reset();
   // nie wiaodmo co z tym zrobić i dlaczego tutaj jest, jeśli nie będzie działać to możliwe, że jednak jest potrzebny ale wtedy
 
   return Status::OK();
+}
+
+Status BNO055::device_reset() {
+  STMEPIC_RETURN_ON_ERROR(device_stop());
+  return device_start();
+}
+
+Status BNO055::do_device_task_start() {
+  return DeviceThreadedBase::do_default_task_start(task_imu, task_imu_before, this);
+}
+
+Status BNO055::do_device_task_stop() {
+  return DeviceThreadedBase::do_default_task_stop();
+}
+
+void BNO055::task_imu_before(SimpleTask &handler, void *arg) {
+  (void)handler;
+  BNO055 *imu = static_cast<BNO055 *>(arg);
+  imu->device_start();
+}
+
+void BNO055::task_imu(SimpleTask &handler, void *arg) {
+  (void)handler;
+  BNO055 *imu = static_cast<BNO055 *>(arg);
+  imu->handle();
+}
+
+
+bool BNO055::device_ok() {
+  return _device_status.ok();
+}
+
+void BNO055::handle() {
+  auto maybe_data = read_data();
+  if(maybe_data.ok()) {
+    imu_data = maybe_data.valueOrDie();
+  } else if(maybe_data.status().status_code() == StatusCode::HalBusy) {
+    hi2c->hardware_reset();
+    vTaskDelay(10);
+  }
+  _device_status = maybe_data.status();
 }
 
 Result<BNO055_Data_t> BNO055::read_data() {

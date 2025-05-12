@@ -11,8 +11,15 @@
  */
 
 /**
- * @defgroup Temperature_Sensors Temperature Sensors
+ * @defgroup Thermometers_Sensors Thermometers
  * @brief Functions related to temperature sensors.
+ * @{
+ */
+
+
+/**
+ * @defgroup  MCP9700AT_Thermometers_Sensors MCP9700AT
+ * @brief MCP9700AT  temperature sensor.
  * @{
  */
 
@@ -21,9 +28,9 @@ namespace stmepic::sensors::temperature {
 
 
 /**
- * @brief Get the temperature from the MCP9700AT sensor
- *
- * @return float the temperature in Celsius
+ * @brief  MCP9700AT temperature sensor
+ * MCP9700AT is a temperature sensor with a linear voltage output proportional to the temperature in Celsius.
+
  */
 
 class MCP9700AT {
@@ -33,6 +40,7 @@ class MCP9700AT {
 public:
   /// @brief Get the temperature from the MCP9700AT sensor
   /// @param sensor_voltage the voltage output from the sensor
+  /// @return the temperature in Celsius
   static float get_temperature(float sensor_voltage);
 };
 

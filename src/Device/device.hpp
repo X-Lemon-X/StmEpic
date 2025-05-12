@@ -14,7 +14,7 @@
 
 /**
  * @defgroup Devices
- * @brief Functions related to device control. From sensors to actuators.
+ * @brief Base classes for sensors to actuators.
  * Comes in two flavors, simple devices and devices that have it own self managed thread.
  * @{
  */

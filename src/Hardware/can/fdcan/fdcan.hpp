@@ -8,6 +8,17 @@
 
 
 /**
+ * @defgroup hardware Hardware
+ * @{
+ */
+
+/**
+ * @defgroup fdcan_hardware FDCAN
+ * @brief FDCAN driver FDCAN and CAN 2.0A 2.0B
+ * @{
+ */
+
+/**
  * @file fdcan.hpp
  * @brief FDCAN interface wrapper class that allow to do handle the FDCAN interface with ease. By adding
  * callbacks for specific frame ids. with nice rx and tx tasks that handle the traffic in not blocking mode.
@@ -15,12 +26,44 @@
 
 namespace stmepic {
 
+enum class FDCAN_FIFO {
+  FDCAN_FIFO0,
+  FDCAN_FIFO1,
+};
+
+/**
+ * @brief FDCAN filter configuration
+ * @note The filter is used to filter the FDCAN messages
+ * @param filters the filters that will be used to filter the FDCAN messages the vector size shoule not exceed
+ * the constraint of the FDCAN number of maximum filters.
+ * @param fifo_number the FIFO number that will be used to receive the FDCAN messages
+ * @param globalFilter_NonMatchingStd Defines how received messages with 11-bit IDs that do not match any
+ * element of the filter list are treated. This parameter can be a value of FDCAN_Non_Matching_Frames.
+ * @param globalFilter_NonMatchingExt Defines how received messages with 29-bit IDs that do not match any
+ * element of the filter list are treated. This parameter can be a value of FDCAN_Non_Matching_Frames.
+ * @param globalFilter_RejectRemoteStd Filter or reject all the remote 11-bit IDs frames. This parameter can
+ * be a value of FDCAN_Reject_Remote_Frames.
+ * @param globalFilter_RejectRemoteExt Filter or reject all the remote 29-bit IDs frames. This parameter can
+ * be a value of FDCAN_Reject_Remote_Frames.
+ */
+struct FDcanFilterConfig {
+  std::vector<FDCAN_FilterTypeDef> filters;
+  FDCAN_FIFO fifo_number;
+  uint32_t globalFilter_NonMatchingStd;
+  uint32_t globalFilter_NonMatchingExt;
+  uint32_t globalFilter_RejectRemoteStd;
+  uint32_t globalFilter_RejectRemoteExt;
+};
+
+
 /**
  * @brief Class for controlling the FDCAN interface
  * automatically by allowing to add callbacks for specific frame ids.
  * as well as writing to interface from any task in a non blocking / thread safe fashion.
+ *
+ * @note The FDCAN interface does not support the BUFFER mode only FIFO mode.
  */
-class FDCAN : public HardwareInterface {
+class FDCAN : public CanBase {
 
 public:
   ~FDCAN() override;
@@ -30,13 +73,13 @@ public:
    * @brief Make new FDCAN interface, the interface is added to the list of all FDCAN interfaces and will be automatically handled with other FDCAN interfaces
    *
    * @param hcan the FDCAN handle that will be used to communicate with the FDCAN device
-   * @param filter the filter that will be used to filter the FDCAN messages if
+   * @param filter the filter that will be used to filter the FDCAN messages
    * @param tx_led the TX led that will be used to indicate the TX activity
    * @param rx_led the RX led that will be used to indicate the RX activity
    * @return Result<std::shared_ptr<FDCAN>> will return AlreadyExists if the FDCAN interface was already initialized.
    */
   static Result<std::shared_ptr<FDCAN>>
-  Make(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &filter, GpioPin *tx_led = nullptr, GpioPin *rx_led = nullptr);
+  Make(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &filter, GpioPin *tx_led = nullptr, GpioPin *rx_led = nullptr);
 
   /**
    * @brief Reset the FDCAN interface
@@ -88,41 +131,45 @@ public:
    * @param hi2c the FDCAN handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
-  static void run_tx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan);
+  static void run_tx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs);
 
   /**
    * @brief Run the RX callbacks from the IT or DMA interrupt like HAL_CAN_RxFifoXMsgPendingCallback
    * @param hi2c the I2C handle that triggered the interrupt
    * @note This function runs over all I2C initialized interfaces
    */
-  static void run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan);
+  static void run_rx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes);
 
 private:
-  FDCAN(FDCAN_HandleTypeDef &hcan, const FDCAN_FilterTypeDef &filter, GpioPin *tx_led, GpioPin *rx_led);
+  FDCAN(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &filter, GpioPin *tx_led, GpioPin *rx_led);
   FDCAN(const FDCAN &)            = delete;
   FDCAN &operator=(const FDCAN &) = delete;
 
   bool is_initiated;
   FDCAN_HandleTypeDef *_hcan;
   uint32_t last_tx_mailbox;
+  FDCAN_FIFO fifo;
   uint32_t can_fifo;
-  FDCAN_FilterTypeDef filter;
+  FDcanFilterConfig filter;
   GpioPin *_gpio_tx_led;
   GpioPin *_gpio_rx_led;
   TaskHandle_t task_handle_tx;
   TaskHandle_t task_handle_rx;
   QueueHandle_t tx_queue_handle;
   QueueHandle_t rx_queue_handle;
+  bool fdcan_in_fd_mode;
+  bool fdcan_in_bitrate_switching_mode;
+
   std::unordered_map<uint32_t, internall::CanCallbackTask> callbacks;
   internall::CanCallbackTask default_callback_task_data;
   static std::vector<std::shared_ptr<FDCAN>> can_instances;
   static const uint32_t CAN_QUEUE_SIZE = 64;
 
   /// @brief Task for handling the TX traffic for specific FDCAN interface
-  void tx_callback(FDCAN_HandleTypeDef *hcan);
+  void tx_callback(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes);
 
   /// @brief Task for handling the RX traffic for specific FDCAN interface
-  void rx_callback(FDCAN_HandleTypeDef *hcan);
+  void rx_callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs);
 
   /// @brief task that handles the TX traffic
   static void task_tx(void *arg);

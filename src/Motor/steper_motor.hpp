@@ -18,6 +18,12 @@
  * @{
  */
 
+/**
+ * @defgroup SteperMotor_Motor SteperMotor
+ * @brief SteperMotor generic driver.
+ * @{
+ */
+
 namespace stmepic::motor {
 
 /**

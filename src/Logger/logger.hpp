@@ -76,10 +76,17 @@ public:
   Logger();
 
   /// @brief  Initiate the logger with transmit daat interface and log level.
-  /// @param level - log level
+  /// @param level - log level like DEBUG, INFO, WARNING, ERROR
   /// @param print_info if set to false the loger will simply print log messages with END_OF_LINE sign at the end.
-  /// If set to true then the message will be encapsulated as if it were json format with the message as it fields,
-  Status init(LOG_LEVEL level, bool print_info, transmit_data_func _transmi_function, std::string _version = "");
+  ///
+  /// If set to true then the message will be printed in json format with fields like: the message,
+  /// time stamp, function name, file name, software version, log level.
+  /// @param transmi_function - function pointer to the function that will be used to transmit the data for example if we wont to use UART or USB to print data
+  /// @param use_semihosting - if set to true the logger will use Semihosting to print data do the debugger console , No extra hadware is needed only the debugger.
+  /// if used with OpenOCD you have to add argument to enable it: "init; arm semihosting enable"
+  /// You can't use Semihosting on when using st-link-gdb server only OpenOCD.
+  Status
+  init(LOG_LEVEL level, bool print_info, transmit_data_func transmi_function, bool use_semihosting = false, std::string _version = "");
 
   /// @brief  log the ERROR message
   void error(std::string msg, const char *file = nullptr, const char *function_name = nullptr);
@@ -131,6 +138,7 @@ private:
   void transmit(std::string msg, std::string prefix, const char *file = nullptr, const char *function_name = nullptr);
   static std::string key_value_to_json(std::string key, std::string value);
   transmit_data_func transmit_function;
+  bool use_semihosting;
 };
 
 } // namespace stmepic

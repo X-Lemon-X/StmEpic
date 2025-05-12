@@ -8,6 +8,17 @@
 
 
 /**
+ * @defgroup hardware Hardware
+ * @{
+ */
+
+/**
+ * @defgroup can_hardware CAN
+ * @brief CAN driver CAN 2.0A 2.0B
+ * @{
+ */
+
+/**
  * @file can2.0.hpp
  * @brief CAN2.0 interface wrapper class that alow to do handle the CAN interface with ease. By adding
  * callbacks for specific frame ids. with nice rx and tx tasks that handle the traffic in not blocking mode.

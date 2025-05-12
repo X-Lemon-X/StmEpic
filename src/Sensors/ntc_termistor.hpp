@@ -4,7 +4,7 @@
 
 /**
  * @file ntc_termistors.hpp
- * @brief  NtcTermistors class definition for read temperature from NTC termistors.
+ * @brief  NtcTermistor class definition for read temperature from NTC termistors.
  */
 
 /**
@@ -14,8 +14,15 @@
  */
 
 /**
- * @defgroup Temperature_Sensors Temperature Sensors
+ * @defgroup Thermometers_Sensors Thermometers
  * @brief Functions related to temperature sensors.
+ * @{
+ */
+
+
+/**
+ * @defgroup NtcTermistor_imu_sensors Ntc Termistor
+ * @brief Generic Ntc Termistor.
  * @{
  */
 
@@ -25,16 +32,16 @@ namespace stmepic::sensors::temperature {
  * @brief Get the temperature from the NTC termistor
  * Like 10k or 100k or any other NTC termistor
  */
-class NtcTermistors {
+class NtcTermistor {
 public:
   /**
-   * @brief Construct a new NtcTermistors object
+   * @brief Construct a new NtcTermistor object
    * Vcc |------[R1]----------[NTC]--------------|| GND
    * The libarby expects that the NTC is termistor resistance is about the same as R1-resistor
    * @param termistor_supply_voltage the supply voltage of the termistor
    * @param termistor_divider_resistance the resistance of the divider Resistor R1
    */
-  NtcTermistors(float termistor_supply_voltage, float termistor_divider_resistance);
+  NtcTermistor(float termistor_supply_voltage, float termistor_divider_resistance);
   float get_temperature(float voltage_value);
 
 private:
