@@ -188,7 +188,7 @@ enum class StatusCode : char {
   // HAL and  Devices status codes.
   HalBusy        = 47,
   HalError       = 48,
-  DeviceDisbaled = 49,
+  DeviceDisabled = 49,
   Disconnected   = 50
 };
 
@@ -205,100 +205,115 @@ public:
 
   Status(HAL_StatusTypeDef status) : _message(nullptr) {
     switch(status) {
-    case HAL_OK: _status = StatusCode::OK; break;
-    case HAL_ERROR: _status = StatusCode::UnknownError; break;
-    case HAL_BUSY: _status = StatusCode::HalBusy; break;
-    case HAL_TIMEOUT: _status = StatusCode::TimeOut; break;
-    default: _status = StatusCode::UnknownError; break;
+    case HAL_OK:
+      _status         = StatusCode::OK;
+      _status_message = "OK";
+      break;
+    case HAL_ERROR:
+      _status         = StatusCode::UnknownError;
+      _status_message = "UnknownError|";
+      break;
+    case HAL_BUSY:
+      _status         = StatusCode::HalBusy;
+      _status_message = "HalBusy|";
+      break;
+    case HAL_TIMEOUT:
+      _status         = StatusCode::TimeOut;
+      _status_message = "TimeOut|";
+      break;
+    default:
+      _status         = StatusCode::UnknownError;
+      _status_message = "UnknownError|";
+      break;
     }
   }
 
   [[nodiscard]] static Status OK() {
-    return Status(StatusCode::OK, nullptr);
+    return Status(StatusCode::OK, nullptr, "OK");
   };
 
   [[nodiscard]] static Status OutOfMemory(const char *msg = nullptr) {
-    return Status(StatusCode::OutOfMemory, msg);
+    return Status(StatusCode::OutOfMemory, msg, "OutOfMemory|");
   };
 
   [[nodiscard]] static Status KeyError(const char *msg = nullptr) {
-    return Status(StatusCode::KeyError, msg);
+    return Status(StatusCode::KeyError, msg, "KeyError|");
   };
 
   [[nodiscard]] static Status TypeError(const char *msg = nullptr) {
-    return Status(StatusCode::TypeError, msg);
+    return Status(StatusCode::TypeError, msg, "TypeError|");
   };
 
   [[nodiscard]] static Status Invalid(const char *msg = nullptr) {
-    return Status(StatusCode::Invalid, msg);
+    return Status(StatusCode::Invalid, msg, "Invalid|");
   };
 
   [[nodiscard]] static Status IOError(const char *msg = nullptr) {
-    return Status(StatusCode::IOError, msg);
+    return Status(StatusCode::IOError, msg, "IOError|");
   };
 
   [[nodiscard]] static Status CapacityError(const char *msg = nullptr) {
-    return Status(StatusCode::CapacityError, msg);
+    return Status(StatusCode::CapacityError, msg, "CapacityError|");
   };
 
   [[nodiscard]] static Status IndexError(const char *msg = nullptr) {
-    return Status(StatusCode::IndexError, msg);
+    return Status(StatusCode::IndexError, msg, "IndexError|");
   };
 
   [[nodiscard]] static Status Cancelled(const char *msg = nullptr) {
-    return Status(StatusCode::Cancelled, msg);
+    return Status(StatusCode::Cancelled, msg, "Cancelled|");
   };
 
   [[nodiscard]] static Status UnknownError(const char *msg = nullptr) {
-    return Status(StatusCode::UnknownError, msg);
+    return Status(StatusCode::UnknownError, msg, "UnknownError|");
   };
 
   [[nodiscard]] static Status NotImplemented(const char *msg = nullptr) {
-    return Status(StatusCode::NotImplemented, msg);
+    return Status(StatusCode::NotImplemented, msg, "NotImplemented|");
   };
 
   [[nodiscard]] static Status SerializationError(const char *msg = nullptr) {
-    return Status(StatusCode::SerializationError, msg);
+    return Status(StatusCode::SerializationError, msg, "SerializationError|");
   };
 
   [[nodiscard]] static Status RError(const char *msg = nullptr) {
-    return Status(StatusCode::RError, msg);
+    return Status(StatusCode::RError, msg, "RError|");
   };
 
   [[nodiscard]] static Status CodeGenError(const char *msg = nullptr) {
-    return Status(StatusCode::CodeGenError, msg);
+    return Status(StatusCode::CodeGenError, msg, "CodeGenError|");
   };
 
   [[nodiscard]] static Status ExpressionValidationError(const char *msg = nullptr) {
-    return Status(StatusCode::ExpressionValidationError, msg);
+    return Status(StatusCode::ExpressionValidationError, msg, "ExpressionValidationError|");
   };
 
   [[nodiscard]] static Status ExecutionError(const char *msg = nullptr) {
-    return Status(StatusCode::ExecutionError, msg);
+    return Status(StatusCode::ExecutionError, msg, "ExecutionError|");
   };
 
   [[nodiscard]] static Status AlreadyExists(const char *msg = nullptr) {
-    return Status(StatusCode::AlreadyExists, msg);
+    return Status(StatusCode::AlreadyExists, msg, "AlreadyExists|");
   };
 
   [[nodiscard]] static Status TimeOut(const char *msg = nullptr) {
-    return Status(StatusCode::TimeOut, msg);
+    return Status(StatusCode::TimeOut, msg, "TimeOut|");
   };
 
   [[nodiscard]] static Status HalBusy(const char *msg = nullptr) {
-    return Status(StatusCode::HalBusy, msg);
+    return Status(StatusCode::HalBusy, msg, "HalBusy|");
   };
 
   [[nodiscard]] static Status HalError(const char *msg = nullptr) {
-    return Status(StatusCode::HalError, msg);
+    return Status(StatusCode::HalError, msg, "HalError|");
   };
 
-  [[nodiscard]] static Status DeviceDisbaled(const char *msg = nullptr) {
-    return Status(StatusCode::DeviceDisbaled, msg);
+  [[nodiscard]] static Status DeviceDisabled(const char *msg = nullptr) {
+    return Status(StatusCode::DeviceDisabled, msg, "DeviceDisabled|");
   };
 
   [[nodiscard]] static Status Disconnected(const char *msg = nullptr) {
-    return Status(StatusCode::Disconnected, msg);
+    return Status(StatusCode::Disconnected, msg, "Disconnected|");
   };
 
 
@@ -324,10 +339,10 @@ public:
 
   /// @brief get the message of the status
   [[nodiscard]] const std::string to_string() {
+    std::string status_message(_status_message);
     if(_message != nullptr)
-      return std::string(_message);
-    else
-      return "";
+      status_message += std::string(_message);
+    return status_message;
   };
 
   bool operator==(const Status &other) const {
@@ -339,9 +354,11 @@ public:
   }
 
 private:
-  Status(StatusCode status, const char *message) : _status(status), _message(message){};
+  Status(StatusCode status, const char *message, const char *status_message)
+  : _status(status), _message(message), _status_message(status_message){};
   StatusCode _status;
   const char *_message;
+  const char *_status_message;
 };
 
 /**
@@ -367,7 +384,7 @@ public:
 
   /// @brief Get the value of the result or weard error if the status is not OK.
   /// You should check if the status is ok before calling this function.
-  [[nodiscard]] auto valueOrDie() -> T & {
+  [[nodiscard]] T &valueOrDie() {
     return _value;
   }
 

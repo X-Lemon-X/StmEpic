@@ -137,12 +137,13 @@ enable_language(CXX C ASM)
 # SET THE VERSION
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake)
 
-get_version_from_file(STMEPIC_VERSION_MAJOR STMEPIC_VERSION_MINOR)
-get_git_commit_info(STMEPIC_HEAD_VERSION)
-message(STATUS "StmEpic | Version (main): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
-message(STATUS "StmEpic | Version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
-update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
-check_min_version_required()
+
+# get_version_from_file(STMEPIC_VERSION_MAJOR STMEPIC_VERSION_MINOR)
+# get_git_commit_info(STMEPIC_HEAD_VERSION)
+# message(STATUS "StmEpic | Version (main): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
+# message(STATUS "StmEpic | Version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
+# update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
+# check_min_version_required()
 
 
 
@@ -151,7 +152,7 @@ check_min_version_required()
 if(STMEPIC_GENERATE_DOCS)
   find_package(Doxygen)
   if (DOXYGEN_FOUND)
-    message("Doxygen build started in: ${CMAKE_CURRENT_SOURCE_DIR}")
+    message("Doxygen build started in: ${+}")
     add_custom_target( doc_doxygen ALL
       COMMAND ${DOXYGEN_EXECUTABLE}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -162,3 +163,17 @@ if(STMEPIC_GENERATE_DOCS)
     message("Doxygen need to be installed to generate the doxygen documentation")
   endif (DOXYGEN_FOUND)
 endif()
+
+
+############################################
+# POST BUILD FUNCTION
+
+add_custom_target(stmepic_target_post
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/helper.cmake
+  COMMENT "Running post build function"
+)
+
+
+add_dependencies(${UPPER_PROJECT_NAME} stmepic_target_post)
+
+  
