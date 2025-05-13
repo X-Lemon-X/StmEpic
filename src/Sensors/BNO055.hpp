@@ -37,156 +37,60 @@ using namespace stmepic::algorithm;
 
 namespace stmepic::sensors::imu::internal {
 
-static const uint8_t BNO055_I2C_ADDRESS        = 0x29; // 0x28 << 1
-static const uint8_t BNO055_REG_MAG_RADIUS_MSB = 0x6A;
-static const uint8_t BNO055_REG_MAG_RADIUS_LSB = 0x69;
-static const uint8_t BNO055_REG_ACC_RADIUS_MSB = 0x68;
-static const uint8_t BNO055_REG_ACC_RADIUS_LSB = 0x67;
+static const uint8_t BNO055_I2C_ADDRESS_1 = 0x28;
+static const uint8_t BNO055_I2C_ADDRESS_2 = 0x29;
 
-static const uint8_t BNO055_REG_GYR_OFFSET_Z_MSB = 0x66;
-static const uint8_t BNO055_REG_GYR_OFFSET_Z_LSB = 0x65;
-static const uint8_t BNO055_REG_GYR_OFFSET_Y_MSB = 0x64;
-static const uint8_t BNO055_REG_GYR_OFFSET_Y_LSB = 0x63;
-static const uint8_t BNO055_REG_GYR_OFFSET_X_MSB = 0x62;
-static const uint8_t BNO055_REG_GYR_OFFSET_X_LSB = 0x61;
+static const uint8_t BNO055_REG_CHIP_ID             = 0x00; // beginning reg for who am i
+static const uint8_t BNO055_CHIP_ID                 = 0xA0; // BNO055 chip id
+static const uint8_t BNO055_REG_PAGE                = 0x07; // select page reg
+static const uint8_t BNO055_PAGE_0                  = 0x00; // select page reg
+static const uint8_t BNO055_PAGE_1                  = 0x01; // select page reg
+static const uint8_t BNO055_REG_ACC_CHIP_ID         = 0x01; // reg for acc chip id
+static const uint8_t BNO055_REG_MAG_CHIP_ID         = 0x02; // reg for mag chip id
+static const uint8_t BNO055_REG_GYRO_CHIP_ID        = 0x03;
+static const uint8_t BNO055_ACC_ID                  = 0xFB;
+static const uint8_t BNO055_MAG_ID                  = 0x32;
+static const uint8_t BNO055_GYRO_ID                 = 0x0F;
+static const uint8_t BNO055_REG_ST_RESULT           = 0x36;
+static const uint8_t BNO055_REG_CALIB_STAT          = 0x35;
+static const uint8_t BNO055_REG_SYS_TRIGGER         = 0x3F;
+static const uint8_t BNO055_SYS_TRIGGER_RESET       = 0x20;
+static const uint8_t BNO055_SYS_TRIGGER_EXT_CRYSTAL = 0x80;
 
-static const uint8_t BNO055_REG_MAG_OFFSET_Z_MSB = 0x60;
-static const uint8_t BNO055_REG_MAG_OFFSET_Z_LSB = 0x5F;
-static const uint8_t BNO055_REG_MAG_OFFSET_Y_MSB = 0x5E;
-static const uint8_t BNO055_REG_MAG_OFFSET_Y_LSB = 0x5D;
-static const uint8_t BNO055_REG_MAG_OFFSET_X_MSB = 0x5C;
-static const uint8_t BNO055_REG_MAG_OFFSET_X_LSB = 0x5B;
-
-static const uint8_t BNO055_REG_ACC_OFFSET_Z_MSB = 0x5A;
-static const uint8_t BNO055_REG_ACC_OFFSET_Z_LSB = 0x59;
-static const uint8_t BNO055_REG_ACC_OFFSET_Y_MSB = 0x58;
-static const uint8_t BNO055_REG_ACC_OFFSET_Y_LSB = 0x57;
-static const uint8_t BNO055_REG_ACC_OFFSET_X_MSB = 0x56;
-static const uint8_t BNO055_REG_ACC_OFFSET_X_LSB = 0x55;
-
-static const uint8_t BNO055_REG_AXIS_MAP_SIGN   = 0x42;
-static const uint8_t BNO055_REG_AXIS_MAP_CONFIG = 0x41;
-static const uint8_t BNO055_REG_TEMP_SOURCE     = 0x40;
-static const uint8_t BNO055_REG_SYS_TRIGGER     = 0x3F;
-static const uint8_t BNO055_REG_PWR_MODE        = 0x3E;
+// operation mode config
 static const uint8_t BNO055_REG_OPR_MODE        = 0x3D;
-static const uint8_t BNO055_REG_UNIT_SEL        = 0x3B;
-static const uint8_t BNO055_REG_SYS_ERR         = 0x3A;
-static const uint8_t BNO055_REG_SYS_STATUS      = 0x39;
-static const uint8_t BNO055_REG_SYS_CLK_STATUS  = 0x38;
-static const uint8_t BNO055_REG_INT_STA         = 0x37;
-static const uint8_t BNO055_REG_ST_RESULT       = 0x36;
-static const uint8_t BNO055_REG_CALIB_STAT      = 0x35;
+static const uint8_t BNO055_OPR_MODE_NDOF       = 0x0C;
+static const uint8_t BNO055_OPR_MODE_CONFIGMODE = 0x0;
 
-static const uint8_t BNO055_REG_TEMP = 0x34;
 
-static const uint8_t BNO055_REG_GRV_DATA_Z_MSB = 0x33;
-static const uint8_t BNO055_REG_GRV_DATA_Z_LSB = 0x32;
-static const uint8_t BNO055_REG_GRV_DATA_Y_MSB = 0x31;
-static const uint8_t BNO055_REG_GRV_DATA_Y_LSB = 0x30;
-static const uint8_t BNO055_REG_GRV_DATA_X_MSB = 0x2F;
-static const uint8_t BNO055_REG_GRV_DATA_X_LSB = 0x2E;
+static const uint8_t BNO055_REG_UNIT_SEL = 0x3B;
 
-static const uint8_t BNO055_REG_LIA_DATA_Z_MSB = 0x2D;
-static const uint8_t BNO055_REG_LIA_DATA_Z_LSB = 0x2C;
-static const uint8_t BNO055_REG_LIA_DATA_Y_MSB = 0x2B;
-static const uint8_t BNO055_REG_LIA_DATA_Y_LSB = 0x2A;
-static const uint8_t BNO055_REG_LIA_DATA_X_MSB = 0x29;
-static const uint8_t BNO055_REG_LIA_DATA_X_LSB = 0x28;
+// acc m/s^2, gyro rad/s, mag uT, euler rad, temp C,
+// Data format: Windows
+static const uint8_t BNO055_UNIT_SEL_ORI_And_Win_WIN = 0x80;
+static const uint8_t BNO055_UNIT_SEL_TEMP_Unit_C     = 0x10;
+static const uint8_t BNO055_UNIT_SEL_EUL_Unit_Rad    = 0x04;
+static const uint8_t BNO055_UNIT_SEL_GYR_Unit_RPS    = 0x02;
+static const uint8_t BNO055_UNIT_SEL_ACC_Unit_MG     = 0x01;
 
-static const uint8_t BNO055_REG_QUA_DATA_Z_MSB = 0x27;
-static const uint8_t BNO055_REG_QUA_DATA_Z_LSB = 0x26;
-static const uint8_t BNO055_REG_QUA_DATA_Y_MSB = 0x25;
-static const uint8_t BNO055_REG_QUA_DATA_Y_LSB = 0x24;
-static const uint8_t BNO055_REG_QUA_DATA_X_MSB = 0x23;
-static const uint8_t BNO055_REG_QUA_DATA_X_LSB = 0x22;
-static const uint8_t BNO055_REG_QUA_DATA_W_MSB = 0x21;
-static const uint8_t BNO055_REG_QUA_DATA_W_LSB = 0x20;
+// beginning reg for acceleration  an other data that can be read
+static const uint8_t BNO055_REG_ACC_DATA_BEGIN  = 0x08;
+static const uint8_t BNO055_REG_ACC_DATA_LENGTH = 45; // length of acceleration data
 
-static const uint8_t BNO055_REG_EUL_PITCH_MSB   = 0x1F;
-static const uint8_t BNO055_REG_EUL_PITCH_LSB   = 0x1E;
-static const uint8_t BNO055_REG_EUL_ROLL_MSB    = 0x1D;
-static const uint8_t BNO055_REG_EUL_ROLL_LSB    = 0x1C;
-static const uint8_t BNO055_REG_EUL_HEADING_MSB = 0x1B;
-static const uint8_t BNO055_REG_EUL_HEADING_LSB = 0x1A;
 
-static const uint8_t BNO055_REG_GYR_DATA_Z_MSB = 0x19;
-static const uint8_t BNO055_REG_GYR_DATA_Z_LSB = 0x18;
-static const uint8_t BNO055_REG_GYR_DATA_Y_MSB = 0x17;
-static const uint8_t BNO055_REG_GYR_DATA_Y_LSB = 0x16;
-static const uint8_t BNO055_REG_GYR_DATA_X_MSB = 0x15;
-static const uint8_t BNO055_REG_GYR_DATA_X_LSB = 0x14;
+static const uint8_t BNO055_REG_CALIBRATION_DATA    = 0x43;
+static const uint8_t BNO055_CALIBRATION_DATA_LENGTH = 28;
 
-static const uint8_t BNO055_REG_MAG_DATA_Z_MSB = 0x13;
-static const uint8_t BNO055_REG_MAG_DATA_Z_LSB = 0x12;
-static const uint8_t BNO055_REG_MAG_DATA_Y_MSB = 0x11;
-static const uint8_t BNO055_REG_MAG_DATA_Y_LSB = 0x10;
-static const uint8_t BNO055_REG_MAG_DATA_X_MSB = 0x0F;
-static const uint8_t BNO055_REG_MAG_DATA_X_LSB = 0x0E;
 
-static const uint8_t BNO055_REG_ACC_DATA_Z_MSB = 0x0D;
-static const uint8_t BNO055_REG_ACC_DATA_Z_LSB = 0x0C;
-static const uint8_t BNO055_REG_ACC_DATA_Y_MSB = 0x0B;
-static const uint8_t BNO055_REG_ACC_DATA_Y_LSB = 0x0A;
-static const uint8_t BNO055_REG_ACC_DATA_X_MSB = 0x09;
-static const uint8_t BNO055_REG_ACC_DATA_X_LSB = 0x08;
-
-static const uint8_t BNO055_REG_PAGE_ID       = 0x07;
-static const uint8_t BNO055_REG_BL_REV_ID     = 0x06;
-static const uint8_t BNO055_REG_SW_REV_ID_MSB = 0x05;
-static const uint8_t BNO055_REG_SW_REV_ID_LSB = 0x04;
-static const uint8_t BNO055_REG_GYR_ID        = 0x03;
-static const uint8_t BNO055_REG_MAG_ID        = 0x02;
-static const uint8_t BNO055_REG_ACC_ID        = 0x01;
-static const uint8_t BNO055_REG_CHIP_ID       = 0x00;
-
-static const uint8_t BNO055_REG_GYR_AM_SET     = 0x1F;
-static const uint8_t BNO055_REG_GYR_AM_THRES   = 0x1E;
-static const uint8_t BNO055_REG_GYR_DUR_Z      = 0x1D;
-static const uint8_t BNO055_REG_GYR_HR_Z_SET   = 0x1C;
-static const uint8_t BNO055_REG_GYR_DUR_Y      = 0x1B;
-static const uint8_t BNO055_REG_GYR_HR_Y_SET   = 0x1A;
-static const uint8_t BNO055_REG_GYR_DUR_X      = 0x19;
-static const uint8_t BNO055_REG_GYR_HR_X_SET   = 0x18;
-static const uint8_t BNO055_REG_GYR_INT_SETING = 0x17;
-
-static const uint8_t BNO055_REG_ACC_NM_SET       = 0x16;
-static const uint8_t BNO055_REG_ACC_NM_THRE      = 0x15;
-static const uint8_t BNO055_REG_ACC_HG_THRES     = 0x14;
-static const uint8_t BNO055_REG_ACC_HG_DURATION  = 0x13;
-static const uint8_t BNO055_REG_ACC_INT_SETTINGS = 0x12;
-static const uint8_t BNO055_REG_ACC_AM_THRES     = 0x11;
-
-static const uint8_t BNO055_REG_INT_EN  = 0x10;
-static const uint8_t BNO055_REG_INT_MSK = 0x0F;
-
-static const uint8_t BNO055_REG_GYR_SLEEP_CONFIG = 0x0D;
-static const uint8_t BNO055_REG_ACC_SLEEP_CONFIG = 0x0C;
-
-static const uint8_t BNO055_REG_GYR_CONFIG_1 = 0x0B;
-static const uint8_t BNO055_REG_GYR_CONFIG_0 = 0x0A;
-static const uint8_t BNO055_REG_MAG_CONFIG   = 0x09;
-static const uint8_t BNO055_REG_ACC_CONFIG   = 0x08;
-
-enum class BNO055_PWR_MODE_t { BNO055_PWR_MODE_NORMAL, BNO055_PWR_MODE_LOW_POWER, BNO055_PWR_MODE_SUSPEND };
-
-enum class BNO055_OPR_MODE_t {
-  BNO055_OPR_MODE_CONFIGMODE,
-  BNO055_OPR_MODE_ACCONLY,
-  BNO055_OPR_MODE_MAGONLY,
-  BNO055_OPR_MODE_GYROONLY,
-  BNO055_OPR_MODE_ACCMAG,
-  BNO055_OPR_MODE_ACCGYRO,
-  BNO055_OPR_MODE_MAGGYRO,
-  BNO055_OPR_MODE_AMG,
-  BNO055_OPR_MODE_IMU,
-  BNO055_OPR_MODE_COMPASS,
-  BNO055_OPR_MODE_M4G,
-  BNO055_OPR_MODE_NDOF_FMC_OFF,
-  BNO055_OPR_MODE_NDOF
+/// @brief BNO055 calibration reg starting with SIC_MATRIX_LSB0
+/// calibration data consist of SIC_MATRIX and Offset of: Accelerometer, Magnetometer and Gyroscope.
+/// and Radius of: Accelerometerm and Magnetometer.
+struct BNO055_Calibration_Data_t {
+  bool calibrated;
+  uint8_t data[BNO055_CALIBRATION_DATA_LENGTH];
 };
 
-enum class BNO055_PAGE_t { BNO055_PAGE_0, BNO055_PAGE_1 };
+
 } // namespace stmepic::sensors::imu::internal
 
 namespace stmepic::sensors::imu {
@@ -216,8 +120,10 @@ public:
    * @param interrupt the interrupt pin of the BNO055 device
    * @return Brand new BNO055 object
    */
-  static Result<std::shared_ptr<BNO055>>
-  Make(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
+  static Result<std::shared_ptr<BNO055>> Make(std::shared_ptr<I2C> hi2c,
+                                              uint8_t address    = internal::BNO055_I2C_ADDRESS_1,
+                                              GpioPin *nreset    = nullptr,
+                                              GpioPin *interrupt = nullptr);
 
   Result<bool> device_is_connected() override;
   bool device_ok() override;
@@ -234,7 +140,7 @@ public:
 
 
 private:
-  BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
+  BNO055(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
 
@@ -242,10 +148,12 @@ private:
   static void task_imu_before(SimpleTask &handler, void *arg);
   static void task_imu(SimpleTask &handler, void *arg);
   void handle();
-  Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);
-  Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
-  Status set_page(internal::BNO055_PAGE_t page);
-  void setPage(internal::BNO055_PAGE_t page);
+  // Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);
+  // Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
+  Status set_page(uint8_t page);
+
+
+  Status get_calibration();
 
 
   Status device_init();
@@ -255,6 +163,7 @@ private:
   GpioPin *interrupt;
   GpioPin *nreset;
 
+  uint8_t address;
   Status _device_status;
   Status reading_status;
 };

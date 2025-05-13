@@ -10,4 +10,5 @@ target_sources(${UPPER_PROJECT_NAME} PRIVATE
   MCP9700AT.cpp
   BNO055.cpp
   BMP280.cpp
+  ICM20948.cpp
 )

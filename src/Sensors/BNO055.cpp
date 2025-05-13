@@ -3,21 +3,27 @@
 #include "device.hpp"
 #include "gpio.hpp"
 #include "stmepic.hpp"
+#include "vectors3d.hpp"
+#include "i2c.hpp"
+#include <memory>
+#include <cstring>
+#include <vector>
 
 using namespace stmepic::sensors::imu;
+using namespace stmepic::sensors::imu::internal;
 
 
-Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt) {
+Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *nreset, GpioPin *interrupt) {
 
   if(hi2c == nullptr)
     return Status::ExecutionError("I2C is nullpointer");
-  auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, nreset, interrupt));
+  auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, address, nreset, interrupt));
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
-BNO055::BNO055(std::shared_ptr<I2C> hi2c, GpioPin *nreset, GpioPin *interrupt)
+BNO055::BNO055(std::shared_ptr<I2C> hi2c, uint8_t _address, GpioPin *nreset, GpioPin *interrupt)
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
-  reading_status(Status::OK()) {
+  reading_status(Status::OK()), address(_address) {
 }
 
 Status BNO055::device_get_status() {
@@ -31,11 +37,9 @@ Status BNO055::device_stop() {
   else {
     uint8_t reg = 0;
 
-    set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0);
-    STMEPIC_RETURN_ON_ERROR(hi2c->read(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
-    reg |= (1 << 5);
-    STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_SYS_TRIGGER, &reg, 1));
-
+    STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
+    reg |= BNO055_SYS_TRIGGER_RESET;
+    STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
     Ticker::get_instance().delay_nop(650);
   }
 }
@@ -45,34 +49,38 @@ Status BNO055::device_start() {
   if(nreset != nullptr)
     nreset->write(1);
 
-  STMEPIC_RETURN_ON_ERROR(set_operation_mode(internal::BNO055_OPR_MODE_t::BNO055_OPR_MODE_CONFIGMODE));
-  STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_1));
+  STMEPIC_RETURN_ON_ERROR(hi2c->is_device_ready(address, 1, 500));
+  STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
+  uint8_t data[4] = {};
+  STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_CHIP_ID, data, 4));
+  bool correct_chip = data[0] == internal::BNO055_CHIP_ID;
+  correct_chip &= data[1] == internal::BNO055_ACC_ID;
+  correct_chip &= data[2] == internal::BNO055_MAG_ID;
+  correct_chip &= data[3] == internal::BNO055_GYRO_ID;
+  if(!correct_chip) {
+    _device_status = Status::Disconnected("BNO055 is not recognized");
+    return _device_status;
+  }
 
-  uint8_t acc_config = 0x02;
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_ACC_SLEEP_CONFIG, &acc_config, 1));
+  // we set the use of external crystal and reset the device
+  uint8_t reg;
+  reg = BNO055_SYS_TRIGGER_RESET | BNO055_SYS_TRIGGER_EXT_CRYSTAL;
+  STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
+  Ticker::get_instance().delay_nop(650);
 
-  // dla każdego tak zrobić
-  uint8_t mag_config = 0x0D;
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_MAG_CONFIG, &mag_config, 1));
-  uint8_t gyr_config_0 = 0x0B;
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_GYR_CONFIG_0, &gyr_config_0, 1));
-  uint8_t gyr_config_1 = 0x00;
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_GYR_CONFIG_1, &gyr_config_1, 1));
+  // set the units to some normal ones
+  reg = BNO055_UNIT_SEL_TEMP_Unit_C | BNO055_UNIT_SEL_EUL_Unit_Rad | BNO055_UNIT_SEL_GYR_Unit_RPS;
+  STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_UNIT_SEL, &reg, 1));
 
-  STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
+  // set the operation mode to Fusion NDOF
+  reg = BNO055_OPR_MODE_NDOF;
+  STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
 
-  uint8_t unit_sel = 0x06;
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_UNIT_SEL, &unit_sel, 1));
-  uint8_t temp_source = 0x00;
-  STMEPIC_RETURN_ON_ERROR(hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_TEMP_SOURCE, &temp_source, 1));
+  // wait for the device to be ready
+  Ticker::get_instance().delay_nop(25);
 
-  STMEPIC_RETURN_ON_ERROR(set_operation_mode(internal::BNO055_OPR_MODE_t::BNO055_OPR_MODE_NDOF));
 
-  Ticker::get_instance().delay_nop(50);
-
-  // reset();
-  // nie wiaodmo co z tym zrobić i dlaczego tutaj jest, jeśli nie będzie działać to możliwe, że jednak jest potrzebny ale wtedy
-
+  // at this point the imu should be ready to use and be in NDOF mode ready to read data from it
   return Status::OK();
 }
 
@@ -120,8 +128,7 @@ void BNO055::handle() {
 Result<BNO055_Data_t> BNO055::read_data() {
   uint8_t regs[45] = { 0 };
 
-  STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_TEMP, regs, 45).status());
+  STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_ACC_DATA_BEGIN, regs, BNO055_REG_ACC_DATA_LENGTH));
 
   BNO055_Data_t data = {};
 
@@ -167,16 +174,16 @@ Result<bool> BNO055::device_is_connected() {
   return Result<bool>::OK(true);
 }
 
-Status BNO055::set_page(internal::BNO055_PAGE_t page) {
-  return hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_PAGE_ID, (uint8_t *)&page, 1);
+Status BNO055::set_page(uint8_t page) {
+  return hi2c->write(address, internal::BNO055_REG_PAGE, (uint8_t *)&page, 1);
 }
 
-Status BNO055::set_operation_mode(internal::BNO055_OPR_MODE_t mode) {
-  STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
-  return hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_OPR_MODE, (uint8_t *)&mode, 1);
-}
+// Status BNO055::set_operation_mode(internal::BNO055_OPR_MODE_t mode) {
+//   STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
+//   return hi2c->write(address, internal::BNO055_REG_OPR_MODE, (uint8_t *)&mode, 1);
+// }
 
-Status BNO055::set_power_mode(internal::BNO055_PWR_MODE_t mode) {
-  STMEPIC_RETURN_ON_ERROR(set_page(internal::BNO055_PAGE_t::BNO055_PAGE_0));
-  return hi2c->write(internal::BNO055_I2C_ADDRESS, internal::BNO055_REG_PWR_MODE, (uint8_t *)&mode, 1);
-}
+// Status BNO055::set_power_mode(internal::BNO055_PWR_MODE_t mode) {
+//   STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
+//   return hi2c->write(address, internal::BNO055_REG_PWR_MODE, (uint8_t *)&mode, 1);
+// }
