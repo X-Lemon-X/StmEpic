@@ -82,18 +82,18 @@ static const uint8_t BNO055_REG_CALIBRATION_DATA    = 0x43;
 static const uint8_t BNO055_CALIBRATION_DATA_LENGTH = 28;
 
 
+} // namespace stmepic::sensors::imu::internal
+
+namespace stmepic::sensors::imu {
+
+
 /// @brief BNO055 calibration reg starting with SIC_MATRIX_LSB0
 /// calibration data consist of SIC_MATRIX and Offset of: Accelerometer, Magnetometer and Gyroscope.
 /// and Radius of: Accelerometerm and Magnetometer.
 struct BNO055_Calibration_Data_t {
   bool calibrated;
-  uint8_t data[BNO055_CALIBRATION_DATA_LENGTH];
+  uint8_t data[internal::BNO055_CALIBRATION_DATA_LENGTH];
 };
-
-
-} // namespace stmepic::sensors::imu::internal
-
-namespace stmepic::sensors::imu {
 
 struct BNO055_Data_t {
   int8_t temp;
@@ -106,6 +106,10 @@ struct BNO055_Data_t {
   Vector4d_t<int16_t> qua;
 };
 
+struct BNO0055_Settings : public DeviceSettings {
+  BNO055_Calibration_Data_t calibration_data = {};
+};
+
 /**
  * @brief BNO055 IMU sensor
  * BNO055 is a 9-axis IMU sensor with a built-in microcontroller that can perform sensor fusion
@@ -116,6 +120,7 @@ public:
    * @brief Make new BNO055 IMU sensor object
    *
    * @param hi2c the I2C handle that will be used to communicate with the BNO055 device
+   * @param address the address of the BNO055 device one of two possible addresses
    * @param nreset the reset pin of the BNO055 device
    * @param interrupt the interrupt pin of the BNO055 device
    * @return Brand new BNO055 object
@@ -138,6 +143,9 @@ public:
    */
   Result<BNO055_Data_t> get_data();
 
+  BNO055_Calibration_Data_t get_calibration_data();
+  // void set_calibration_data(BNO055_Calibration_Data_t &calibration_data);
+
 
 private:
   BNO055(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
@@ -152,16 +160,15 @@ private:
   // Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(uint8_t page);
 
-
-  Status get_calibration();
-
-
   Status device_init();
 
   BNO055_Data_t imu_data;
   std::shared_ptr<I2C> hi2c;
   GpioPin *interrupt;
   GpioPin *nreset;
+
+  BNO0055_Settings *imu_settings;
+
 
   uint8_t address;
   Status _device_status;

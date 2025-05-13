@@ -21,6 +21,11 @@
 
 namespace stmepic {
 
+struct DeviceSettings {
+  /* data */
+};
+
+
 /**
  * @class DeviceBase
  * @brief Abstract base class for all devices.
@@ -85,6 +90,17 @@ public:
    * @return Status Status of the operation.
    */
   [[nodiscard]] virtual Status device_stop() = 0;
+
+
+  /**
+   * @brief Set the settings for the device. Usually you will set this using some class that inheriting from
+   * DeviceSettings. Then cast this to some specific settings struct for the specific device.
+   * @param settings settings for the device usually you will set this.
+   */
+  void device_set_settings(const DeviceSettings &settings);
+
+protected:
+  std::unique_ptr<DeviceSettings> device_settings;
 };
 
 /**
@@ -194,7 +210,7 @@ protected:
 
 
 private:
-  DeviceThreadedSettings settings;
+  std::unique_ptr<DeviceThreadedSettings> settings;
   SimpleTask task_s;
   bool task_running;
 };

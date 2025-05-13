@@ -4,6 +4,10 @@
 
 using namespace stmepic;
 
+void DeviceBase::device_set_settings(const DeviceSettings &settings) {
+  this->device_settings = std::make_unique<DeviceSettings>(settings);
+}
+
 DeviceThreadedSettings::DeviceThreadedSettings()
 : uxStackDepth(456), uxPriority(tskIDLE_PRIORITY + 2), period(0) {
 }
@@ -35,7 +39,7 @@ Status DeviceThreadedBase::device_task_stop() {
 Status DeviceThreadedBase::device_task_set_settings(const DeviceThreadedSettings &settings) {
   if(task_running)
     return Status::Cancelled("Task is running");
-  this->settings = settings;
+  this->settings = std::make_unique<DeviceThreadedSettings>(settings);
   return Status::OK();
 }
 
@@ -48,8 +52,8 @@ Status DeviceThreadedBase::do_default_task_start(task_function_pointer task,
                                                  void *task_arg) {
   if(task == nullptr)
     return Status::Invalid("Task function is not provided");
-  STMEPIC_RETURN_ON_ERROR(task_s.task_init(task, task_arg, settings.period, before_task_funciton,
-                                           settings.uxStackDepth, settings.uxPriority, "DeviceTask"));
+  STMEPIC_RETURN_ON_ERROR(task_s.task_init(task, task_arg, settings->period, before_task_funciton,
+                                           settings->uxStackDepth, settings->uxPriority, "DeviceTask"));
   return task_s.task_run();
 }
 

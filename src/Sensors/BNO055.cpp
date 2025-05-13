@@ -23,7 +23,7 @@ Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, uint8_t 
 BNO055::BNO055(std::shared_ptr<I2C> hi2c, uint8_t _address, GpioPin *nreset, GpioPin *interrupt)
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
-  reading_status(Status::OK()), address(_address) {
+  reading_status(Status::OK()), address(_address), imu_data({}) {
 }
 
 Status BNO055::device_get_status() {
@@ -67,6 +67,14 @@ Status BNO055::device_start() {
   reg = BNO055_SYS_TRIGGER_RESET | BNO055_SYS_TRIGGER_EXT_CRYSTAL;
   STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
   Ticker::get_instance().delay_nop(650);
+
+  imu_settings = static_cast<BNO0055_Settings *>(device_settings.get());
+
+  // if user provided calibration data we set it
+  if(imu_settings->calibration_data.calibrated) {
+    STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_CALIBRATION_DATA,
+                                        imu_settings->calibration_data.data, BNO055_CALIBRATION_DATA_LENGTH));
+  }
 
   // set the units to some normal ones
   reg = BNO055_UNIT_SEL_TEMP_Unit_C | BNO055_UNIT_SEL_EUL_Unit_Rad | BNO055_UNIT_SEL_GYR_Unit_RPS;
@@ -126,9 +134,9 @@ void BNO055::handle() {
 }
 
 Result<BNO055_Data_t> BNO055::read_data() {
-  uint8_t regs[45] = { 0 };
+  uint8_t regs[BNO055_REG_ACC_DATA_LENGTH + 1] = { 0 };
 
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_ACC_DATA_BEGIN, regs, BNO055_REG_ACC_DATA_LENGTH));
+  STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_ACC_DATA_BEGIN, regs, sizeof(regs)));
 
   BNO055_Data_t data = {};
 
@@ -163,6 +171,25 @@ Result<BNO055_Data_t> BNO055::read_data() {
 
   data.temp = regs[44];
 
+  // if sensor is calibrated we simply return the data
+  if(calibration_data.calibrated)
+    return Result<BNO055_Data_t>::OK(data);
+
+  // if sensor is not calibrated we need to check the calibration status
+  bool calib_stat_gyro = ((regs[46] >> 6) & 0x03) == 3;
+  bool calib_stat_acc  = ((regs[46] >> 4) & 0x03) == 3;
+  bool calib_stat_mag  = ((regs[46] >> 2) & 0x03) == 3;
+  bool calib_stat_sys  = (regs[46] & 0x03) == 3;
+
+
+  calibration_data.calibrated = calib_stat_gyro && calib_stat_acc && calib_stat_mag && calib_stat_sys;
+
+  // if calibration is done we need to read the calibration data
+  if(calibration_data.calibrated) {
+    uint8_t cal_reg[BNO055_CALIBRATION_DATA_LENGTH] = {};
+    STMEPIC_RETURN_ON_ERROR(
+    hi2c->read(address, BNO055_REG_CALIBRATION_DATA, calibration_data.data, sizeof(calibration_data.data)));
+  }
   return Result<BNO055_Data_t>::OK(data);
 }
 
