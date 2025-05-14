@@ -161,3 +161,7 @@ Status SteperMotorStepDir::device_start() {
 Status SteperMotorStepDir::device_stop() {
   return Status::OK();
 }
+
+Status SteperMotorStepDir::device_set_settings(const DeviceSettings &settings) {
+  return Status::OK();
+}

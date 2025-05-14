@@ -158,3 +158,7 @@ Result<bool> MotorClosedLoop::device_is_connected() {
 
   return motor.device_stop();
 }
+
+[[nodiscard]] Status MotorClosedLoop::device_set_settings(const DeviceSettings &settings) {
+  return Status::OK();
+}

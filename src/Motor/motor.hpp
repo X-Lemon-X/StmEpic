@@ -148,6 +148,8 @@ public:
 
   Status device_stop() override;
 
+  Status device_set_settings(const DeviceSettings &settings) override;
+
 private:
   MotorBase &motor;
   std::shared_ptr<encoders::EncoderBase> encoder_pos;

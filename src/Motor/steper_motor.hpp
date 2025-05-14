@@ -113,6 +113,8 @@ public:
 
   Status device_stop() override;
 
+  Status device_set_settings(const DeviceSettings &settings) override;
+
 private:
   float radians_to_frequency;
   float frequency;
