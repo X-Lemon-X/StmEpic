@@ -53,6 +53,7 @@ public:
   Status device_reset() override final;
   Status device_start() override final;
   Status device_stop() override final;
+  Status device_set_settings(const DeviceSettings &settings) override final;
 
 protected:
   std::shared_ptr<I2C> hi2c;

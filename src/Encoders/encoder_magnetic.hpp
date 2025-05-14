@@ -85,6 +85,8 @@ public:
 
   Status device_stop() override;
 
+  Status device_set_settings(const DeviceSettings &settings) override;
+
 
 protected:
   /// @brief Init fucnion of the encoder

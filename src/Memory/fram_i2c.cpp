@@ -58,6 +58,10 @@ Status FramI2C::device_stop() {
   return Status::OK();
 }
 
+Status FramI2C::device_set_settings(const DeviceSettings &settings) {
+  return Status::OK();
+}
+
 
 Status FramI2C::write(uint32_t address, const std::vector<uint8_t> &data) {
   STMEPIC_ASSING_OR_RETURN(encoded_data, FRAM::encode_data(data));

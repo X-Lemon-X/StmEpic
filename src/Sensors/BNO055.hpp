@@ -136,6 +136,7 @@ public:
   Status device_reset() override;
   Status device_start() override;
   Status device_stop() override;
+  Status device_set_settings(const DeviceSettings &settings) override;
 
   /**
    * @brief Get the last read data from the BNO055 sensor
@@ -152,6 +153,7 @@ private:
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
 
+
   Result<BNO055_Data_t> read_data();
   static void task_imu_before(SimpleTask &handler, void *arg);
   static void task_imu(SimpleTask &handler, void *arg);
@@ -167,7 +169,7 @@ private:
   GpioPin *interrupt;
   GpioPin *nreset;
 
-  BNO0055_Settings *imu_settings;
+  std::unique_ptr<BNO0055_Settings> imu_settings;
 
 
   uint8_t address;

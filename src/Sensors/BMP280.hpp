@@ -81,6 +81,7 @@ public:
   Status device_reset() override;
   Status device_start() override;
   Status device_stop() override;
+  Status device_set_settings(const DeviceSettings &settings) override;
 
   /**
    * @brief Get last read data from the BMP280 sensor

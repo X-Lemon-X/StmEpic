@@ -4,9 +4,6 @@
 
 using namespace stmepic;
 
-void DeviceBase::device_set_settings(const DeviceSettings &settings) {
-  this->device_settings = std::make_unique<DeviceSettings>(settings);
-}
 
 DeviceThreadedSettings::DeviceThreadedSettings()
 : uxStackDepth(456), uxPriority(tskIDLE_PRIORITY + 2), period(0) {

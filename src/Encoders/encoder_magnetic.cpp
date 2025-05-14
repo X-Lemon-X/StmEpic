@@ -166,6 +166,10 @@ stmepic::Status EncoderAbsoluteMagnetic::do_device_task_stop() {
   return DeviceThreadedBase::do_default_task_stop();
 }
 
+stmepic::Status EncoderAbsoluteMagnetic::device_set_settings(const DeviceSettings &settings) {
+  return Status::OK();
+}
+
 void EncoderAbsoluteMagnetic::task_encoder_before(SimpleTask &handler, void *arg) {
   (void)handler;
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);

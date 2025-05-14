@@ -54,6 +54,9 @@ Status ICM20948::device_reset() {
   return device_start();
 }
 
+Status ICM20948::device_set_settings(const DeviceSettings &settings) {
+}
+
 Status ICM20948::do_device_task_start() {
   return DeviceThreadedBase::do_default_task_start(task_bar, task_bar_before, this);
 }

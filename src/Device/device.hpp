@@ -22,6 +22,7 @@
 namespace stmepic {
 
 struct DeviceSettings {
+  virtual ~DeviceSettings() = default;
   /* data */
 };
 
@@ -97,10 +98,7 @@ public:
    * DeviceSettings. Then cast this to some specific settings struct for the specific device.
    * @param settings settings for the device usually you will set this.
    */
-  void device_set_settings(const DeviceSettings &settings);
-
-protected:
-  std::unique_ptr<DeviceSettings> device_settings;
+  virtual Status device_set_settings(const DeviceSettings &settings) = 0;
 };
 
 /**
