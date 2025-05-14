@@ -20,6 +20,7 @@ Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, uint8_t 
   auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, address, nreset, interrupt));
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
+
 BNO055::BNO055(std::shared_ptr<I2C> hi2c, uint8_t _address, GpioPin *nreset, GpioPin *interrupt)
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
@@ -56,8 +57,10 @@ Status BNO055::device_stop() {
 
 
 Status BNO055::device_start() {
-  if(nreset != nullptr)
+  if(nreset != nullptr) {
     nreset->write(1);
+    Ticker::get_instance().delay_nop(650);
+  }
 
   STMEPIC_RETURN_ON_ERROR(hi2c->is_device_ready(address, 1, 500));
   STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
@@ -78,6 +81,8 @@ Status BNO055::device_start() {
   STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
   Ticker::get_instance().delay_nop(650);
 
+  STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
+
   // if user provided calibration data we set it
   if(imu_settings->calibration_data.calibrated) {
     STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_CALIBRATION_DATA,
@@ -94,7 +99,6 @@ Status BNO055::device_start() {
 
   // wait for the device to be ready
   Ticker::get_instance().delay_nop(25);
-
 
   // at this point the imu should be ready to use and be in NDOF mode ready to read data from it
   return Status::OK();
