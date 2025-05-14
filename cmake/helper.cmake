@@ -73,7 +73,12 @@ function(post_build_function_run )
   get_git_commit_info(STMEPIC_HEAD_VERSION)
   message(STATUS "StmEpic | Version (main): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_VERSION_MINOR}")
   message(STATUS "StmEpic | Version (current): ${STMEPIC_VERSION_MAJOR}.${STMEPIC_HEAD_VERSION}")
-  update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
+
+  if(STMEPIC_GENERATE_VERSION_FILE)
+    update_version_files(${STMEPIC_VERSION_MAJOR} ${STMEPIC_HEAD_VERSION})
+  endif()
+  
+  
   check_min_version_required()
 
 endfunction(post_build_function_run )
