@@ -203,8 +203,19 @@ Result<BNO055_Data_t> BNO055::read_data() {
   // if calibration is done we need to read the calibration data
   if(imu_settings->calibration_data.calibrated) {
     uint8_t cal_reg[BNO055_CALIBRATION_DATA_LENGTH] = {};
+    // we go to config mode to read the calibration data
+    uint8_t reg = BNO055_OPR_MODE_CONFIGMODE;
+    STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
+    // wait for the device to switch to config mode
+    Ticker::get_instance().delay_nop(10);
+    // read the calibration data
     STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_CALIBRATION_DATA, imu_settings->calibration_data.data,
                                        sizeof(imu_settings->calibration_data.data)));
+    reg = BNO055_OPR_MODE_NDOF;
+    // we go back to NDOF mode
+    STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
+    // wait for the device to switch to NDOF mode
+    Ticker::get_instance().delay_nop(25);
   }
   return Result<BNO055_Data_t>::OK(data);
 }
