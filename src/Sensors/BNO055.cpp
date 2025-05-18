@@ -29,7 +29,7 @@ BNO055::BNO055(std::shared_ptr<I2C> hi2c, uint8_t _address, GpioPin *nreset, Gpi
 }
 
 Status BNO055::device_set_settings(const DeviceSettings &settings) {
-  auto maybe_settings = dynamic_cast<const BNO0055_Settings *>(&settings);
+  auto maybe_settings = static_cast<const BNO0055_Settings *>(&settings);
   if(maybe_settings == nullptr) {
     return Status::ExecutionError("Settings are not of type BNO0055_Settings");
   }
