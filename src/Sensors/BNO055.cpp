@@ -53,6 +53,7 @@ Status BNO055::device_stop() {
     STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
     Ticker::get_instance().delay_nop(650);
   }
+  return Status::OK();
 }
 
 
