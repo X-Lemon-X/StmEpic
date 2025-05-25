@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://stmepic.nihilia.xyz/stmepic-high-resolution-logo-transparent.webp" alt="StmEpic Logo" width="40%"/>
+  <img src="https://stmepic.d3lab.dev/stmepic-high-resolution-logo-transparent.webp" alt="StmEpic Logo" width="40%"/>
 </p>
 
 ## StmEpic library
