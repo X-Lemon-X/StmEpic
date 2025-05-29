@@ -39,6 +39,7 @@ add_subdirectory(src/Inc)
 add_subdirectory(src/Device)
 add_subdirectory(src/Algorithm)
 add_subdirectory(src/Hardware)
+add_subdirectory(src/TeleGeo)
 
 
 ############################################
