@@ -7,12 +7,13 @@ using namespace stmepic;
 
 NmeaParser::NmeaParser() {
   nmea_parsers["GPGGA"] = std::bind(&NmeaParser::parse_gga, this, std::placeholders::_1);
-  nmea_parsers["GPGLL"] = std::bind(&NmeaParser::parse_gll, this, std::placeholders::_1);
-  nmea_parsers["GPGSA"] = std::bind(&NmeaParser::parse_gsa, this, std::placeholders::_1);
-  nmea_parsers["GPGSV"] = std::bind(&NmeaParser::parse_gsv, this, std::placeholders::_1);
+  // nmea_parsers["GPGLL"] = std::bind(&NmeaParser::parse_gll, this, std::placeholders::_1);
+  // nmea_parsers["GPGSA"] = std::bind(&NmeaParser::parse_gsa, this, std::placeholders::_1);
+  // nmea_parsers["GPGSV"] = std::bind(&NmeaParser::parse_gsv, this, std::placeholders::_1);
   nmea_parsers["GPRMC"] = std::bind(&NmeaParser::parse_rmc, this, std::placeholders::_1);
-  nmea_parsers["GPVTG"] = std::bind(&NmeaParser::parse_vtg, this, std::placeholders::_1);
-  nmea_parsers["GPGBS"] = std::bind(&NmeaParser::parse_gbs, this, std::placeholders::_1);
+  // nmea_parsers["GPVTG"] = std::bind(&NmeaParser::parse_vtg, this, std::placeholders::_1);
+  // nmea_parsers["GPGBS"] = std::bind(&NmeaParser::parse_gbs, this, std::placeholders::_1);
+  reset(); // Initialize the parser state
 }
 
 int NmeaParser::hex_to_int(char c) {
@@ -57,18 +58,18 @@ bool NmeaParser::is_valid_sentence(const std::string &sentence) {
     return false;
   }
 
-  if(checksumPos + 3 != sentence.length()) {
-    return false;
-  }
+  // if(checksumPos + 3 != sentence.length()) {
+  //   return false;
+  // }
 
   // Calculate the checksum
   unsigned char checksum = 0;
   for(size_t i = 1; i < checksumPos; ++i) {
     char c = sentence[i];
     checksum ^= static_cast<unsigned char>(c);
-    if(c < ' ' || c > '~' || c == '*' || c == '$') {
-      return false;
-    }
+    // if(c < ' ' || c > '~' || c == '*' || c == '$') {
+    //   return false;
+    // }
   }
   // Convert the checksum to a hexadecimal string
   unsigned int sentenceChecksum = hex_to_int(sentence[checksumPos + 1]) << 4 | hex_to_int(sentence[checksumPos + 2]);
@@ -163,6 +164,20 @@ vtg_data_t NmeaParser::get_vtg_data() const {
   return vtg_data;
 }
 
+gbs_data_t NmeaParser::get_gbs_data() const {
+  return gbs_data;
+}
+
+
+float NmeaParser::parce_degrees(const std::string &degrees_str) {
+  if(degrees_str.empty())
+    return 0.0f;
+  float val     = std::stof(degrees_str);
+  int degrees   = static_cast<int>(val / 100);
+  float minutes = val - (degrees * 100);
+  return degrees + (minutes / 60.0f);
+}
+
 
 Status NmeaParser::parse_gga(const std::string &sentence) {
   // $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
@@ -176,10 +191,10 @@ Status NmeaParser::parse_gga(const std::string &sentence) {
   // UTC Time
   gga_temp.time = parse_utc_time(fields[1].empty() ? 0 : std::stoi(fields[1]));
   // Latitude
-  gga_temp.latitude       = fields[2].empty() ? 0.0 : std::stod(fields[2]);
+  gga_temp.latitude       = parce_degrees(fields[2]);
   char latitude_direction = fields[3].empty() ? 'N' : fields[3][0];
   // Longitude
-  gga_temp.longitude       = fields[4].empty() ? 0.0 : std::stod(fields[4]);
+  gga_temp.longitude       = parce_degrees(fields[4]);
   char longitude_direction = fields[5].empty() ? 'E' : fields[5][0];
   // Fix Quality
   gga_temp.fix_quality = fields[6].empty() ? 0 : std::stoi(fields[6]);
@@ -311,11 +326,11 @@ Status NmeaParser::parse_gsv(const std::string &sentence) {
   int sat_count = (fields.size() - 4) / 4;
   gsv_temp.satellites.clear();
   for(int i = 0; i < sat_count; ++i) {
-    gsv_data_t::satellite_info sat;
-    int base      = 4 + i * 4;
-    sat.prn       = (base < fields.size() && !fields[base].empty()) ? std::stoi(fields[base]) : 0;
-    sat.elevation = (base + 1 < fields.size() && !fields[base + 1].empty()) ? std::stoi(fields[base + 1]) : 0;
-    sat.azimuth   = (base + 2 < fields.size() && !fields[base + 2].empty()) ? std::stoi(fields[base + 2]) : 0;
+    gsv_data_t::satellite_info sat = {};
+    // int base      = 4 + i * 4;
+    // sat.prn       = (base < fields.size() && !fields[base].empty()) ? std::stoi(fields[base]) : 0;
+    // sat.elevation = (base + 1 < fields.size() && !fields[base + 1].empty()) ? std::stoi(fields[base + 1]) : 0;
+    // sat.azimuth   = (base + 2 < fields.size() && !fields[base + 2].empty()) ? std::stoi(fields[base + 2]) : 0;
     gsv_temp.satellites.push_back(sat);
   }
 

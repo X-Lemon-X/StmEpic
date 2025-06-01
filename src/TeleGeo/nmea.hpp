@@ -201,6 +201,7 @@ private:
   static utc_time_t parse_utc_time(int time);
   static utc_date_t parse_utc_date(int date);
   static std::vector<std::string> split(const std::string &str);
+  float parce_degrees(const std::string &degrees_str);
 
   std::unordered_map<std::string, std::function<Status(const std::string &)>> nmea_parsers;
   std::string currentSentence;

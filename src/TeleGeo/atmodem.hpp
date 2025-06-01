@@ -60,7 +60,7 @@ private:
   static void task(SimpleTask &handler, void *arg);
   void handle();
 
-  Result<internal::at_status_t> send_command(std::string command, std::string &response);
+  Result<internal::at_status_t> send_command(const char *command, int expected_size = -1);
 
 
   std::unique_ptr<AtModemSettings> settings;

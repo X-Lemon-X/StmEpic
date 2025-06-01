@@ -5,6 +5,7 @@
 #include "atmodem.hpp"
 #include <string>
 #include <string.h>
+#include "logger.hpp"
 
 using namespace stmepic::modems::internal;
 using namespace stmepic::modems;
@@ -21,6 +22,12 @@ Result<std::shared_ptr<AtModem>> AtModem::Make(std::shared_ptr<UART> huart) {
 AtModem::AtModem(std::shared_ptr<UART> _huart)
 : huart(_huart), _device_status(Status::Disconnected("not started")),
   nmea_status(Status::Invalid("Nmea not enabled")), settings(std::make_unique<AtModemSettings>()) {
+
+  DeviceThreadedSettings ts;
+  ts.uxStackDepth = 4024; // Default stack size for the task
+  ts.uxPriority   = 2;    // Default priority for the task
+  ts.period       = 50;   // Default period for the task in ms
+  device_task_set_settings(ts);
 }
 
 Status AtModem::device_get_status() {
@@ -38,56 +45,65 @@ Status AtModem::device_set_settings(const DeviceSettings &settings) {
   if(mayby_settings == nullptr) {
     return Status::ExecutionError("Settings are not of type AtModemSettings");
   }
+  this->settings = std::make_unique<AtModemSettings>(*mayby_settings);
+  return Status::OK();
 }
 
-Result<at_status_t> AtModem::send_command(std::string command, std::string &response) {
-  if(command.empty()) {
-    return Status::Invalid("Command is empty");
+Result<at_status_t> AtModem::send_command(const char *command, int expected_size) {
+  uint8_t tx[32] = { 0 };
+  uint16_t size  = strlen(command);
+  memcpy(tx, command, size);
+  tx[size]     = '\r'; // Add CR at the end
+  tx[size + 1] = '\n'; // Add LF at the end
+  size += 2;
+  STMEPIC_RETURN_ON_ERROR(huart->write(tx, size, 100));
+  if(expected_size == 0) {
+    return Result<at_status_t>::OK(at_status_t::AT_OK);
   }
-  command += "\r\n"; // AT commands end with CRLF
-  STMEPIC_RETURN_ON_ERROR(huart->write((uint8_t *)command.c_str(), command.size(), 1000));
-  uint8_t data[1024] = { 0 };
-  STMEPIC_RETURN_ON_ERROR(huart->read(data, sizeof(data), 1000));
-  response = std::string(reinterpret_cast<char *>(data));
-  if(response.find("OK") == std::string::npos) {
-    return Result<at_status_t>::OK(at_status_t::AT_ERROR);
+  if(expected_size < 0) {
+    expected_size = size + 5; // +2 for CRLF and +3 for "OK\r\n"
   }
-  return Result<at_status_t>::OK(at_status_t::AT_OK);
+  uint8_t response_data[1024] = { 0 };
+  STMEPIC_RETURN_ON_ERROR(huart->read(response_data, expected_size, 100));
+  for(int i = size; i < expected_size - 1; ++i) {
+    if(response_data[i] == 'O' && response_data[i + 1] == 'K') {
+      return Result<at_status_t>::OK(at_status_t::AT_OK);
+    }
+  }
+  return Result<at_status_t>::OK(at_status_t::AT_ERROR);
 };
 
 
 Status AtModem::device_start() {
-  huart->hardware_start();
-  std::string response;
   at_status_t result;
 
-  STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT", response));
+  STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT", -1));
   if(result != at_status_t::AT_OK) {
     _device_status =
     Status::ExecutionError("Are you sure that the modem is connected, or support AT commands?");
     return _device_status;
   }
 
-  STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CFUN=1", response));
+  STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CFUN=1", -1));
   if(result != at_status_t::AT_OK) {
     _device_status = Status::ExecutionError("Failed to set modem to full functionality");
     return _device_status;
   }
 
   if(settings->enable_gps) {
-    STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSPWR=1", response));
+    STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSPWR=1"));
     if(result != at_status_t::AT_OK) {
       _device_status = Status::ExecutionError("Failed to enable GPS");
       return _device_status;
     }
 
-    STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSINF", response));
-    if(result != at_status_t::AT_OK) {
-      _device_status = Status::ExecutionError("Failed to get GPS info");
-      return _device_status;
-    }
+    // STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSINF", 0));
+    // if(result != at_status_t::AT_OK) {
+    //   _device_status = Status::ExecutionError("Failed to get GPS info");
+    //   return _device_status;
+    // }
 
-    STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSTST=1", response));
+    STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSTST=1", 0));
     if(result != at_status_t::AT_OK) {
       _device_status = Status::ExecutionError("Failed to enable NMEA sentences");
       return _device_status;
@@ -95,15 +111,14 @@ Status AtModem::device_start() {
   }
 
   if(settings->enable_gsm) {
-    // TODO: Add GSM initialization commands if needed
+    // TODO: Add GSM initialization
   }
   return Status::OK();
 }
 
 Status AtModem::device_reset() {
   STMEPIC_RETURN_ON_ERROR(device_stop());
-  STMEPIC_RETURN_ON_ERROR(huart->hardware_reset());
-  _device_status = Status::Disconnected("not started");
+  STMEPIC_RETURN_ON_ERROR(send_command("AT+CFUN=1,1", -1));
   nmea_parser.reset();
   return device_start();
 }
@@ -138,10 +153,10 @@ void AtModem::task(SimpleTask &handler, void *arg) {
 }
 
 void AtModem::handle() {
-  uint8_t data[1024];
-  huart->read(data, sizeof(data), 1000);
+  uint8_t data[200] = { 0 };
+  auto a            = huart->read(data, sizeof(data), 3500);
 
-
+  log_info("AT Modem" + a.status().to_string() + " data received:" + std::string(reinterpret_cast<const char *>(data)));
   for(size_t i = 0; i < sizeof(data); ++i) {
     if(data[i] == '\0')
       continue; // Skip null characters
@@ -149,6 +164,8 @@ void AtModem::handle() {
       nmea_status = nmea_parser.parse_by_character(static_cast<char>(data[i]));
     }
   }
+  auto v = nmea_parser.get_gga_data();
+  log_info("Long: " + std::to_string(v.latitude) + " Lat: " + std::to_string(v.longitude));
 }
 
 Result<const gps::NmeaParser &> AtModem::get_nmea_data() {

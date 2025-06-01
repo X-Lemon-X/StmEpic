@@ -18,6 +18,11 @@
 
 namespace stmepic {
 
+// struct UartSettings {
+//   uint64_t buffer_length = 64; // size of the buffer for the UART RX interface
+//   uint64_t queue_size    = 64;
+// };
+
 /**
  * @brief Class for controlling the UART interface using  DMA, IT or blocking mode
  * The best mode is DMA and IT since they allows other other tasks to run while the UART is reading or
@@ -35,7 +40,8 @@ public:
    * @param type the type of the UART interface mode, DMA, IT or BLOCKING
    * @return Result<std::shared_ptr<UART>> will return AlreadyExists if the interface was already initialized.
    */
-  static Result<std::shared_ptr<UART>> Make(UART_HandleTypeDef &huart, const HardwareType type);
+  static Result<std::shared_ptr<UART>>
+  Make(UART_HandleTypeDef &huart, const HardwareType type, uint16_t buffer_length = 64, uint16_t queue_size = 64);
 
   /**
    * @brief Reset the UART interface
@@ -96,7 +102,7 @@ public:
   static void run_rx_callbacks_from_isr(UART_HandleTypeDef *huart, bool half);
 
 private:
-  UART(UART_HandleTypeDef &huart, const HardwareType type);
+  UART(UART_HandleTypeDef &huart, const HardwareType type, uint16_t buffer_length, uint16_t queue_size);
 
   const HardwareType _hardwType;
   SemaphoreHandle_t _mutex;
@@ -105,6 +111,8 @@ private:
 
   /// @brief Task handle for the specific UART interface
   TaskHandle_t task_handle;
+  // QueueHandle_t rx_queue_handle;
+
   /// @brief  List of all UART interfaces initialized
   static std::vector<std::shared_ptr<UART>> uart_instances;
 

@@ -26,7 +26,7 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *hi2c) {
 
 std::vector<std::shared_ptr<UART>> UART::uart_instances;
 
-UART::UART(UART_HandleTypeDef &huart, const HardwareType type)
+UART::UART(UART_HandleTypeDef &huart, const HardwareType type, uint16_t buffer_length, uint16_t queue_size)
 : _huart(&huart), _hardwType(type), _mutex(xSemaphoreCreateMutex()){};
 
 UART::~UART() {
@@ -42,13 +42,14 @@ UART::~UART() {
 };
 
 
-Result<std::shared_ptr<UART>> UART::Make(UART_HandleTypeDef &huart, const HardwareType type) {
+Result<std::shared_ptr<UART>>
+UART::Make(UART_HandleTypeDef &huart, const HardwareType type, uint16_t buffer_length, uint16_t queue_size) {
   vPortEnterCritical();
   for(const auto &instance : uart_instances) {
     if(instance->_huart->Instance == huart.Instance)
       return Status::AlreadyExists("UART already exists");
   }
-  std::shared_ptr<UART> uart(new UART(huart, type));
+  std::shared_ptr<UART> uart(new UART(huart, type, buffer_length, queue_size));
   uart_instances.push_back(uart);
   vPortExitCritical();
   return Result<decltype(uart)>::OK(uart);
@@ -63,6 +64,14 @@ void UART::run_rx_callbacks_from_isr(UART_HandleTypeDef *huart, bool half) {
   }
 }
 
+void UART::run_tx_callbacks_from_isr(UART_HandleTypeDef *huart, bool half) {
+  for(auto &uart : uart_instances) {
+    if(uart->_huart->Instance == huart->Instance) {
+      uart->tx_callback(huart, half);
+      break;
+    }
+  }
+}
 
 void UART::tx_callback(UART_HandleTypeDef *huart, bool half) {
   if(huart == nullptr || huart->Instance != huart->Instance)
@@ -136,7 +145,7 @@ Status UART::read(uint8_t *data, uint16_t size, uint16_t timeout_ms) {
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   task_handle   = xTaskGetCurrentTaskHandle();
-  result        = _read(data, size);
+  result        = _read(data, size, timeout_ms);
 
   if(_hardwType != HardwareType::BLOCKING) {
     if(result.ok() && task_handle != nullptr) {
@@ -176,7 +185,7 @@ Status UART::write(uint8_t *data, uint16_t size, uint16_t timeout_ms) {
   xSemaphoreTake(_mutex, portMAX_DELAY);
   Status result = Status::ExecutionError();
   task_handle   = xTaskGetCurrentTaskHandle();
-  result        = _read(data, size);
+  result        = _write(data, size);
 
   if(_hardwType != HardwareType::BLOCKING) {
     if(result.ok() && task_handle != nullptr) {
