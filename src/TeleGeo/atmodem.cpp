@@ -106,6 +106,7 @@ Status AtModem::device_start() {
     STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT+CGNSTST=1", 0));
     if(result != at_status_t::AT_OK) {
       _device_status = Status::ExecutionError("Failed to enable NMEA sentences");
+      nmea_status    = Status::OK();
       return _device_status;
     }
   }
@@ -153,8 +154,13 @@ void AtModem::task(SimpleTask &handler, void *arg) {
 }
 
 void AtModem::handle() {
-  uint8_t data[200] = { 0 };
-  auto a            = huart->read(data, sizeof(data), 3500);
+  uint8_t data[120] = { 0 };
+  auto a            = huart->read(data, sizeof(data), 3000);
+
+  if(a == StatusCode::HalBusy) {
+    huart->hardware_stop();
+    huart->hardware_start();
+  }
 
   log_info("AT Modem" + a.status().to_string() + " data received:" + std::string(reinterpret_cast<const char *>(data)));
   for(size_t i = 0; i < sizeof(data); ++i) {

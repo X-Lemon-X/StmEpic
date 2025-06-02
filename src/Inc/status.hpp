@@ -349,6 +349,10 @@ public:
     return _status == other._status;
   }
 
+  bool operator==(const StatusCode &other) const {
+    return _status == other;
+  }
+
   bool operator!=(const Status &other) const {
     return !(*this == other);
   }
