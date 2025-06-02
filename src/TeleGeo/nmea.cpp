@@ -168,11 +168,31 @@ gbs_data_t NmeaParser::get_gbs_data() const {
   return gbs_data;
 }
 
+float NmeaParser::to_float(const std::string &str) {
+  if(str.empty())
+    return 0.0f;
+  for(char ch : str) {
+    if(!(isdigit(ch) || ch == '.')) {
+      return 0.0f;
+    }
+  }
+  return std::stof(str);
+}
+
+int NmeaParser::to_int(const std::string &str) {
+  if(str.empty())
+    return 0;
+  // Only allow digits for integer conversion
+  for(char ch : str) {
+    if(!isdigit(ch)) {
+      return 0;
+    }
+  }
+  return std::stoi(str);
+}
 
 float NmeaParser::parce_degrees(const std::string &degrees_str) {
-  if(degrees_str.empty())
-    return 0.0f;
-  float val     = std::stof(degrees_str);
+  float val     = to_float(degrees_str);
   int degrees   = static_cast<int>(val / 100);
   float minutes = val - (degrees * 100);
   return degrees + (minutes / 60.0f);
@@ -197,16 +217,16 @@ Status NmeaParser::parse_gga(const std::string &sentence) {
   gga_temp.longitude       = parce_degrees(fields[4]);
   char longitude_direction = fields[5].empty() ? 'E' : fields[5][0];
   // Fix Quality
-  gga_temp.fix_quality = fields[6].empty() ? 0 : std::stoi(fields[6]);
+  gga_temp.fix_quality = to_int(fields[6]);
   // Number of Satellites
-  gga_temp.num_satellites = fields[7].empty() ? 0 : std::stoi(fields[7]);
+  gga_temp.num_satellites = to_int(fields[7]);
   // HDOP
-  gga_temp.hdop = fields[8].empty() ? 0.0 : std::stod(fields[8]);
+  gga_temp.hdop = to_float(fields[8]);
   // Altitude
-  gga_temp.altitude       = fields[9].empty() ? 0.0 : std::stod(fields[9]);
+  gga_temp.altitude       = to_float(fields[9]);
   gga_temp.altitude_units = fields[10].empty() ? 'M' : fields[10][0];
   // Height of geoid
-  gga_temp.height       = fields[11].empty() ? 0.0 : std::stod(fields[11]);
+  gga_temp.height       = to_float(fields[11]);
   gga_temp.height_units = fields[12].empty() ? 'M' : fields[12][0];
   // DGPS Age
   gga_temp.dgps_age = fields[13].empty() ? 0.0 : std::stod(fields[13]);
@@ -349,7 +369,7 @@ Status NmeaParser::parse_gsv(const std::string &sentence) {
 Status NmeaParser::parse_rmc(const std::string &sentence) {
   std::vector<std::string> fields = split(sentence);
 
-  if(fields.size() < 12)
+  if(fields.size() < 13)
     return Status::Invalid("Not enough fields in RMC sentence");
 
   rmc_data_t rmc_temp;
@@ -358,24 +378,24 @@ Status NmeaParser::parse_rmc(const std::string &sentence) {
   // 2: Status
   char status = fields[2].empty() ? 'V' : fields[2][0];
   // 3: Latitude
-  rmc_temp.latitude = fields[3].empty() ? 0.0 : std::stod(fields[3]);
+  rmc_temp.latitude = parce_degrees(fields[3]);
   // 4: N/S
   char latitude_direction = fields[4].empty() ? 'N' : fields[4][0];
   // 5: Longitude
-  rmc_temp.longitude = fields[5].empty() ? 0.0 : std::stod(fields[5]);
+  rmc_temp.longitude = parce_degrees(fields[5]);
   // 6: E/W
   char longitude_direction = fields[6].empty() ? 'E' : fields[6][0];
   // 7: Speed
-  rmc_temp.speed = fields[7].empty() ? 0.0 : std::stod(fields[7]);
+  rmc_temp.speed = to_float(fields[7]);
   // 8: Course
-  rmc_temp.course = fields[8].empty() ? 0.0 : std::stod(fields[8]);
+  rmc_temp.course = to_float(fields[8]);
   // 9: Date
-  int data            = fields[9].empty() ? 0 : std::stoi(fields[9]);
+  int data            = to_int(fields[9]);
   rmc_temp.date.day   = data / 10000;
   rmc_temp.date.month = (data / 100) % 100;
   rmc_temp.date.year  = data % 100 + 2000;
   // 10: Magnetic variation (optional)
-  rmc_temp.variation = fields[10].empty() ? 0.0 : std::stod(fields[10]);
+  rmc_temp.variation = to_float(fields[10]);
   // 11: Magnetic variation E/W (optional, not used here)
   // 12: Mode
   char mode = fields[12].empty() ? 'N' : fields[12][0];

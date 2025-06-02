@@ -203,6 +203,9 @@ private:
   static std::vector<std::string> split(const std::string &str);
   float parce_degrees(const std::string &degrees_str);
 
+  float to_float(const std::string &str);
+  int to_int(const std::string &str);
+
   std::unordered_map<std::string, std::function<Status(const std::string &)>> nmea_parsers;
   std::string currentSentence;
   gga_data_t gga_data;
