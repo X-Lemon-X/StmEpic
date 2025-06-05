@@ -122,16 +122,17 @@ BNO055_Calibration_Data_t BNO055::get_calibration_data() {
   return imu_settings->calibration_data;
 }
 
-void BNO055::task_imu_before(SimpleTask &handler, void *arg) {
+Status BNO055::task_imu_before(SimpleTask &handler, void *arg) {
   (void)handler;
   BNO055 *imu = static_cast<BNO055 *>(arg);
-  imu->device_start();
+  return imu->device_start();
 }
 
-void BNO055::task_imu(SimpleTask &handler, void *arg) {
+Status BNO055::task_imu(SimpleTask &handler, void *arg) {
   (void)handler;
   BNO055 *imu = static_cast<BNO055 *>(arg);
   imu->handle();
+  return Status::OK();
 }
 
 
@@ -139,7 +140,7 @@ bool BNO055::device_ok() {
   return _device_status.ok();
 }
 
-void BNO055::handle() {
+Status BNO055::handle() {
   auto maybe_data = read_data();
   if(maybe_data.ok()) {
     imu_data = maybe_data.valueOrDie();
@@ -148,6 +149,7 @@ void BNO055::handle() {
     vTaskDelay(10);
   }
   _device_status = maybe_data.status();
+  return _device_status;
 }
 
 Result<BNO055_Data_t> BNO055::read_data() {

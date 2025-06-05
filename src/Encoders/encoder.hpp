@@ -70,7 +70,7 @@ public:
 
 protected:
   /// @brief Shoule be called to initialize the encoder afer changign the settings
-  virtual void init() = 0;
+  virtual Status init() = 0;
 };
 
 } // namespace stmepic::encoders

@@ -92,7 +92,9 @@ class Status;
       HAL_NVIC_SystemReset();             \
   } while(false);
 
+extern "C" {
 extern void HardFault_Handler(void);
+}
 
 
 /**
@@ -230,6 +232,10 @@ public:
 
   [[nodiscard]] static Status OK() {
     return Status(StatusCode::OK, nullptr, "OK");
+  };
+
+  [[nodiscard]] static Status OK(const char *msg) {
+    return Status(StatusCode::OK, msg, "OK|");
   };
 
   [[nodiscard]] static Status OutOfMemory(const char *msg = nullptr) {

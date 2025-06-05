@@ -73,11 +73,12 @@ void MovementControler::handle_internal() {
   set_motor_state(state);
 }
 
-void MovementControler::handle(SimpleTask &task, void *args) {
+Status MovementControler::handle(SimpleTask &task, void *args) {
   if(args == nullptr)
-    return;
+    return Status::Invalid("MovementControler::handle: args is nullptr");
   auto mc = static_cast<MovementControler *>(args);
   mc->handle_internal();
+  return Status::OK();
 }
 
 void MovementControler::set_motor_state(MovementState state) {

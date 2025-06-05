@@ -155,9 +155,9 @@ private:
 
 
   Result<BNO055_Data_t> read_data();
-  static void task_imu_before(SimpleTask &handler, void *arg);
-  static void task_imu(SimpleTask &handler, void *arg);
-  void handle();
+  static Status task_imu_before(SimpleTask &handler, void *arg);
+  static Status task_imu(SimpleTask &handler, void *arg);
+  Status handle();
   // Status set_operation_mode(internal::BNO055_OPR_MODE_t mode);
   // Status set_power_mode(internal::BNO055_PWR_MODE_t mode);
   Status set_page(uint8_t page);

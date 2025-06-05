@@ -14,7 +14,7 @@ class SimpleTask {
 private:
   /* data */
 public:
-  using simple_task_function_pointer = void (*)(SimpleTask &, void *);
+  using simple_task_function_pointer = Status (*)(SimpleTask &, void *);
 
   SimpleTask();
   ~SimpleTask();
@@ -57,12 +57,29 @@ public:
    */
   void task_set_period(uint32_t period_ms);
 
+
+  /**
+   * @brief Get status of the task
+   * @return Status of the task, can be used to check if the task is running or not
+   */
+  Status task_get_status() const;
+
+  /**
+   * @brief Wait for the task to start
+   * This function will block until the task is started successfully as until before_task_task is executed correctly.
+   * @param timeout_ms timeout in milliseconds, if 0 then it will wait indefinitely
+   * @return Status of the task after waiting for it to start
+   */
+  [[nodiscard]]
+  Status task_wait_for_task_to_start(uint32_t timeout_ms = 0);
+
 private:
   SimpleTask(const SimpleTask &other)            = delete;
   SimpleTask &operator=(const SimpleTask &other) = delete;
 
   bool is_initiated;
   bool is_running;
+  bool task_started;
   xTaskHandle task_handle;
   void *args;
   simple_task_function_pointer task;
@@ -71,6 +88,7 @@ private:
   uint32_t stack_size;
   UBaseType_t priority;
   const char *name;
+  Status status;
   static void task_function(void *arg);
 };
 

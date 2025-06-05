@@ -26,7 +26,7 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
 }
 
 
-void EncoderAbsoluteMagnetic::init() {
+Status EncoderAbsoluteMagnetic::init() {
   float angle = read_angle_rads();
 
   // correct the angle begin value to avoid false rotation dircetion
@@ -42,6 +42,7 @@ void EncoderAbsoluteMagnetic::init() {
 
   if(this->filter_angle != nullptr)
     filter_angle->set_init_value(read_angle());
+  return Status::OK();
 }
 
 float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
@@ -170,13 +171,13 @@ stmepic::Status EncoderAbsoluteMagnetic::device_set_settings(const DeviceSetting
   return Status::OK();
 }
 
-void EncoderAbsoluteMagnetic::task_encoder_before(SimpleTask &handler, void *arg) {
+Status EncoderAbsoluteMagnetic::task_encoder_before(SimpleTask &handler, void *arg) {
   (void)handler;
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
-  encoder->init();
+  return encoder->init();
 }
 
-void EncoderAbsoluteMagnetic::task_encoder(SimpleTask &handler, void *arg) {
+Status EncoderAbsoluteMagnetic::task_encoder(SimpleTask &handler, void *arg) {
   (void)handler;
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
   encoder->handle();

@@ -111,9 +111,9 @@ private:
   stmepic::Status do_device_task_stop() override;
   Result<ICM20948_Data_t> read_data();
 
-  static void task_bar_before(SimpleTask &handler, void *arg);
-  static void task_bar(SimpleTask &handler, void *arg);
-  void handle();
+  static Status task_bar_before(SimpleTask &handler, void *arg);
+  static Status task_bar(SimpleTask &handler, void *arg);
+  Status handle();
 
   ICM20948_Data_t bar_data;
   std::shared_ptr<I2C> hi2c;

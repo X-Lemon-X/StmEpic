@@ -164,6 +164,20 @@ public:
    */
   bool device_task_is_running() const;
 
+  /**
+   * @brief Get the status of the task that runs on the device.
+   * @return Status Status of the task.
+   */
+  [[nodiscard]]
+  Status device_task_status() const;
+
+  /**
+   * @brief Waits for the device to start correctly.
+   * @param timeout_ms Timeout in milliseconds. If 0, it will wait indefinitely.
+   * @return Status
+   */
+  [[nodiscard]] Status device_task_wait_for_device_to_start(uint32_t timeout_ms = 3000);
+
 protected:
   /**
    * @brief Pure virtual function to start the task that runs on the device.

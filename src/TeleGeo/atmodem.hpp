@@ -56,9 +56,9 @@ private:
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
 
-  static void task_before(SimpleTask &handler, void *arg);
-  static void task(SimpleTask &handler, void *arg);
-  void handle();
+  static Status task_before(SimpleTask &handler, void *arg);
+  static Status task(SimpleTask &handler, void *arg);
+  Status handle();
 
   Result<internal::at_status_t> send_command(const char *command, int expected_size = -1);
 

@@ -74,21 +74,23 @@ Result<bool> ICM20948::device_is_connected() {
 }
 
 
-void ICM20948::task_bar_before(SimpleTask &handler, void *arg) {
+Status ICM20948::task_bar_before(SimpleTask &handler, void *arg) {
   (void)handler;
   ICM20948 *bar = static_cast<ICM20948 *>(arg);
-  (void)bar->device_start();
+  return bar->device_start();
 }
 
-void ICM20948::task_bar(SimpleTask &handler, void *arg) {
+Status ICM20948::task_bar(SimpleTask &handler, void *arg) {
   (void)handler;
   ICM20948 *imu = static_cast<ICM20948 *>(arg);
   imu->handle();
+  return Status::OK();
 }
 
-void ICM20948::handle() {
+Status ICM20948::handle() {
   auto maybe_data = read_data();
   _device_status  = maybe_data.status();
+  return _device_status;
 }
 
 Result<ICM20948_Data_t> ICM20948::read_data() {

@@ -57,3 +57,11 @@ Status DeviceThreadedBase::do_default_task_start(task_function_pointer task,
 Status DeviceThreadedBase::do_default_task_stop() {
   return task_s.task_stop();
 }
+
+Status DeviceThreadedBase::device_task_status() const {
+  return task_s.task_get_status();
+}
+
+Status DeviceThreadedBase::device_task_wait_for_device_to_start(uint32_t timeout_ms) {
+  return task_s.task_wait_for_task_to_start(timeout_ms);
+}

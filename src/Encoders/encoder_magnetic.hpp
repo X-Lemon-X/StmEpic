@@ -127,7 +127,7 @@ private:
   uint32_t resolution;
 
   /// @brief thsi should be run in a  constructor of child class to initiate the begining values using child class specific values
-  void init() override;
+  Status init() override;
 
   /// @brief Calucaltes velcoicty, and passes it thoroung a filter
   /// @param angle current angle
@@ -144,8 +144,8 @@ private:
   /// @brief handles the encoder updates data read from the encoder
   void handle();
 
-  static void task_encoder_before(SimpleTask &handler, void *arg);
-  static void task_encoder(SimpleTask &handler, void *arg);
+  static Status task_encoder_before(SimpleTask &handler, void *arg);
+  static Status task_encoder(SimpleTask &handler, void *arg);
 
   [[nodiscard]] Status do_device_task_start() override;
   [[nodiscard]] Status do_device_task_stop() override;

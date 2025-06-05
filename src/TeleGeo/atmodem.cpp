@@ -141,19 +141,19 @@ Result<bool> AtModem::device_is_connected() {
 }
 
 
-void AtModem::task_before(SimpleTask &handler, void *arg) {
+Status AtModem::task_before(SimpleTask &handler, void *arg) {
   (void)handler;
   AtModem *bar = static_cast<AtModem *>(arg);
-  (void)bar->device_start();
+  return bar->device_start();
 }
 
-void AtModem::task(SimpleTask &handler, void *arg) {
+Status AtModem::task(SimpleTask &handler, void *arg) {
   (void)handler;
   AtModem *modem = static_cast<AtModem *>(arg);
-  modem->handle();
+  return modem->handle();
 }
 
-void AtModem::handle() {
+Status AtModem::handle() {
   uint8_t data[120] = { 0 };
   auto a            = huart->read(data, sizeof(data), 3000);
 
@@ -172,6 +172,7 @@ void AtModem::handle() {
   }
   auto v = nmea_parser.get_gga_data();
   log_info("Long: " + std::to_string(v.latitude) + " Lat: " + std::to_string(v.longitude));
+  return Status::OK();
 }
 
 Result<const gps::NmeaParser &> AtModem::get_nmea_data() {

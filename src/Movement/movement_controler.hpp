@@ -207,7 +207,7 @@ private:
   void handle_internal();
 
   /// @brief Handles all the caluclation and limits, this function should be called in the main loop as often as possible
-  static void handle(SimpleTask &task, void *args);
+  static Status handle(SimpleTask &task, void *args);
 };
 
 
