@@ -168,8 +168,7 @@ public:
    * @brief Get the status of the task that runs on the device.
    * @return Status Status of the task.
    */
-  [[nodiscard]]
-  Status device_task_status() const;
+  [[nodiscard]] Status device_task_status() const;
 
   /**
    * @brief Waits for the device to start correctly.
