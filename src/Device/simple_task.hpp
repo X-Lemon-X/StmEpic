@@ -24,9 +24,11 @@ public:
    * @param task function that will be run in the task loop (is shouldn't block or be infinite loop)
    * @param task_arg argument that will be passed to the task function
    * @param period_ms period in milliseconds of the delay between task runs
+   * @param before_task_task function that will be run before the task starts only once. It will also cause the task to stop if it fails.
    * @param stack_size size of the stack for the task
    * @param priority priority of the task
    * @param name name of the task
+   * @param stop_after_start_failure if true, the task will stop if the before_task_task fails, if false, the task will continue running even if the before_task_task fails
    * @return Status
    */
   Status task_init(simple_task_function_pointer task,
@@ -35,7 +37,8 @@ public:
                    simple_task_function_pointer before_task_task = nullptr,
                    uint32_t stack_size                           = 244,
                    UBaseType_t priority                          = tskIDLE_PRIORITY + 2,
-                   const char *name                              = "SimpleTask");
+                   const char *name                              = "SimpleTask",
+                   bool stop_after_start_failure                 = true);
 
   /**
    * @brief Start the task
@@ -80,6 +83,7 @@ private:
   bool is_initiated;
   bool is_running;
   bool task_started;
+  bool stop_after_start_failure;
   xTaskHandle task_handle;
   void *args;
   simple_task_function_pointer task;

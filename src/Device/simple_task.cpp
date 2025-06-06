@@ -19,7 +19,8 @@ Status SimpleTask::task_init(simple_task_function_pointer task,
                              simple_task_function_pointer before_task_task,
                              uint32_t stack_size,
                              UBaseType_t priority,
-                             const char *name) {
+                             const char *name,
+                             bool stop_after_start_failure) {
   if(is_initiated)
     return Status::AlreadyExists("Task is already initiated");
 
@@ -34,15 +35,16 @@ Status SimpleTask::task_init(simple_task_function_pointer task,
     return Status::Invalid("Task name is null");
   }
 
-  this->args             = task_arg;
-  this->task             = task;
-  this->before_task_task = before_task_task;
-  this->period_ms        = period_ms;
-  this->stack_size       = stack_size;
-  this->priority         = priority;
-  this->name             = name;
-  task_started           = false;
-  is_initiated           = true;
+  this->args                     = task_arg;
+  this->task                     = task;
+  this->before_task_task         = before_task_task;
+  this->period_ms                = period_ms;
+  this->stack_size               = stack_size;
+  this->priority                 = priority;
+  this->name                     = name;
+  this->task_started             = false;
+  this->is_initiated             = true;
+  this->stop_after_start_failure = stop_after_start_failure;
   return Status::OK();
 }
 
@@ -55,6 +57,7 @@ Status SimpleTask::task_run() {
   if(is_running)
     return Status::AlreadyExists("Task is already running");
 
+  task_started = false; // Reset task started flag
   if(xTaskCreate(task_function, name, stack_size, this, priority, &task_handle) != pdPASS) {
     status = Status::ExecutionError("Task creation failed");
     return status;
@@ -71,8 +74,8 @@ Status SimpleTask::task_stop() {
     return Status::AlreadyExists("Task is not running");
 
   vTaskDelete(task_handle);
-  is_running   = false;
-  task_started = false;
+  is_running = false;
+  // task_started = false;
   return Status::OK();
 }
 
@@ -89,20 +92,24 @@ Status SimpleTask::task_get_status() const {
 void SimpleTask::task_function(void *arg) {
   SimpleTask *task = static_cast<SimpleTask *>(arg);
   TickType_t xLastWakeTime;
-  xLastWakeTime = xTaskGetTickCount();
+  xLastWakeTime        = xTaskGetTickCount();
+  bool failed_to_start = false;
+
   if(task->before_task_task != nullptr) {
     auto stat = task->before_task_task(*task, task->args);
-    if(!stat.ok()) {
-      task->status = Status::ExecutionError("Task failed to start due to \"before_task_task\" failure!");
+    task->status = stat; // Status::ExecutionError("Task failed to start due to \"before_task_task\" failure!");
+    failed_to_start = !stat.ok();
+    if(!stat.ok() && task->stop_after_start_failure) {
       task->task_started = true; // Mark as started to avoid blocking forever
       task->task_stop();
       return;
     }
   }
-  task->status       = Status::OK("Task started successfully!");
+  if(!failed_to_start)
+    task->status = Status::OK("Task started successfully!");
   task->task_started = true;
   for(;;) {
-    task->task(*task, task->args);
+    task->status          = task->task(*task, task->args);
     TickType_t xFrequency = pdMS_TO_TICKS(task->period_ms);
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
