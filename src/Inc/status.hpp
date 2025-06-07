@@ -212,8 +212,8 @@ public:
       _status_message = "OK";
       break;
     case HAL_ERROR:
-      _status         = StatusCode::UnknownError;
-      _status_message = "UnknownError|";
+      _status         = StatusCode::HalError;
+      _status_message = "HalError|";
       break;
     case HAL_BUSY:
       _status         = StatusCode::HalBusy;
