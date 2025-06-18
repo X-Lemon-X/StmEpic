@@ -31,13 +31,7 @@ SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef &_htim, unsigned int _t
 
 
 void SteperMotorStepDir::init() {
-  auto core_freq = (float)HAL_RCC_GetHCLKFreq();
-  auto prescaler = (float)htim.Instance->PSC;
-
-  // equaions to get frequency that will give us desired velocity
-  // base frequency
-  // frequency = velocity * steps_pre_revolutions * gear_ratio
-  this->radians_to_frequency = core_freq / prescaler / ((this->steps_per_revolution * this->gear_ratio) / PIM2);
+  device_start();
 }
 
 void SteperMotorStepDir::set_velocity(float velocity) {
@@ -155,6 +149,13 @@ Status SteperMotorStepDir::device_reset() {
 }
 
 Status SteperMotorStepDir::device_start() {
+  auto core_freq = (float)HAL_RCC_GetHCLKFreq();
+  auto prescaler = (float)htim.Instance->PSC;
+
+  // equaions to get frequency that will give us desired velocity
+  // base frequency
+  // frequency = velocity * steps_pre_revolutions * gear_ratio
+  this->radians_to_frequency = core_freq / prescaler / ((this->steps_per_revolution * this->gear_ratio) / PIM2);
   return Status::OK();
 }
 

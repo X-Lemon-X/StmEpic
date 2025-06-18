@@ -75,7 +75,7 @@ public:
   /// @param enable True to enable the Motor, false to disable it
   virtual void set_enable(bool enable) = 0;
 
-  /// @brief Set the gear ratio of the Motor
+  /// @brief Set the gear ratio of the Motor, which means that Motor will have to rotate N times more to rotate the output once.
   virtual void set_gear_ratio(float gear_ratio) = 0;
 
   /// @brief Set the max velocity of the Motor

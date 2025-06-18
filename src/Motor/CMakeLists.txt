@@ -8,4 +8,5 @@ target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
 target_sources(${UPPER_PROJECT_NAME} PRIVATE
   steper_motor.cpp
   motor.cpp
+  servo_motor.cpp
 )
