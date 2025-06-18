@@ -40,7 +40,8 @@ void SteperMotorStepDir::set_velocity(float velocity) {
   if(std::abs(velocity) > this->max_velocity)
     velocity = sgn(velocity) * this->max_velocity;
   else if(std::abs(velocity) < this->min_velocity) {
-    htim.Instance->CCR1 = 0;
+    // htim.Instance->CCR1 = 0;
+    __HAL_TIM_SET_COMPARE(&htim, static_cast<uint32_t>(timer_channel), 0);
     return;
   }
 
@@ -60,9 +61,11 @@ void SteperMotorStepDir::set_velocity(float velocity) {
     return;
   }
 
-  uint32_t counter    = (uint32_t)(this->radians_to_frequency / velocity);
-  htim.Instance->ARR  = counter;
-  htim.Instance->CCR1 = counter / 2;
+  uint32_t counter = (uint32_t)(this->radians_to_frequency / velocity);
+  // htim.Instance->ARR = counter;
+  __HAL_TIM_SET_AUTORELOAD(&htim, counter);
+  // htim.Instance->CCR1 = counter / 2;
+  __HAL_TIM_SET_COMPARE(&htim, static_cast<uint32_t>(timer_channel), counter / 2);
 }
 
 void SteperMotorStepDir::set_torque(float torque) {
