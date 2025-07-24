@@ -125,7 +125,7 @@ struct DeviceThreadedSettings {
  * This class provides the interface for device operations such as starting and stopping
  * a task that runs on the device. For example, if the device is a sensor, that requires some reading done in a loop.
  */
-class DeviceThreadedBase : public DeviceBase {
+class DeviceThreadedBase : public virtual DeviceBase {
 public:
   DeviceThreadedBase();
   virtual ~DeviceThreadedBase();
