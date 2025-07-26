@@ -39,10 +39,6 @@ public:
   /// @brief Constructor for the SteperMotorStepDir class
   SteperMotorStepDir(TIM_HandleTypeDef &htim, unsigned int timer_channel, GpioPin &direction_pin, GpioPin &enable_pin);
 
-  /// @brief Initialize the SteperMotor, calculates all necessary stuff to avoid
-  /// calculating it over again after the initialization
-  void init() override;
-
   /// @brief Set the current speed of the SteperMotor
   /// @param speed The speed in radians per second, can be negative or positive to change the direction
   void set_velocity(float speed) override;

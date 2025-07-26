@@ -32,8 +32,6 @@ public:
   /// @note The timer channel should be the same as the one used for the PWM signal
   ServoMotorPWM(TIM_HandleTypeDef &htim, unsigned int timer_channel);
 
-  void init() override;
-
   void set_velocity(float speed) override;
 
   void set_torque(float torque) override;

@@ -19,15 +19,12 @@ ServoMotorPWM::ServoMotorPWM(TIM_HandleTypeDef &_htim, unsigned int _timer_chann
   (void)device_set_settings(default_settings);
 }
 
-void ServoMotorPWM::init() {
-  device_start();
-}
 
 Status ServoMotorPWM::device_start() {
   uint32_t counter_max = 65535 / settings.n_multiplayer; // Max counter value for 16-bit timer
   uint32_t prescaler   = HAL_RCC_GetSysClockFreq() / (settings.pwm_frequency * counter_max) - 1;
 
-  if(prescaler < 0 || prescaler > 65535) {
+  if(prescaler > 65535) {
     return Status::Invalid("ServoMotorPWM: Invalid prescaler value (must be between 0 and 65535)");
   }
 
@@ -51,14 +48,15 @@ Status ServoMotorPWM::device_start() {
   } else {
     status = Status::OK();
   }
+  return status;
 }
 
 void ServoMotorPWM::set_velocity(float speed) {
-  // Servo motors are not speed controlled, so this function does nothing
+  (void)speed; // Servo motors are not speed controlled, so this function does nothing
 }
 
 void ServoMotorPWM::set_torque(float torque) {
-  // Servo motors are not torque controlled, so this function does nothing
+  (void)torque; // Servo motors are not torque controlled, so this function does nothing
 }
 
 void ServoMotorPWM::set_enable(bool enable) {
@@ -75,12 +73,12 @@ void ServoMotorPWM::set_reverse(bool reverse) {
 }
 
 void ServoMotorPWM::set_max_velocity(float max_velocity) {
-  // Servo motors do not have a velocity setting, so this function does nothing
+  (void)max_velocity; // Servo motors do not have a velocity setting, so this function does nothing
 }
 
 
 void ServoMotorPWM::set_min_velocity(float min_velocity) {
-  // Servo motors do not have a velocity setting, so this function does nothing
+  (void)min_velocity; // Servo motors do not have a velocity setting, so this function does nothing
 }
 
 
@@ -121,6 +119,13 @@ float ServoMotorPWM::get_position() const {
   return postion; // Return the current position in radians
 }
 
+float ServoMotorPWM::get_absolute_position() const {
+  return postion; // Absolute position is the same as the current position for servo motors
+}
+
+float ServoMotorPWM::get_gear_ratio() const {
+  return gear_ratio; // Return the current gear ratio
+}
 
 Status ServoMotorPWM::device_stop() {
   // Stop the PWM signal generation

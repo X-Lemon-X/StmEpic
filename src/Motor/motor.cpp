@@ -13,9 +13,6 @@ MotorClosedLoop::MotorClosedLoop(MotorBase &_motor,
 : motor(_motor), encoder_pos(_encoder_pos), encoder_vel(_encoder_vel), encoder_torque(_encoder_torque) {
 }
 
-void MotorClosedLoop::init() {
-  motor.init();
-}
 
 float MotorClosedLoop::get_velocity() const {
   if(encoder_vel != nullptr)

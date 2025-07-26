@@ -27,22 +27,6 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
 
 
 Status EncoderAbsoluteMagnetic::init() {
-  float angle = read_angle_rads();
-
-  // correct the angle begin value to avoid false rotation dircetion
-  // after first starting after power down
-  if(dead_zone_correction_angle != 0)
-    this->over_drive_angle = angle > this->dead_zone_correction_angle ? -PI_m2 : 0;
-  else // if no dead zone correction is needed then coret to the shortest path to 0
-    this->over_drive_angle = std::abs(PI_m2 - angle) < std::abs(angle) ? -PI_m2 : 0;
-
-  this->prev_angle = angle;
-  read_angle();
-  this->prev_angle_velocity = this->absolute_angle;
-
-  if(this->filter_angle != nullptr)
-    filter_angle->set_init_value(read_angle());
-  return Status::OK();
 }
 
 float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
@@ -95,7 +79,7 @@ float EncoderAbsoluteMagnetic::read_angle() {
 }
 
 void EncoderAbsoluteMagnetic::handle() {
-  read_angle();
+  (void)read_angle();
 }
 
 float EncoderAbsoluteMagnetic::get_velocity() const {
@@ -151,7 +135,22 @@ stmepic::Status EncoderAbsoluteMagnetic::device_reset() {
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_start() {
-  return device_get_status().status();
+  float angle = read_angle_rads();
+
+  // correct the angle begin value to avoid false rotation dircetion
+  // after first starting after power down
+  if(dead_zone_correction_angle != 0)
+    this->over_drive_angle = angle > this->dead_zone_correction_angle ? -PI_m2 : 0;
+  else // if no dead zone correction is needed then coret to the shortest path to 0
+    this->over_drive_angle = std::abs(PI_m2 - angle) < std::abs(angle) ? -PI_m2 : 0;
+
+  this->prev_angle = angle;
+  read_angle();
+  this->prev_angle_velocity = this->absolute_angle;
+
+  if(this->filter_angle != nullptr)
+    filter_angle->set_init_value(read_angle());
+  return Status::OK();
 }
 
 
@@ -168,17 +167,19 @@ stmepic::Status EncoderAbsoluteMagnetic::do_device_task_stop() {
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
   return Status::OK();
 }
 
 Status EncoderAbsoluteMagnetic::task_encoder_before(SimpleTask &handler, void *arg) {
   (void)handler;
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
-  return encoder->init();
+  return encoder->device_start();
 }
 
 Status EncoderAbsoluteMagnetic::task_encoder(SimpleTask &handler, void *arg) {
   (void)handler;
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
   encoder->handle();
+  return Status::OK();
 }
