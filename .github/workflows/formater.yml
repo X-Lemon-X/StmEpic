@@ -1,4 +1,4 @@
-name: clang-format
+name: clang-format-versioning
 
 on: [push]
 
@@ -23,6 +23,9 @@ jobs:
       - name: Run clang-format
         run: |
           find src -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
+
+      - name: Update version file
+        run: cmake -DSTMEPIC_GENERATE_VERSION_FILE=ON -P cmake/helper.cmake
 
       - name: Commit changes
         run: |
