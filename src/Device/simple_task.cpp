@@ -96,7 +96,7 @@ void SimpleTask::task_function(void *arg) {
   bool failed_to_start = false;
 
   if(task->before_task_task != nullptr) {
-    auto stat = task->before_task_task(*task, task->args);
+    auto stat    = task->before_task_task(*task, task->args);
     task->status = stat; // Status::ExecutionError("Task failed to start due to \"before_task_task\" failure!");
     failed_to_start = !stat.ok();
     if(!stat.ok() && task->stop_after_start_failure) {
