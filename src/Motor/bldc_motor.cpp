@@ -179,8 +179,8 @@ Status VescMotor::handle() {
   //   huart->hardware_start();
   // }
   //
-  // log_info("AT Modem" + a.status().to_string() + " data received:" + std::string(reinterpret_cast<const char *>(data)));
-  // for(size_t i = 0; i < sizeof(data); ++i) {
+  // log_info("AT Modem" + a.status().to_string() + " data received:" + std::string(reinterpret_cast<const
+  // char *>(data))); for(size_t i = 0; i < sizeof(data); ++i) {
   //   if(data[i] == '\0')
   //     continue; // Skip null characters
   //   if(settings->enable_gps) {

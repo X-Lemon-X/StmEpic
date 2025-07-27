@@ -6,17 +6,17 @@
 
 namespace stmepic::motor {
 
-struct VescMotorSettings: DeviceSettings {
-  uint32_t base_address{0x14};
-  float gear_ratio{1.0};
-  float current_to_torque{1.0};
-  uint32_t polar_pairs{7};
+struct VescMotorSettings : DeviceSettings {
+  uint32_t base_address{ 0x14 };
+  float gear_ratio{ 1.0 };
+  float current_to_torque{ 1.0 };
+  uint32_t polar_pairs{ 7 };
 };
 
 class VescMotor : public MotorBase, public DeviceThreadedBase {
 public:
   static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can);
-  VescMotor& operator=(const VescMotor&) = delete;
+  VescMotor &operator=(const VescMotor &) = delete;
 
   void init() override;
   [[nodiscard]] float get_velocity() const override;
