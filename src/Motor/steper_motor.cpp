@@ -161,5 +161,6 @@ Status SteperMotorStepDir::device_stop() {
 }
 
 Status SteperMotorStepDir::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
   return Status::OK();
 }

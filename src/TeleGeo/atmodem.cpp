@@ -41,8 +41,8 @@ Status AtModem::device_stop() {
 }
 
 Status AtModem::device_set_settings(const DeviceSettings &settings) {
-  auto mayby_settings = static_cast<const AtModemSettings *>(&settings);
-  if(mayby_settings == nullptr) {
+  auto mayby_settings = dynamic_cast<const AtModemSettings *>(&settings);
+  if(!mayby_settings) {
     return Status::ExecutionError("Settings are not of type AtModemSettings");
   }
   this->settings = std::make_unique<AtModemSettings>(*mayby_settings);

@@ -157,5 +157,6 @@ Result<bool> MotorClosedLoop::device_is_connected() {
 }
 
 [[nodiscard]] Status MotorClosedLoop::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
   return Status::OK();
 }

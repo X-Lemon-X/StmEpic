@@ -59,6 +59,7 @@ Status FramI2C::device_stop() {
 }
 
 Status FramI2C::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
   return Status::OK();
 }
 

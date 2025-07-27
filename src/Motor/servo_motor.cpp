@@ -195,25 +195,28 @@ Status ServoMotorPWM::device_get_status() {
 }
 
 Status ServoMotorPWM::device_set_settings(const DeviceSettings &_settings) {
-  const auto *servo_settings = static_cast<const ServoMotorPWMSettings *>(&_settings);
-  settings                   = *servo_settings;
-  if(settings.pwm_frequency <= 0.0f) {
+  const auto *servo_settings = dynamic_cast<const ServoMotorPWMSettings *>(&_settings);
+  if(!servo_settings) {
+    return Status::TypeError("ServoMotorPWM: Invalid settings type, expected ServoMotorPWMSettings");
+  }
+  if(servo_settings->pwm_frequency <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid pwm_frequency (must be > 0)");
   }
-  if(settings.min_pulse_width_us <= 0.0f) {
+  if(servo_settings->min_pulse_width_us <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid min_pulse_width_us (must be > 0)");
   }
-  if(settings.max_pulse_width_us <= 0.0f) {
+  if(servo_settings->max_pulse_width_us <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid max_pulse_width_us (must be > 0)");
   }
-  if(settings.min_angle_rad < 0.0f) {
+  if(servo_settings->min_angle_rad < 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid min_angle_rad (must be >= 0)");
   }
-  if(settings.max_angle_rad <= settings.min_angle_rad) {
+  if(servo_settings->max_angle_rad <= servo_settings->min_angle_rad) {
     return Status::Invalid("ServoMotorPWM: max_angle_rad must be greater than min_angle_rad");
   }
-  if(settings.n_multiplayer < 1) {
+  if(servo_settings->n_multiplayer < 1) {
     return Status::Invalid("ServoMotorPWM: n_multiplayer must be >= 1");
   }
+  settings = *servo_settings;
   return Status::OK();
 }

@@ -55,6 +55,8 @@ Status ICM20948::device_reset() {
 }
 
 Status ICM20948::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
+  return Status::OK();
 }
 
 Status ICM20948::do_device_task_start() {
