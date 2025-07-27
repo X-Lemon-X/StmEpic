@@ -127,8 +127,8 @@ Status BMP280::handle() {
 
 float BMP280::bmp280_compensate_T_int32(int32_t adc_T) {
   int32_t var1, var2, T;
-  var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
-  var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
+  var1   = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
+  var2   = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
   t_fine = var1 + var2;
   T      = (t_fine * 5 + 128) >> 8;
   return (float)T / 100.0f;
