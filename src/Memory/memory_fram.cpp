@@ -71,10 +71,9 @@ Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t> &data)
     return Status::CapacityError("Size of the data is 0");
 
   uint8_t mg1       = data[0];
-  uint16_t checksum = (data[1] << 8) | data[2];
-  // uint32_t encres = (data[3] << 24) | (data[4] << 16) | (data[5] << 8) | data[6];
-  uint16_t size = (data[7] << 8) | data[8];
-  uint8_t mg2   = data[9];
+  uint16_t checksum = (uint16_t)(data[1] << 8) | data[2];
+  uint16_t size     = (uint16_t)(data[7] << 8) | data[8];
+  uint8_t mg2       = data[9];
   if(mg1 != magic_number_1)
     return Status::Invalid("Magic number 1 is not correct");
   if(mg2 != magic_number_2)
@@ -111,10 +110,17 @@ Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t> &data)
 
 
 uint16_t FRAM::calculate_checksum(const std::vector<uint8_t> &data) {
-  uint16_t checksum = 0;
-  for(auto &d : data)
-    checksum += d;
-  return checksum;
+  uint16_t crc = 0xFFFF;
+  for(uint8_t byte : data) {
+    crc ^= (uint16_t)byte << 8;
+    for(int i = 0; i < 8; ++i) {
+      if(crc & 0x8000)
+        crc = (crc << 1) ^ 0x1021;
+      else
+        crc <<= 1;
+    }
+  }
+  return crc;
 }
 
 Result<std::vector<uint8_t>> FRAM::encrypt_data(const std::vector<uint8_t> &data, std::string key) {
@@ -145,10 +151,10 @@ Result<std::vector<uint8_t>> FRAM::decrypt_data(const std::vector<uint8_t> &data
   return Result<std::vector<uint8_t>>::OK(decrypted_data);
 }
 
-void FRAM::set_encryption_key(std::string key) {
+void FRAM::set_encryption_key(const std::string &key) {
   encryption_key = key;
 }
 
-std::string FRAM::get_encryption_key() {
+const std::string &FRAM::get_encryption_key() {
   return encryption_key;
 }

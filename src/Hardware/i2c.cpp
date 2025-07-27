@@ -219,9 +219,7 @@ Status I2C::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_
 
   if(_hardwType != HardwareType::BLOCKING && result.ok()) {
     if(task_handle != nullptr) {
-      result = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(timeout_ms)) == 0 ?
-               Status::TimeOut("I2C timeout did't receive confirmation of write") :
-               result;
+      result = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(timeout_ms)) == 0 ? Status::OK() : result;
     } else {
       while(dma_lock)
         __NOP();
