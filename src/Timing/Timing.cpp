@@ -95,7 +95,7 @@ Result<std::shared_ptr<Timer>> Timer::Make(uint32_t period, bool repeat, void (*
   return Result<decltype(timer)>::OK(timer);
 }
 
-void Timer::reset() {
+void Timer::timer_reset() {
   this->last_time      = ticker.get_micros() - 1001;
   this->triggered_flag = false;
 }

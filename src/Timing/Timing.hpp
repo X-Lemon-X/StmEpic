@@ -131,7 +131,7 @@ public:
   bool triggered();
 
   /// @brief Reset the timer, it current time and repeat status
-  void reset();
+  void timer_reset();
 
   /// @brief Run the function assigned to the timer if the timer is triggered
   void run_function();

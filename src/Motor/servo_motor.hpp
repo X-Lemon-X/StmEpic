@@ -78,6 +78,8 @@ private:
   unsigned int timer_channel;
   ServoMotorPWMSettings settings;
 
+  float timer_values_to_freq(uint32_t prescaler, uint32_t counter_max, uint32_t timer_clock);
+
   float postion;
 
   float gear_ratio;

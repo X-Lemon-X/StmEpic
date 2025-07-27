@@ -19,27 +19,66 @@ ServoMotorPWM::ServoMotorPWM(TIM_HandleTypeDef &_htim, unsigned int _timer_chann
   (void)device_set_settings(default_settings);
 }
 
+float ServoMotorPWM::timer_values_to_freq(uint32_t prescaler, uint32_t counter_max, uint32_t timer_clock) {
+  return static_cast<float>(timer_clock) / ((prescaler + 1) * (counter_max + 1));
+}
+
+struct TimerConfig {
+  uint32_t prescaler;
+  uint32_t counter;
+  double achieved_freq;
+};
+
+TimerConfig find_best_timer_config(double base_clk, double target_freq, uint32_t max_prescaler, uint32_t max_counter) {
+  TimerConfig best = { 1, 1, base_clk };
+  double min_error = std::abs(base_clk - target_freq);
+
+  for(uint32_t prescaler = 1; prescaler <= max_prescaler; ++prescaler) {
+
+    uint32_t counter = static_cast<uint32_t>(base_clk / ((prescaler + 1) * target_freq));
+    if(counter < 1 || counter > max_counter)
+      continue;
+
+    double freq  = base_clk / (prescaler * counter);
+    double error = std::abs(freq - target_freq);
+
+    if(error < min_error && (counter > best.counter || std::abs(error - min_error) < 1e-3)) {
+      min_error          = error;
+      best.prescaler     = prescaler;
+      best.counter       = counter;
+      best.achieved_freq = freq;
+    }
+  }
+  return best;
+}
 
 Status ServoMotorPWM::device_start() {
-  uint32_t counter_max = 65535 / settings.n_multiplayer; // Max counter value for 16-bit timer
-  uint32_t prescaler   = HAL_RCC_GetSysClockFreq() / (settings.pwm_frequency * counter_max) - 1;
+  // uint32_t counter_max  = 65535 / settings.n_multiplayer; // Max counter value for 16-bit timer
+  // float prescaler_float = HAL_RCC_GetSysClockFreq() / (settings.pwm_frequency * counter_max);
+  // uint32_t prescaler    = (uint32_t)prescaler_float;
+  TimerConfig config = find_best_timer_config(HAL_RCC_GetSysClockFreq(), settings.pwm_frequency, 65535, 65535);
 
-  if(prescaler > 65535) {
+
+  if(config.prescaler > 65535) {
     return Status::Invalid("ServoMotorPWM: Invalid prescaler value (must be between 0 and 65535)");
   }
 
-  float cpr = (settings.max_angle_rad - settings.min_angle_rad) /
-              ((settings.max_pulse_width_us - settings.min_pulse_width_us) / 1000000.0f);
+  if(config.prescaler == 0) {
+    return Status::Invalid("ServoMotorPWM: Prescaler cannot be zero | this means that the PWM frequency is "
+                           "too high for the timer clock, decrease the n_multiplayer");
+  }
+
+  float cpr = ((settings.max_pulse_width_us - settings.min_pulse_width_us) / 1000000.0f) /
+              (settings.max_angle_rad - settings.min_angle_rad);
   if(cpr <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid cpr (must be > 0)");
   }
-
-  count_per_rad = cpr;
+  count_per_rad = cpr * settings.pwm_frequency * config.counter;
   min_pulse_width =
-  static_cast<uint32_t>((float)(settings.min_pulse_width_us / 1000000.0f * settings.pwm_frequency * counter_max));
+  static_cast<uint32_t>((float)(settings.min_pulse_width_us / 1000000.0f * settings.pwm_frequency * config.counter));
 
-  __HAL_TIM_SET_PRESCALER(&htim, prescaler);    // Set the prescaler in the timer handle
-  __HAL_TIM_SET_AUTORELOAD(&htim, counter_max); // Set the auto-reload value in the timer handle
+  __HAL_TIM_SET_PRESCALER(&htim, config.prescaler); // Set the prescaler in the timer handle
+  __HAL_TIM_SET_AUTORELOAD(&htim, config.counter);  // Set the auto-reload value in the timer handle
   set_enable(false);
 
   // Start the PWM signal generation
