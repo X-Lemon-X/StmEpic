@@ -137,11 +137,11 @@ public:
 
   /// @brief Set the encryption key
   /// @param key the key that will be used for encrypting data
-  void set_encryption_key(std::string key);
+  void set_encryption_key(const std::string &key);
 
   /// @brief Get the encryption key
   /// @return the key that is used for encryption
-  std::string get_encryption_key();
+  const std::string &get_encryption_key();
 
 protected:
   FRAM();

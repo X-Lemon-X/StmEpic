@@ -34,11 +34,6 @@ class MotorBase : public DeviceBase {
 public:
   MotorBase() = default;
 
-  /// @brief Initialize the Motor, calcualtes all necessary stuff to a void calcualting it
-  /// over again after the initialization
-  virtual void init() = 0;
-
-
   /// @brief Get the current speed of the Motor
   /// @return The speed in radians per second
   [[nodiscard]] virtual float get_velocity() const = 0;
@@ -107,8 +102,6 @@ public:
                   std::shared_ptr<encoders::EncoderBase> _encoder_pos,
                   std::shared_ptr<encoders::EncoderBase> _encoder_vel,
                   std::shared_ptr<encoders::EncoderBase> _encoder_torque);
-
-  void init() override;
 
   [[nodiscard]] float get_velocity() const override;
 

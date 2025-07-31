@@ -59,6 +59,7 @@ Status FramI2C::device_stop() {
 }
 
 Status FramI2C::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
   return Status::OK();
 }
 
@@ -94,7 +95,7 @@ FramI2CFM24CLxx::Make(std::shared_ptr<I2C> _hi2c, uint16_t _begin_address, uint3
 }
 
 FramI2CFM24CLxx::FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size)
-: FramI2C(hi2c, 0xA0, begin_address, fram_size) {
+: FramI2C(hi2c, 0x50, begin_address, fram_size) {
 }
 
 Status FramI2CFM24CLxx::write(uint32_t address, const std::vector<uint8_t> &data) {
@@ -107,7 +108,7 @@ Status FramI2CFM24CLxx::write(uint32_t address, const std::vector<uint8_t> &data
     return Status::CapacityError("Data is too big for the FRAM");
   uint32_t memory_address = begin_address + address;
   uint16_t dev_address    = device_address | ((memory_address >> 8) & 0x0E);
-  return hi2c->write(dev_address, memory_address, encoded_data.data(), encoded_data.size());
+  return hi2c->write(dev_address, memory_address, encoded_data.data(), encoded_data.size(), 1, 1000);
 }
 
 Result<std::vector<uint8_t>> FramI2CFM24CLxx::read(uint32_t address) {

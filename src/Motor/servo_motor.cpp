@@ -19,30 +19,66 @@ ServoMotorPWM::ServoMotorPWM(TIM_HandleTypeDef &_htim, unsigned int _timer_chann
   (void)device_set_settings(default_settings);
 }
 
-void ServoMotorPWM::init() {
-  device_start();
+float ServoMotorPWM::timer_values_to_freq(uint32_t prescaler, uint32_t counter_max, uint32_t timer_clock) {
+  return static_cast<float>(timer_clock) / ((prescaler + 1) * (counter_max + 1));
+}
+
+struct TimerConfig {
+  uint32_t prescaler;
+  uint32_t counter;
+  double achieved_freq;
+};
+
+TimerConfig find_best_timer_config(double base_clk, double target_freq, uint32_t max_prescaler, uint32_t max_counter) {
+  TimerConfig best = { 1, 1, base_clk };
+  double min_error = std::abs(base_clk - target_freq);
+
+  for(uint32_t prescaler = 1; prescaler <= max_prescaler; ++prescaler) {
+
+    uint32_t counter = static_cast<uint32_t>(base_clk / ((prescaler + 1) * target_freq));
+    if(counter < 1 || counter > max_counter)
+      continue;
+
+    double freq  = base_clk / (prescaler * counter);
+    double error = std::abs(freq - target_freq);
+
+    if(error < min_error && (counter > best.counter || std::abs(error - min_error) < 1e-3)) {
+      min_error          = error;
+      best.prescaler     = prescaler;
+      best.counter       = counter;
+      best.achieved_freq = freq;
+    }
+  }
+  return best;
 }
 
 Status ServoMotorPWM::device_start() {
-  uint32_t counter_max = 65535 / settings.n_multiplayer; // Max counter value for 16-bit timer
-  uint32_t prescaler   = HAL_RCC_GetSysClockFreq() / (settings.pwm_frequency * counter_max) - 1;
+  // uint32_t counter_max  = 65535 / settings.n_multiplayer; // Max counter value for 16-bit timer
+  // float prescaler_float = HAL_RCC_GetSysClockFreq() / (settings.pwm_frequency * counter_max);
+  // uint32_t prescaler    = (uint32_t)prescaler_float;
+  TimerConfig config = find_best_timer_config(HAL_RCC_GetSysClockFreq(), settings.pwm_frequency, 65535, 65535);
 
-  if(prescaler < 0 || prescaler > 65535) {
+
+  if(config.prescaler > 65535) {
     return Status::Invalid("ServoMotorPWM: Invalid prescaler value (must be between 0 and 65535)");
   }
 
-  float cpr = (settings.max_angle_rad - settings.min_angle_rad) /
-              ((settings.max_pulse_width_us - settings.min_pulse_width_us) / 1000000.0f);
+  if(config.prescaler == 0) {
+    return Status::Invalid("ServoMotorPWM: Prescaler cannot be zero | this means that the PWM frequency is "
+                           "too high for the timer clock, decrease the n_multiplayer");
+  }
+
+  float cpr = ((settings.max_pulse_width_us - settings.min_pulse_width_us) / 1000000.0f) /
+              (settings.max_angle_rad - settings.min_angle_rad);
   if(cpr <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid cpr (must be > 0)");
   }
-
-  count_per_rad = cpr;
+  count_per_rad = cpr * settings.pwm_frequency * config.counter;
   min_pulse_width =
-  static_cast<uint32_t>((float)(settings.min_pulse_width_us / 1000000.0f * settings.pwm_frequency * counter_max));
+  static_cast<uint32_t>((float)(settings.min_pulse_width_us / 1000000.0f * settings.pwm_frequency * config.counter));
 
-  __HAL_TIM_SET_PRESCALER(&htim, prescaler);    // Set the prescaler in the timer handle
-  __HAL_TIM_SET_AUTORELOAD(&htim, counter_max); // Set the auto-reload value in the timer handle
+  __HAL_TIM_SET_PRESCALER(&htim, config.prescaler); // Set the prescaler in the timer handle
+  __HAL_TIM_SET_AUTORELOAD(&htim, config.counter);  // Set the auto-reload value in the timer handle
   set_enable(false);
 
   // Start the PWM signal generation
@@ -51,14 +87,15 @@ Status ServoMotorPWM::device_start() {
   } else {
     status = Status::OK();
   }
+  return status;
 }
 
 void ServoMotorPWM::set_velocity(float speed) {
-  // Servo motors are not speed controlled, so this function does nothing
+  (void)speed; // Servo motors are not speed controlled, so this function does nothing
 }
 
 void ServoMotorPWM::set_torque(float torque) {
-  // Servo motors are not torque controlled, so this function does nothing
+  (void)torque; // Servo motors are not torque controlled, so this function does nothing
 }
 
 void ServoMotorPWM::set_enable(bool enable) {
@@ -75,12 +112,12 @@ void ServoMotorPWM::set_reverse(bool reverse) {
 }
 
 void ServoMotorPWM::set_max_velocity(float max_velocity) {
-  // Servo motors do not have a velocity setting, so this function does nothing
+  (void)max_velocity; // Servo motors do not have a velocity setting, so this function does nothing
 }
 
 
 void ServoMotorPWM::set_min_velocity(float min_velocity) {
-  // Servo motors do not have a velocity setting, so this function does nothing
+  (void)min_velocity; // Servo motors do not have a velocity setting, so this function does nothing
 }
 
 
@@ -121,6 +158,13 @@ float ServoMotorPWM::get_position() const {
   return postion; // Return the current position in radians
 }
 
+float ServoMotorPWM::get_absolute_position() const {
+  return postion; // Absolute position is the same as the current position for servo motors
+}
+
+float ServoMotorPWM::get_gear_ratio() const {
+  return gear_ratio; // Return the current gear ratio
+}
 
 Status ServoMotorPWM::device_stop() {
   // Stop the PWM signal generation
@@ -151,25 +195,28 @@ Status ServoMotorPWM::device_get_status() {
 }
 
 Status ServoMotorPWM::device_set_settings(const DeviceSettings &_settings) {
-  const auto *servo_settings = static_cast<const ServoMotorPWMSettings *>(&_settings);
-  settings                   = *servo_settings;
-  if(settings.pwm_frequency <= 0.0f) {
+  const auto *servo_settings = dynamic_cast<const ServoMotorPWMSettings *>(&_settings);
+  if(!servo_settings) {
+    return Status::TypeError("ServoMotorPWM: Invalid settings type, expected ServoMotorPWMSettings");
+  }
+  if(servo_settings->pwm_frequency <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid pwm_frequency (must be > 0)");
   }
-  if(settings.min_pulse_width_us <= 0.0f) {
+  if(servo_settings->min_pulse_width_us <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid min_pulse_width_us (must be > 0)");
   }
-  if(settings.max_pulse_width_us <= 0.0f) {
+  if(servo_settings->max_pulse_width_us <= 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid max_pulse_width_us (must be > 0)");
   }
-  if(settings.min_angle_rad < 0.0f) {
+  if(servo_settings->min_angle_rad < 0.0f) {
     return Status::Invalid("ServoMotorPWM: Invalid min_angle_rad (must be >= 0)");
   }
-  if(settings.max_angle_rad <= settings.min_angle_rad) {
+  if(servo_settings->max_angle_rad <= servo_settings->min_angle_rad) {
     return Status::Invalid("ServoMotorPWM: max_angle_rad must be greater than min_angle_rad");
   }
-  if(settings.n_multiplayer < 1) {
+  if(servo_settings->n_multiplayer < 1) {
     return Status::Invalid("ServoMotorPWM: n_multiplayer must be >= 1");
   }
+  settings = *servo_settings;
   return Status::OK();
 }

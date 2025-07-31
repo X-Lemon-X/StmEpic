@@ -36,6 +36,8 @@ Status BMP280::device_stop() {
 }
 
 Status BMP280::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
+  return Status::OK();
 }
 
 

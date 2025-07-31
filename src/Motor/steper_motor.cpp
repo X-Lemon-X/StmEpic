@@ -26,12 +26,6 @@ SteperMotorStepDir::SteperMotorStepDir(TIM_HandleTypeDef &_htim, unsigned int _t
   this->reverse              = false;
   this->enable_reversed      = false;
   this->current_state        = movement::MovementState{ 0, 0, 0 };
-  this->init();
-}
-
-
-void SteperMotorStepDir::init() {
-  device_start();
 }
 
 void SteperMotorStepDir::set_velocity(float velocity) {
@@ -167,5 +161,6 @@ Status SteperMotorStepDir::device_stop() {
 }
 
 Status SteperMotorStepDir::device_set_settings(const DeviceSettings &settings) {
+  (void)settings;
   return Status::OK();
 }

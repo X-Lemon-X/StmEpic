@@ -23,7 +23,7 @@ option(STMEPIC_SENSORS "Enable Sensors module" ON)
 option(STMEPIC_DFU_PROGRAMING "Enable Usb programing module" ON)
 option(STMEPIC_MEMORY "Enable Memory module" ON)
 option(STMEPIC_MIN_VERSION_REQUIRED_ENABLED "Enable minimum version required" OFF)
-option(STMEPIC_GENERATE_VERSION_FILE "Enable version file generation" OFF)
+option(STMEPIC_GENERATE_VERSION_FILE "Enable version file generation | don't use this unless in CI" OFF)
 
 if(NOT DEFINED STMEPIC_MIN_VERSION_REQUIRED)
   set(STMEPIC_MIN_VERSION_REQUIRED 0.1)

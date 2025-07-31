@@ -68,10 +68,23 @@ public:
   Status task_get_status() const;
 
   /**
-   * @brief Wait for the task to start
-   * This function will block until the task is started successfully as until before_task_task is executed correctly.
+   * @brief Wait for the task to start. Blocking function.
+   *
+   * This function can be used to wait for the task to start.
+   * It will allow for before_task_task is executed successfully and allow for the main task function to
+   * start. Why would you want to use this? If you want to make sure that the task is started before doing
+   * something else mostly starting other tasks. This is the way to do it.
+   *
+   * ### For example:
+   *
+   * You want encoder, imu and motor to all start before you start the main control loop.
+   * But each of this device have their own startup time and you want to make sure that they are all
+   * working before your robot crashes in to  a wall.
+   * Hence you can use this function to wait for each task to start before the others are started.
    * @param timeout_ms timeout in milliseconds, if 0 then it will wait indefinitely
    * @return Status of the task after waiting for it to start
+   * @note FREERTOS kernel have to be started. It usually is run inside other task.
+   *
    */
   [[nodiscard]] Status task_wait_for_task_to_start(uint32_t timeout_ms = 0);
 
