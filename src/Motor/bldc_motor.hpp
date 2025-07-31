@@ -7,10 +7,10 @@
 namespace stmepic::motor {
 
 struct VescMotorSettings : DeviceSettings {
-  uint32_t base_address{ 0x14 };
-  float gear_ratio{ 1.0 };
-  float current_to_torque{ 1.0 };
-  uint32_t polar_pairs{ 7 };
+  uint32_t base_address;
+  float gear_ratio;
+  float current_to_torque;
+  uint32_t polar_pairs;
 };
 
 class VescMotor : public MotorBase, public DeviceThreadedBase {
@@ -18,7 +18,6 @@ public:
   static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can);
   VescMotor &operator=(const VescMotor &) = delete;
 
-  void init() override;
   [[nodiscard]] float get_velocity() const override;
   [[nodiscard]] float get_torque() const override;
   [[nodiscard]] float get_position() const override;
@@ -43,7 +42,7 @@ public:
   Status device_set_settings(const DeviceSettings &settings) override;
 
 private:
-  VescMotor(const std::shared_ptr<CanBase> can);
+  VescMotor(std::shared_ptr<CanBase> can);
 
   Status do_device_task_start() override;
   Status do_device_task_stop() override;
@@ -62,7 +61,8 @@ private:
   float max_velocity;
   float min_velocity;
   bool reverse;
-  bool enable_reversed;
+  bool enabled;
+  Status status;
 
   movement::MovementState current_state;
 };
