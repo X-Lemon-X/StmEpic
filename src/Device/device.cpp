@@ -5,6 +5,11 @@
 using namespace stmepic;
 
 
+Status DeviceBase::device_wait_for_device_to_start(uint32_t timeout_ms = 3000) {
+  return Status::OK();
+}
+
+
 DeviceThreadedSettings::DeviceThreadedSettings()
 : uxStackDepth(456), uxPriority(tskIDLE_PRIORITY + 2), period(0) {
 }
@@ -62,6 +67,6 @@ Status DeviceThreadedBase::device_task_status() const {
   return task_s.task_get_status();
 }
 
-Status DeviceThreadedBase::device_task_wait_for_device_to_start(uint32_t timeout_ms) {
+Status DeviceThreadedBase::device_wait_for_device_to_start(uint32_t timeout_ms) {
   return task_s.task_wait_for_task_to_start(timeout_ms);
 }

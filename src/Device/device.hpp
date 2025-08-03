@@ -92,6 +92,13 @@ public:
    */
   [[nodiscard]] virtual Status device_stop() = 0;
 
+  /**
+   * @brief Waits for the device to start.
+   * If its a regular device this function might always return Status::OK.
+   * @param timeout_ms Timeout in milliseconds. If 0, it will wait indefinitely.
+   * @return Status
+   */
+  [[nodiscard]] virtual Status device_wait_for_device_to_start(uint32_t timeout_ms = 3000);
 
   /**
    * @brief Set the settings for the device. Usually you will set this using some class that inheriting from
@@ -131,26 +138,6 @@ public:
   virtual ~DeviceThreadedBase();
   using task_function_pointer = SimpleTask::simple_task_function_pointer;
 
-
-  /**
-   * @brief Run a task that runs on the device.
-   * This function is used to start a task that runs on the device to do some work.
-   * For example, if the device is a sensor, this function can be used to start reading
-   * data from the sensor. Example for encoder this function would start a task that would
-   * start reading the angles from the encoder in continuous loop.
-   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
-   * @return Status Status of the operation.
-   */
-  [[nodiscard]] Status device_task_start();
-
-  /**
-   * @brief Stop the task that runs on the device.
-   * This function is used to stop the task that runs on the device to do some work.
-   * similat to device_task_start, but this function stops the task.
-   * @return Status Status of the operation.
-   */
-  [[nodiscard]] Status device_task_stop();
-
   /**
    * @brief Set the settings for the task that will run on the device.
    * This function is used to set the settings for the task that will run on the device to do some work.
@@ -170,14 +157,37 @@ public:
    */
   [[nodiscard]] Status device_task_status() const;
 
-  /**
-   * @brief Waits for the device to start correctly.
-   * @param timeout_ms Timeout in milliseconds. If 0, it will wait indefinitely.
-   * @return Status
-   */
-  [[nodiscard]] Status device_task_wait_for_device_to_start(uint32_t timeout_ms = 3000);
+
+  [[nodiscard]] Status device_wait_for_device_to_start(uint32_t timeout_ms = 3000) override;
+
+  // /**
+  //  * @brief Waits for the device to start correctly.
+  //  * @param timeout_ms Timeout in milliseconds. If 0, it will wait indefinitely.
+  //  * @return Status
+  //  */
+  // [[nodiscard]] Status device_task_wait_for_device_to_start(uint32_t timeout_ms = 3000);
 
 protected:
+  /**
+   * @brief Run a task that runs on the device.
+   * This function is used to start a task that runs on the device to do some work.
+   * For example, if the device is a sensor, this function can be used to start reading
+   * data from the sensor. Example for encoder this function would start a task that would
+   * start reading the angles from the encoder in continuous loop.
+   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
+   * @return Status Status of the operation.
+   */
+  [[nodiscard]] Status device_task_start();
+
+  /**
+   * @brief Stop the task that runs on the device.
+   * This function is used to stop the task that runs on the device to do some work.
+   * similat to device_task_start, but this function stops the task.
+   * @return Status Status of the operation.
+   */
+  [[nodiscard]] Status device_task_stop();
+
+
   /**
    * @brief Pure virtual function to start the task that runs on the device.
    * This function should be overriden by the specific device to start the task that will run on the device.
