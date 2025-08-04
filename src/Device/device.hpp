@@ -145,6 +145,12 @@ public:
    */
   Status device_task_set_settings(const DeviceThreadedSettings &settings);
 
+  [[nodiscard]] virtual Status device_start() final;
+
+  [[nodiscard]] virtual Status device_stop() final;
+
+  [[nodiscard]] virtual Status device_reset() final;
+
   /**
    * @brief Check if the task is running.
    * @return bool True if the task is running, false otherwise.
@@ -168,25 +174,34 @@ public:
   // [[nodiscard]] Status device_task_wait_for_device_to_start(uint32_t timeout_ms = 3000);
 
 protected:
-  /**
-   * @brief Run a task that runs on the device.
-   * This function is used to start a task that runs on the device to do some work.
-   * For example, if the device is a sensor, this function can be used to start reading
-   * data from the sensor. Example for encoder this function would start a task that would
-   * start reading the angles from the encoder in continuous loop.
-   * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
-   * @return Status Status of the operation.
-   */
-  [[nodiscard]] Status device_task_start();
+  // /**
+  //  * @brief Run a task that runs on the device.
+  //  * This function is used to start a task that runs on the device to do some work.
+  //  * For example, if the device is a sensor, this function can be used to start reading
+  //  * data from the sensor. Example for encoder this function would start a task that would
+  //  * start reading the angles from the encoder in continuous loop.
+  //  * @param settings Settings for the task that will run on the device. should be cast to the specific settings struct for the specific device.
+  //  * @return Status Status of the operation.
+  //  */
+  // [[nodiscard]] Status device_task_start();
+
+  // /**
+  //  * @brief Stop the task that runs on the device.
+  //  * This function is used to stop the task that runs on the device to do some work.
+  //  * similat to device_task_start, but this function stops the task.
+  //  * @return Status Status of the operation.
+  //  */
+  // [[nodiscard]] Status device_task_stop();
+
 
   /**
-   * @brief Stop the task that runs on the device.
-   * This function is used to stop the task that runs on the device to do some work.
-   * similat to device_task_start, but this function stops the task.
-   * @return Status Status of the operation.
+   * @brief This function will be called when user requests to restart the deice.
+   *
+   * This function will also be called after task running on the device is stopped.
+   * and will start the device again afte this function exits with OK status.
+   *    * @return Status Status of the operation.
    */
-  [[nodiscard]] Status device_task_stop();
-
+  [[nodiscard]] virtual Status do_device_task_restart() = 0;
 
   /**
    * @brief Pure virtual function to start the task that runs on the device.

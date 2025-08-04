@@ -18,11 +18,19 @@ DeviceThreadedBase::DeviceThreadedBase() : task_running(false) {
 }
 
 DeviceThreadedBase::~DeviceThreadedBase() {
-  (void)device_task_stop();
+  (void)device_stop();
 }
 
+Status DeviceThreadedBase::device_reset() {
+  if(task_running) {
+    return do_device_task_restart();
+  }
+  STMEPIC_RETURN_ON_ERROR(do_device_task_stop());
+  STMEPIC_RETURN_ON_ERROR(do_device_task_restart());
+  return do_device_task_start();
+}
 
-Status DeviceThreadedBase::device_task_start() {
+Status DeviceThreadedBase::device_start() {
   if(task_running)
     return Status::Cancelled("Task is already running");
   auto ret     = do_device_task_start();
@@ -30,7 +38,7 @@ Status DeviceThreadedBase::device_task_start() {
   return ret;
 }
 
-Status DeviceThreadedBase::device_task_stop() {
+Status DeviceThreadedBase::device_stop() {
   if(!task_running)
     return Status::Cancelled("Task is not running");
   auto ret     = do_device_task_stop();
