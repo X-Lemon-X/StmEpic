@@ -27,13 +27,13 @@ Status ICM20948::device_get_status() {
 }
 
 
-Status ICM20948::device_stop() {
+Status ICM20948::stop() {
   // uint8_t data = BMP280_RESET_VALUE;
   // return hi2c->write(address, BMP280_REG_RESET, &data, 1);
   return Status::OK();
 }
 
-Status ICM20948::device_start() {
+Status ICM20948::init() {
   STMEPIC_ASSING_TO_OR_RETURN(_device_status, hi2c->is_device_ready(address, 1, 500));
   uint8_t data[2] = {};
   data[0]         = ICM20948_PAGE_0;
@@ -49,9 +49,10 @@ Status ICM20948::device_start() {
   return Status::OK();
 }
 
-Status ICM20948::device_reset() {
-  STMEPIC_RETURN_ON_ERROR(device_stop());
-  return device_start();
+Status ICM20948::do_device_task_reset() {
+  // STMEPIC_RETURN_ON_ERROR(device_stop());
+  // return device_start();
+  return Status::OK();
 }
 
 Status ICM20948::device_set_settings(const DeviceSettings &settings) {
@@ -79,7 +80,7 @@ Result<bool> ICM20948::device_is_connected() {
 Status ICM20948::task_bar_before(SimpleTask &handler, void *arg) {
   (void)handler;
   ICM20948 *bar = static_cast<ICM20948 *>(arg);
-  return bar->device_start();
+  return bar->init();
 }
 
 Status ICM20948::task_bar(SimpleTask &handler, void *arg) {

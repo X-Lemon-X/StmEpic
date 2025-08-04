@@ -201,7 +201,7 @@ protected:
    * and will start the device again afte this function exits with OK status.
    *    * @return Status Status of the operation.
    */
-  [[nodiscard]] virtual Status do_device_task_restart() = 0;
+  [[nodiscard]] virtual Status do_device_task_reset() = 0;
 
   /**
    * @brief Pure virtual function to start the task that runs on the device.

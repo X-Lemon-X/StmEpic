@@ -5,7 +5,7 @@
 using namespace stmepic;
 
 
-Status DeviceBase::device_wait_for_device_to_start(uint32_t timeout_ms = 3000) {
+Status DeviceBase::device_wait_for_device_to_start(uint32_t timeout_ms) {
   return Status::OK();
 }
 
@@ -23,10 +23,10 @@ DeviceThreadedBase::~DeviceThreadedBase() {
 
 Status DeviceThreadedBase::device_reset() {
   if(task_running) {
-    return do_device_task_restart();
+    return do_device_task_reset();
   }
   STMEPIC_RETURN_ON_ERROR(do_device_task_stop());
-  STMEPIC_RETURN_ON_ERROR(do_device_task_restart());
+  STMEPIC_RETURN_ON_ERROR(do_device_task_reset());
   return do_device_task_start();
 }
 

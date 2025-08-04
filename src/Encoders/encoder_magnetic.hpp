@@ -79,12 +79,6 @@ public:
 
   Status device_get_status() override;
 
-  Status device_reset() override;
-
-  Status device_start() override;
-
-  Status device_stop() override;
-
   Status device_set_settings(const DeviceSettings &settings) override;
 
 
@@ -126,9 +120,6 @@ private:
   bool reverse;
   uint32_t resolution;
 
-  /// @brief thsi should be run in a  constructor of child class to initiate the begining values using child class specific values
-  Status init() override;
-
   /// @brief Calucaltes velcoicty, and passes it thoroung a filter
   /// @param angle current angle
   /// @param current_time  current time
@@ -149,6 +140,11 @@ private:
 
   [[nodiscard]] Status do_device_task_start() override;
   [[nodiscard]] Status do_device_task_stop() override;
+
+  Status do_device_task_reset() override;
+
+  Status init();
+  // Status stop();
 };
 
 

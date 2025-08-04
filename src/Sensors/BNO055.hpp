@@ -133,9 +133,6 @@ public:
   Result<bool> device_is_connected() override;
   bool device_ok() override;
   Status device_get_status() override;
-  Status device_reset() override;
-  Status device_start() override;
-  Status device_stop() override;
   Status device_set_settings(const DeviceSettings &settings) override;
 
   /**
@@ -150,8 +147,12 @@ public:
 
 private:
   BNO055(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
-  stmepic::Status do_device_task_start() override;
-  stmepic::Status do_device_task_stop() override;
+  Status do_device_task_start() override;
+  Status do_device_task_stop() override;
+  Status do_device_task_reset() override;
+
+  Status init();
+  Status stop();
 
 
   Result<BNO055_Data_t> read_data();
