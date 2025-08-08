@@ -42,7 +42,7 @@ Status BNO055::device_get_status() {
 }
 
 
-Status BNO055::device_stop() {
+Status BNO055::stop() {
   if(nreset != nullptr)
     nreset->write(1);
   else {
@@ -57,7 +57,7 @@ Status BNO055::device_stop() {
 }
 
 
-Status BNO055::device_start() {
+Status BNO055::init() {
   if(nreset != nullptr) {
     nreset->write(1);
     Ticker::get_instance().delay_nop(650);
@@ -105,9 +105,10 @@ Status BNO055::device_start() {
   return Status::OK();
 }
 
-Status BNO055::device_reset() {
-  STMEPIC_RETURN_ON_ERROR(device_stop());
-  return device_start();
+Status BNO055::do_device_task_reset() {
+  // STMEPIC_RETURN_ON_ERROR(device_stop());
+  // return device_start();
+  return Status::OK();
 }
 
 Status BNO055::do_device_task_start() {
@@ -125,7 +126,7 @@ BNO055_Calibration_Data_t BNO055::get_calibration_data() {
 Status BNO055::task_imu_before(SimpleTask &handler, void *arg) {
   (void)handler;
   BNO055 *imu = static_cast<BNO055 *>(arg);
-  return imu->device_start();
+  return imu->init();
 }
 
 Status BNO055::task_imu(SimpleTask &handler, void *arg) {

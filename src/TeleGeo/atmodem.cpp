@@ -34,7 +34,7 @@ Status AtModem::device_get_status() {
 }
 
 
-Status AtModem::device_stop() {
+Status AtModem::stop() {
   STMEPIC_RETURN_ON_ERROR(huart->hardware_stop());
   _device_status = Status::Disconnected("not started");
   return Status::OK();
@@ -74,7 +74,7 @@ Result<at_status_t> AtModem::send_command(const char *command, int expected_size
 };
 
 
-Status AtModem::device_start() {
+Status AtModem::init() {
   at_status_t result;
 
   STMEPIC_ASSING_TO_OR_RETURN(result, send_command("AT", -1));
@@ -117,11 +117,12 @@ Status AtModem::device_start() {
   return Status::OK();
 }
 
-Status AtModem::device_reset() {
-  STMEPIC_RETURN_ON_ERROR(device_stop());
+Status AtModem::do_device_task_reset() {
+  // STMEPIC_RETURN_ON_ERROR(device_stop());
   STMEPIC_RETURN_ON_ERROR(send_command("AT+CFUN=1,1", -1));
   nmea_parser.reset();
-  return device_start();
+  return Status::OK();
+  // return device_start();
 }
 
 Status AtModem::do_device_task_start() {
@@ -144,7 +145,7 @@ Result<bool> AtModem::device_is_connected() {
 Status AtModem::task_before(SimpleTask &handler, void *arg) {
   (void)handler;
   AtModem *bar = static_cast<AtModem *>(arg);
-  return bar->device_start();
+  return bar->init();
 }
 
 Status AtModem::task(SimpleTask &handler, void *arg) {

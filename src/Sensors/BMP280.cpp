@@ -30,7 +30,7 @@ Status BMP280::device_get_status() {
 }
 
 
-Status BMP280::device_stop() {
+Status BMP280::stop() {
   uint8_t data = BMP280_RESET_VALUE;
   return hi2c->write(address, BMP280_REG_RESET, &data, 1);
 }
@@ -41,7 +41,7 @@ Status BMP280::device_set_settings(const DeviceSettings &settings) {
 }
 
 
-Status BMP280::device_start() {
+Status BMP280::init() {
   STMEPIC_ASSING_TO_OR_RETURN(_device_status, hi2c->is_device_ready(address, 1, 500));
   uint8_t data[24] = {};
 
@@ -78,9 +78,10 @@ Status BMP280::device_start() {
   return Status::OK();
 }
 
-Status BMP280::device_reset() {
-  STMEPIC_RETURN_ON_ERROR(device_stop());
-  return device_start();
+Status BMP280::do_device_task_reset() {
+  // STMEPIC_RETURN_ON_ERROR(device_stop());
+  // return device_start();
+  return Status::OK();
 }
 
 Status BMP280::do_device_task_start() {
@@ -103,7 +104,7 @@ Result<bool> BMP280::device_is_connected() {
 Status BMP280::task_bar_before(SimpleTask &handler, void *arg) {
   (void)handler;
   BMP280 *bar = static_cast<BMP280 *>(arg);
-  return bar->device_start();
+  return bar->init();
 }
 
 Status BMP280::task_bar(SimpleTask &handler, void *arg) {

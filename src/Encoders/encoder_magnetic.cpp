@@ -25,10 +25,6 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
   absolute_angle(0), ratio(1), offset(0), dead_zone_correction_angle(0), reverse(false), resolution(_resolution) {
 }
 
-
-Status EncoderAbsoluteMagnetic::init() {
-}
-
 float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
   float current_tiem     = stmepic::Ticker::get_instance().get_seconds();
   const float dt         = current_tiem - last_time;
@@ -129,12 +125,11 @@ stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {
   return device_status;
 }
 
-stmepic::Status EncoderAbsoluteMagnetic::device_reset() {
-  STMEPIC_RETURN_ON_ERROR(device_stop());
-  return device_start();
+stmepic::Status EncoderAbsoluteMagnetic::do_device_task_reset() {
+  return Status::OK();
 }
 
-stmepic::Status EncoderAbsoluteMagnetic::device_start() {
+stmepic::Status EncoderAbsoluteMagnetic::init() {
   float angle = read_angle_rads();
 
   // correct the angle begin value to avoid false rotation dircetion
@@ -154,10 +149,6 @@ stmepic::Status EncoderAbsoluteMagnetic::device_start() {
 }
 
 
-stmepic::Status EncoderAbsoluteMagnetic::device_stop() {
-  return do_default_task_stop();
-}
-
 stmepic::Status EncoderAbsoluteMagnetic::do_device_task_start() {
   return DeviceThreadedBase::do_default_task_start(task_encoder, task_encoder_before, this);
 }
@@ -174,7 +165,7 @@ stmepic::Status EncoderAbsoluteMagnetic::device_set_settings(const DeviceSetting
 Status EncoderAbsoluteMagnetic::task_encoder_before(SimpleTask &handler, void *arg) {
   (void)handler;
   EncoderAbsoluteMagnetic *encoder = static_cast<EncoderAbsoluteMagnetic *>(arg);
-  return encoder->device_start();
+  return encoder->init();
 }
 
 Status EncoderAbsoluteMagnetic::task_encoder(SimpleTask &handler, void *arg) {

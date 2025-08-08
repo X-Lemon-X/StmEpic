@@ -42,9 +42,6 @@ public:
   Result<bool> device_is_connected() override;
   bool device_ok() override;
   Status device_get_status() override;
-  Status device_reset() override;
-  Status device_start() override;
-  Status device_stop() override;
   Status device_set_settings(const DeviceSettings &settings) override;
 
   Result<const gps::NmeaParser &> get_nmea_data();
@@ -55,6 +52,10 @@ private:
 
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
+  Status do_device_task_reset() override;
+
+  Status init();
+  Status stop();
 
   static Status task_before(SimpleTask &handler, void *arg);
   static Status task(SimpleTask &handler, void *arg);
