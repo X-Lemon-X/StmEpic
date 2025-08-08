@@ -12,8 +12,8 @@ Result<std::shared_ptr<VescMotor>> VescMotor::Make(const std::shared_ptr<CanBase
 }
 
 VescMotor::VescMotor(const std::shared_ptr<CanBase> can)
-: can(can), steps_per_revolution(400), max_velocity(0), min_velocity(0), reverse(false),
-  enabled(false), status(Status::ExecutionError("VescMotor not initialized")) {
+: can(can), steps_per_revolution(400), max_velocity(0), min_velocity(0), reverse(false), enabled(false),
+  status(Status::ExecutionError("VescMotor not initialized")) {
   VescMotorSettings s;
   s.base_address      = 0x14;
   s.gear_ratio        = 1.0;
@@ -103,7 +103,7 @@ Status VescMotor::device_stop() {
   set_velocity(0.0f);
   set_enable(false);
   Status stop_status = do_device_task_stop();
-  if (!stop_status.ok()) {
+  if(!stop_status.ok()) {
     return stop_status;
   }
   return Status::OK();
