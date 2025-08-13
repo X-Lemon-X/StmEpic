@@ -41,7 +41,7 @@ public:
   [[nodiscard]] float get_position() const override;
   [[nodiscard]] float get_absolute_position() const override;
   [[nodiscard]] float get_gear_ratio() const override;
-  [[nodiscard]] const VescParams& get_vesc_params() const;
+  [[nodiscard]] const VescParams &get_vesc_params() const;
 
   void set_velocity(float speed) override;
   void set_torque(float torque) override;
