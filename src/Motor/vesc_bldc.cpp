@@ -39,7 +39,7 @@ float VescMotor::get_absolute_position() const {
 }
 
 float VescMotor::get_gear_ratio() const {
-  return settings->gear_ratio;
+  return settings.gear_ratio;
 }
 
 const VescParams &VescMotor::get_vesc_params() const {
@@ -69,7 +69,7 @@ void VescMotor::set_enable(const bool enable) {
 }
 
 void VescMotor::set_gear_ratio(const float gear_ratio) {
-  settings->gear_ratio = gear_ratio;
+  settings.gear_ratio = gear_ratio;
 }
 
 void VescMotor::set_max_velocity(const float max_velocity) {
@@ -113,17 +113,17 @@ Status VescMotor::device_set_settings(const DeviceSettings &_settings) {
     return Status::Invalid("VescMotor: Invalid gear_ratio (must be > 0.0)");
   if(vesc_settings->polar_pairs <= 0)
     return Status::Invalid("VescMotor: Invalid polar_pairs (must be > 0)");
-  this->settings = std::make_unique<VescMotorSettings>(*vesc_settings);
+  this->settings = *vesc_settings;
   return Status::OK();
 }
 
 Status VescMotor::init() {
-  const uint32_t st1_id = (CAN_VESC_FLEFT_STATUS_1_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st2_id = (CAN_VESC_FLEFT_STATUS_2_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st3_id = (CAN_VESC_FLEFT_STATUS_3_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st4_id = (CAN_VESC_FLEFT_STATUS_4_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st5_id = (CAN_VESC_FLEFT_STATUS_5_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st6_id = (CAN_VESC_FLEFT_STATUS_6_FRAME_ID & 0xffffff00) | settings->base_address;
+  const uint32_t st1_id = (CAN_VESC_FLEFT_STATUS_1_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st2_id = (CAN_VESC_FLEFT_STATUS_2_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st3_id = (CAN_VESC_FLEFT_STATUS_3_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st4_id = (CAN_VESC_FLEFT_STATUS_4_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st5_id = (CAN_VESC_FLEFT_STATUS_5_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st6_id = (CAN_VESC_FLEFT_STATUS_6_FRAME_ID & 0xffffff00) | settings.base_address;
   can->add_callback(st1_id, can_callback_status_1, this);
   can->add_callback(st2_id, can_callback_status_2, this);
   can->add_callback(st3_id, can_callback_status_3, this);
@@ -134,12 +134,12 @@ Status VescMotor::init() {
 }
 
 Status VescMotor::stop() {
-  const uint32_t st1_id = (CAN_VESC_FLEFT_STATUS_1_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st2_id = (CAN_VESC_FLEFT_STATUS_2_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st3_id = (CAN_VESC_FLEFT_STATUS_3_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st4_id = (CAN_VESC_FLEFT_STATUS_4_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st5_id = (CAN_VESC_FLEFT_STATUS_5_FRAME_ID & 0xffffff00) | settings->base_address;
-  const uint32_t st6_id = (CAN_VESC_FLEFT_STATUS_6_FRAME_ID & 0xffffff00) | settings->base_address;
+  const uint32_t st1_id = (CAN_VESC_FLEFT_STATUS_1_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st2_id = (CAN_VESC_FLEFT_STATUS_2_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st3_id = (CAN_VESC_FLEFT_STATUS_3_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st4_id = (CAN_VESC_FLEFT_STATUS_4_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st5_id = (CAN_VESC_FLEFT_STATUS_5_FRAME_ID & 0xffffff00) | settings.base_address;
+  const uint32_t st6_id = (CAN_VESC_FLEFT_STATUS_6_FRAME_ID & 0xffffff00) | settings.base_address;
   can->remove_callback(st1_id);
   can->remove_callback(st2_id);
   can->remove_callback(st3_id);
@@ -178,6 +178,41 @@ Status VescMotor::task(SimpleTask &handler, void *arg) {
 }
 
 Status VescMotor::handle() {
+  CanDataFrame frame;
+  if(enabled)
+    switch(control_mode) {
+    case movement::MovementControlMode::VELOCITY: {
+      can_vesc_fleft_set_rpm_t str;
+      double rpm = current_state.velocity * 60.0 / (2.0 * M_PI) * settings.gear_ratio * settings.polar_pairs;
+      str.rpm           = (int32_t)rpm;
+      frame.frame_id    = (CAN_VESC_FLEFT_SET_RPM_FRAME_ID & 0xffffff00) | settings.base_address;
+      frame.data_size   = CAN_VESC_FLEFT_SET_RPM_LENGTH;
+      frame.extended_id = CAN_VESC_FLEFT_SET_RPM_IS_EXTENDED;
+      can_vesc_fleft_set_rpm_pack(frame.data, &str, frame.data_size);
+      break;
+    }
+    case movement::MovementControlMode::POSITION: {
+      can_vesc_fleft_set_pos_t str;
+      double pos        = current_state.position * 1000.0 * settings.gear_ratio;
+      str.position      = (int32_t)pos;
+      frame.frame_id    = (CAN_VESC_FLEFT_SET_POS_FRAME_ID & 0xffffff00) | settings.base_address;
+      frame.data_size   = CAN_VESC_FLEFT_SET_POS_LENGTH;
+      frame.extended_id = CAN_VESC_FLEFT_SET_POS_IS_EXTENDED;
+      can_vesc_fleft_set_pos_pack(frame.data, &str, frame.data_size);
+      break;
+    }
+    case movement::MovementControlMode::TORQUE: {
+      can_vesc_fleft_set_current_t str;
+      double current    = current_state.torque / settings.current_to_torque * 1000.0 / settings.gear_ratio;
+      str.current       = (int32_t)current;
+      frame.frame_id    = (CAN_VESC_FLEFT_SET_CURRENT_FRAME_ID & 0xffffff00) | settings.base_address;
+      frame.data_size   = CAN_VESC_FLEFT_SET_CURRENT_LENGTH;
+      frame.extended_id = CAN_VESC_FLEFT_SET_CURRENT_IS_EXTENDED;
+      can_vesc_fleft_set_current_pack(frame.data, &str, frame.data_size);
+      break;
+    }
+    default: status = Status::ExecutionError("Unknown control mode"); return status;
+    }
 
   return Status::OK();
 }
@@ -194,10 +229,10 @@ void VescMotor::can_callback_status_1(CanBase &can, CanDataFrame &msg, void *arg
 
   motor->vesc_params.current    = static_cast<float>(status.current);
   motor->vesc_params.duty_cycle = static_cast<float>(status.duty);
-  motor->vesc_params.erpm = static_cast<float>(status.erpm) * motor->settings->gear_ratio * motor->settings->polar_pairs;
+  motor->vesc_params.erpm = static_cast<float>(status.erpm) * motor->settings.gear_ratio * motor->settings.polar_pairs;
 
   motor->current_state.velocity = (static_cast<float>(status.erpm) / 60.0f) * (2.0f * static_cast<float>(M_PI)) /
-                                  (motor->settings->gear_ratio * motor->settings->polar_pairs);
+                                  (motor->settings.gear_ratio * motor->settings.polar_pairs);
 }
 
 void VescMotor::can_callback_status_2(CanBase &can, CanDataFrame &msg, void *args) {
@@ -252,7 +287,7 @@ void VescMotor::can_callback_status_5(CanBase &can, CanDataFrame &msg, void *arg
   }
   double scale_for_tachometer   = 4.0 * M_PI / 360.0; //  2 * 2 * M_PI = 360 deg
   motor->current_state.position = (double)status.tachometer * scale_for_tachometer;
-  motor->vesc_params.voltage    = (double)status.volts_in * 0.1;
+  motor->vesc_params.voltage   = (double)status.volts_in * 0.1;
 }
 
 void VescMotor::can_callback_status_6(CanBase &can, CanDataFrame &msg, void *args) {
@@ -284,6 +319,14 @@ uint16_t VescMotor::unpack_right_shift_u16(uint8_t value, uint8_t shift, uint8_t
 
 uint32_t VescMotor::unpack_right_shift_u32(uint8_t value, uint8_t shift, uint8_t mask) {
   return ((uint32_t)(value & mask) >> shift);
+}
+
+uint8_t VescMotor::pack_left_shift_u32(uint32_t value, uint8_t shift, uint8_t mask) {
+  return (uint8_t)((uint8_t)(value << shift) & mask);
+}
+
+uint8_t VescMotor::pack_right_shift_u32(uint32_t value, uint8_t shift, uint8_t mask) {
+  return (uint8_t)((uint8_t)(value >> shift) & mask);
 }
 
 int VescMotor::can_vesc_fleft_status_1_unpack(struct can_vesc_fleft_status_1_t *dst_p, const uint8_t *src_p, size_t size) {
@@ -424,4 +467,58 @@ int VescMotor::can_vesc_fleft_status_6_unpack(struct can_vesc_fleft_status_6_t *
   dst_p->ppm = (int16_t)ppm;
 
   return (0);
+}
+
+int VescMotor::can_vesc_fleft_set_rpm_pack(uint8_t *dst_p, const struct can_vesc_fleft_set_rpm_t *src_p, size_t size) {
+  uint32_t rpm;
+
+  if(size < 4u) {
+    return (-EINVAL);
+  }
+
+  memset(&dst_p[0], 0, 4);
+
+  rpm = (uint32_t)src_p->rpm;
+  dst_p[0] |= pack_right_shift_u32(rpm, 24u, 0xffu);
+  dst_p[1] |= pack_right_shift_u32(rpm, 16u, 0xffu);
+  dst_p[2] |= pack_right_shift_u32(rpm, 8u, 0xffu);
+  dst_p[3] |= pack_left_shift_u32(rpm, 0u, 0xffu);
+
+  return (4);
+}
+
+int VescMotor::can_vesc_fleft_set_pos_pack(uint8_t *dst_p, const struct can_vesc_fleft_set_pos_t *src_p, size_t size) {
+  uint32_t position;
+
+  if(size < 4u) {
+    return (-EINVAL);
+  }
+
+  memset(&dst_p[0], 0, 4);
+
+  position = (uint32_t)src_p->position;
+  dst_p[0] |= pack_right_shift_u32(position, 24u, 0xffu);
+  dst_p[1] |= pack_right_shift_u32(position, 16u, 0xffu);
+  dst_p[2] |= pack_right_shift_u32(position, 8u, 0xffu);
+  dst_p[3] |= pack_left_shift_u32(position, 0u, 0xffu);
+
+  return (4);
+}
+
+int VescMotor::can_vesc_fleft_set_current_pack(uint8_t *dst_p, const struct can_vesc_fleft_set_current_t *src_p, size_t size) {
+  uint32_t current;
+
+  if(size < 4u) {
+    return (-EINVAL);
+  }
+
+  memset(&dst_p[0], 0, 4);
+
+  current = (uint32_t)src_p->current;
+  dst_p[0] |= pack_right_shift_u32(current, 24u, 0xffu);
+  dst_p[1] |= pack_right_shift_u32(current, 16u, 0xffu);
+  dst_p[2] |= pack_right_shift_u32(current, 8u, 0xffu);
+  dst_p[3] |= pack_left_shift_u32(current, 0u, 0xffu);
+
+  return (4);
 }

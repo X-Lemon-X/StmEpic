@@ -41,7 +41,7 @@ public:
   [[nodiscard]] float get_position() const override;
   [[nodiscard]] float get_absolute_position() const override;
   [[nodiscard]] float get_gear_ratio() const override;
-  [[nodiscard]] const VescParams& get_vesc_params() const;
+  [[nodiscard]] const VescParams &get_vesc_params() const;
 
   void set_velocity(float speed) override;
   void set_torque(float torque) override;
@@ -76,7 +76,7 @@ private:
 
   std::shared_ptr<CanBase> can;
 
-  std::unique_ptr<VescMotorSettings> settings;
+  VescMotorSettings settings;
 
   movement::MovementControlMode control_mode;
 
@@ -98,12 +98,22 @@ private:
   static void can_callback_status_5(CanBase &can, CanDataFrame &msg, void *args);
   static void can_callback_status_6(CanBase &can, CanDataFrame &msg, void *args);
 
-  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_1_FRAME_ID = 0x914u;
-  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_2_FRAME_ID = 0xE14u;
-  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_3_FRAME_ID = 0xF14u;
-  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_4_FRAME_ID = 0x1014u;
-  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_5_FRAME_ID = 0x1B14u;
-  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_6_FRAME_ID = 0x1C14u;
+  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_1_FRAME_ID       = 0x914u;
+  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_2_FRAME_ID       = 0xE14u;
+  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_3_FRAME_ID       = 0xF14u;
+  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_4_FRAME_ID       = 0x1014u;
+  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_5_FRAME_ID       = 0x1B14u;
+  static constexpr uint32_t CAN_VESC_FLEFT_STATUS_6_FRAME_ID       = 0x1C14u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_RPM_FRAME_ID        = 0x314u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_RPM_LENGTH          = 4u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_RPM_IS_EXTENDED     = 1;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_POS_FRAME_ID        = 0x414u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_POS_LENGTH          = 4u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_POS_IS_EXTENDED     = 1;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_CURRENT_FRAME_ID    = 0x114u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_CURRENT_LENGTH      = 4u;
+  static constexpr uint32_t CAN_VESC_FLEFT_SET_CURRENT_IS_EXTENDED = 1;
+
 
   struct can_vesc_fleft_status_1_t {
     int32_t erpm;
@@ -140,10 +150,25 @@ private:
     int16_t ppm;
   };
 
-  static uint16_t VescMotor::unpack_left_shift_u16(uint8_t value, uint8_t shift, uint8_t mask);
-  static uint32_t VescMotor::unpack_left_shift_u32(uint8_t value, uint8_t shift, uint8_t mask);
-  static uint16_t VescMotor::unpack_right_shift_u16(uint8_t value, uint8_t shift, uint8_t mask);
-  static uint32_t VescMotor::unpack_right_shift_u32(uint8_t value, uint8_t shift, uint8_t mask);
+  struct can_vesc_fleft_set_rpm_t {
+    int32_t rpm;
+  };
+
+  struct can_vesc_fleft_set_pos_t {
+    int32_t position;
+  };
+
+  struct can_vesc_fleft_set_current_t {
+    int32_t current;
+  };
+
+
+  static uint16_t unpack_left_shift_u16(uint8_t value, uint8_t shift, uint8_t mask);
+  static uint32_t unpack_left_shift_u32(uint8_t value, uint8_t shift, uint8_t mask);
+  static uint16_t unpack_right_shift_u16(uint8_t value, uint8_t shift, uint8_t mask);
+  static uint32_t unpack_right_shift_u32(uint8_t value, uint8_t shift, uint8_t mask);
+  static uint8_t pack_left_shift_u32(uint32_t value, uint8_t shift, uint8_t mask);
+  static uint8_t pack_right_shift_u32(uint32_t value, uint8_t shift, uint8_t mask);
 
   static int can_vesc_fleft_status_1_unpack(struct can_vesc_fleft_status_1_t *dst_p, const uint8_t *src_p, size_t size);
   static int can_vesc_fleft_status_2_unpack(struct can_vesc_fleft_status_2_t *dst_p, const uint8_t *src_p, size_t size);
@@ -151,6 +176,10 @@ private:
   static int can_vesc_fleft_status_4_unpack(struct can_vesc_fleft_status_4_t *dst_p, const uint8_t *src_p, size_t size);
   static int can_vesc_fleft_status_5_unpack(struct can_vesc_fleft_status_5_t *dst_p, const uint8_t *src_p, size_t size);
   static int can_vesc_fleft_status_6_unpack(struct can_vesc_fleft_status_6_t *dst_p, const uint8_t *src_p, size_t size);
+
+  static int can_vesc_fleft_set_rpm_pack(uint8_t *dst_p, const struct can_vesc_fleft_set_rpm_t *src_p, size_t size);
+  static int can_vesc_fleft_set_pos_pack(uint8_t *dst_p, const struct can_vesc_fleft_set_pos_t *src_p, size_t size);
+  static int can_vesc_fleft_set_current_pack(uint8_t *dst_p, const struct can_vesc_fleft_set_current_t *src_p, size_t size);
 };
 
 } // namespace stmepic::motor
