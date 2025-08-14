@@ -184,7 +184,7 @@ Status VescMotor::handle() {
     case movement::MovementControlMode::VELOCITY: {
       can_vesc_fleft_set_rpm_t str;
       double rpm = current_state.velocity * 60.0 / (2.0 * M_PI) * settings.gear_ratio * settings.polar_pairs;
-      str.rpm           = (int32_t)rpm;
+      str.rpm    = (int32_t)rpm;
       frame.frame_id    = (CAN_VESC_FLEFT_SET_RPM_FRAME_ID & 0xffffff00) | settings.base_address;
       frame.data_size   = CAN_VESC_FLEFT_SET_RPM_LENGTH;
       frame.extended_id = CAN_VESC_FLEFT_SET_RPM_IS_EXTENDED;
@@ -287,7 +287,7 @@ void VescMotor::can_callback_status_5(CanBase &can, CanDataFrame &msg, void *arg
   }
   double scale_for_tachometer   = 4.0 * M_PI / 360.0; //  2 * 2 * M_PI = 360 deg
   motor->current_state.position = (double)status.tachometer * scale_for_tachometer;
-  motor->vesc_params.voltage   = (double)status.volts_in * 0.1;
+  motor->vesc_params.voltage    = (double)status.volts_in * 0.1;
 }
 
 void VescMotor::can_callback_status_6(CanBase &can, CanDataFrame &msg, void *args) {
