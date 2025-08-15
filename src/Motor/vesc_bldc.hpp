@@ -9,26 +9,27 @@ struct VescMotorSettings : DeviceSettings {
   uint32_t base_address;
   float gear_ratio;
   float current_to_torque;
-  uint32_t polar_pairs;
+  uint16_t polar_pairs;
 };
 
+
 struct VescParams {
-  double current;
-  double erpm;
-  double duty_cycle;
-  double amd_hours;
-  double amd_hours_charged;
-  double watt_hours;
-  double watt_hours_charged;
-  double temperature_mosfet;
-  double temperature_motor;
-  double current_in;
-  double pid_pos;
-  double voltage;
-  double adc1;
-  double adc2;
-  double adc3;
-  double ppm;
+  float current;
+  float erpm;
+  float duty_cycle;
+  float amd_hours;
+  float amd_hours_charged;
+  float watt_hours;
+  float watt_hours_charged;
+  float temperature_mosfet;
+  float temperature_motor;
+  float current_in;
+  float pid_pos;
+  float voltage;
+  float adc1;
+  float adc2;
+  float adc3;
+  float ppm;
 };
 
 class VescMotor : public MotorBase, public DeviceThreadedBase {
