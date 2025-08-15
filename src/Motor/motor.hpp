@@ -30,7 +30,7 @@ namespace stmepic::motor {
  * Base interface for all Actuators, provides basic functionalities for controlling the movement of the actuator.
  *
  */
-class MotorBase : public DeviceBase {
+class MotorBase : public virtual DeviceBase {
 public:
   MotorBase() = default;
 
