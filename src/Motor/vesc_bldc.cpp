@@ -73,7 +73,7 @@ void VescMotor::set_gear_ratio(const float gear_ratio) {
 }
 
 void VescMotor::set_max_velocity(const float max_velocity) {
-  // control_mode       = movement::MovementControlMode::VELOCITY; te chyba nie powinno zmieniać trybu kontrolnego   
+  // control_mode       = movement::MovementControlMode::VELOCITY; te chyba nie powinno zmieniać trybu kontrolnego
   this->max_velocity = max_velocity;
 }
 
@@ -87,19 +87,19 @@ void VescMotor::set_reverse(const bool reverse) {
 }
 
 bool VescMotor::device_ok() {
-  // ... 
+  // ...
   // ja pierdole ???
   // co tu się stało?
   //
   // Status status = device_get_status();
-  // if(!status.ok())  
+  // if(!status.ok())
   //   return false;
   // return status.ok();
   return status.ok();
 }
 
 Result<bool> VescMotor::device_is_connected() {
-  // to akurat jesteś w w stanie sprawdzić czy status jest obierany z jakims timeoutem 
+  // to akurat jesteś w w stanie sprawdzić czy status jest obierany z jakims timeoutem
   // więc to poprawki
   return Result<bool>::OK(true);
 }
@@ -118,7 +118,7 @@ Status VescMotor::device_set_settings(const DeviceSettings &_settings) {
     return Status::Invalid("VescMotor: Invalid current_to_torque (must be > 0.0)");
   if(vesc_settings->gear_ratio <= 0.0f)
     return Status::Invalid("VescMotor: Invalid gear_ratio (must be > 0.0)");
-  if(vesc_settings->polar_pairs == 0)  // jak nie chcesz żeby ktos  dawał tylko naturalne liczby to użyj unsigned 
+  if(vesc_settings->polar_pairs == 0) // jak nie chcesz żeby ktos  dawał tylko naturalne liczby to użyj unsigned
     return Status::Invalid("VescMotor: Invalid polar_pairs cant be 0");
   this->settings = *vesc_settings;
   return Status::OK();
@@ -158,7 +158,7 @@ Status VescMotor::stop() {
 
 Status VescMotor::do_device_task_reset() {
   stop();
-  // STMEPIC_RETURN_ON_ERROR(device_stop()); // to sprawi że wpadnie w infinite rekursywnego loopa 
+  // STMEPIC_RETURN_ON_ERROR(device_stop()); // to sprawi że wpadnie w infinite rekursywnego loopa
   init();
   return device_start();
 }
