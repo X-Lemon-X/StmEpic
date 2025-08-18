@@ -1,34 +1,28 @@
 #include "vesc_bldc.hpp"
 #include "status.hpp"
 
-#include <chrono>
-#include <thread>
-
 using namespace stmepic::motor;
 using namespace stmepic;
 
-Result<std::shared_ptr<VescMotor>> VescMotor::Make(const std::shared_ptr<CanBase> can) {
+Result<std::shared_ptr<VescMotor>> VescMotor::Make(const std::shared_ptr<CanBase> can, std::shared_ptr<Timer> timer) {
   if(can == nullptr)
     return Status::Invalid("CAN is not nullptr");
-  auto res = std::shared_ptr<VescMotor>(new VescMotor(can));
+  if(timer == nullptr)
+    return Status::Invalid("Timer is not nullptr");
+  STMEPIC_ASSING_TO_OR_RETURN(timer, Timer::Make(100000, false, nullptr, Ticker::get_instance()));
+  auto res = std::shared_ptr<VescMotor>(new VescMotor(can, timer));
   return Result<decltype(res)>::OK(res);
 }
 
-VescMotor::VescMotor(const std::shared_ptr<CanBase> can)
-: can(can), steps_per_revolution(400), max_velocity(0), min_velocity(0), reverse(false), enabled(false),
-  status(Status::ExecutionError("VescMotor not initialized")) {
+VescMotor::VescMotor(const std::shared_ptr<CanBase> can, const std::shared_ptr<Timer> timer)
+: can(can), timer(timer), steps_per_revolution(400), max_velocity(0), min_velocity(0), reverse(false),
+  enabled(false), status(Status::ExecutionError("VescMotor not initialized")) {
   VescMotorSettings s;
   s.base_address      = 0x14;
   s.gear_ratio        = 1.0;
   s.current_to_torque = 0.0665;
   s.polar_pairs       = 7;
   VescMotor::device_set_settings(s);
-  auto timer_result = Timer::Make(100000, false, nullptr, Ticker::get_instance());
-  if(timer_result.ok()) {
-    timer = timer_result.valueOrDie();
-  } else {
-    status = Status::ExecutionError("Failed to create timer");
-  }
 }
 
 float VescMotor::get_velocity() const {
@@ -54,24 +48,23 @@ float VescMotor::get_gear_ratio() const {
 const VescParams &VescMotor::get_vesc_params() const {
   return vesc_params;
 }
-// TODO
-// current_state jest źle wykonany, sam się nadpisuje pomiędzy tym co zadajesz o jest odczytywane,
-// bo raz go zadajesz , następnie on go odczytuje i potem to jest wysyłane,
-// Nie będzie to działać, musisz rozdzielić to na target_state i current _state
 
 void VescMotor::set_velocity(const float speed) {
-  control_mode           = movement::MovementControlMode::VELOCITY;
-  current_state.velocity = speed;
+  control_mode = movement::MovementControlMode::VELOCITY;
+  // current_state.velocity = speed;
+  target_state.velocity = speed;
 }
 
 void VescMotor::set_torque(const float torque) {
-  control_mode         = movement::MovementControlMode::TORQUE;
-  current_state.torque = torque;
+  control_mode = movement::MovementControlMode::TORQUE;
+  // current_state.torque = torque;
+  target_state.torque = torque;
 }
 
 void VescMotor::set_position(const float position) {
-  control_mode           = movement::MovementControlMode::POSITION;
-  current_state.position = position;
+  control_mode = movement::MovementControlMode::POSITION;
+  // current_state.position = position;
+  target_state.position = position;
 }
 
 void VescMotor::set_enable(const bool enable) {
@@ -100,7 +93,7 @@ bool VescMotor::device_ok() {
 
 Result<bool> VescMotor::device_is_connected() {
   if(timer->triggered()) {
-    return Result<bool>(Status::TimeOut("Timeout after "));
+    return Result<bool>(Status::TimeOut("Vesc timeout - status frame 1 not received"));
   }
   return Result<bool>::OK(true);
 }
@@ -186,14 +179,19 @@ Status VescMotor::task(SimpleTask &handler, void *arg) {
   return motor->handle();
 }
 
+// TODO
+// jak włacze silnik i będzie on w trybie innym niż velocity to nie to nie zrobi
 Status VescMotor::handle() {
   CanDataFrame frame;
+  if(!enabled) {
+    target_state.velocity = 0;
+  }
   switch(control_mode) {
   case movement::MovementControlMode::VELOCITY: {
     can_vesc_fleft_set_rpm_t str;
-    double rpm = current_state.velocity * 60.0 / (2.0 * M_PI) * settings.gear_ratio * settings.polar_pairs;
-    str.rpm    = (int32_t)rpm;
-    frame.frame_id    = (CAN_VESC_FLEFT_SET_RPM_FRAME_ID & 0xffffff00) | settings.base_address;
+    double rpm     = target_state.velocity * 60.0 / (2.0 * M_PI) * settings.gear_ratio * settings.polar_pairs;
+    str.rpm        = (int32_t)rpm;
+    frame.frame_id = (CAN_VESC_FLEFT_SET_RPM_FRAME_ID & 0xffffff00) | settings.base_address;
     frame.data_size   = CAN_VESC_FLEFT_SET_RPM_LENGTH;
     frame.extended_id = CAN_VESC_FLEFT_SET_RPM_IS_EXTENDED;
     can_vesc_fleft_set_rpm_pack(frame.data, &str, frame.data_size);
@@ -201,7 +199,7 @@ Status VescMotor::handle() {
   }
   case movement::MovementControlMode::POSITION: {
     can_vesc_fleft_set_pos_t str;
-    double pos        = current_state.position * 1000.0 * settings.gear_ratio;
+    double pos        = target_state.position * 1000.0 * settings.gear_ratio;
     str.position      = (int32_t)pos;
     frame.frame_id    = (CAN_VESC_FLEFT_SET_POS_FRAME_ID & 0xffffff00) | settings.base_address;
     frame.data_size   = CAN_VESC_FLEFT_SET_POS_LENGTH;
@@ -211,7 +209,7 @@ Status VescMotor::handle() {
   }
   case movement::MovementControlMode::TORQUE: {
     can_vesc_fleft_set_current_t str;
-    double current    = current_state.torque / settings.current_to_torque * 1000.0 / settings.gear_ratio;
+    double current    = target_state.torque / settings.current_to_torque * 1000.0 / settings.gear_ratio;
     str.current       = (int32_t)current;
     frame.frame_id    = (CAN_VESC_FLEFT_SET_CURRENT_FRAME_ID & 0xffffff00) | settings.base_address;
     frame.data_size   = CAN_VESC_FLEFT_SET_CURRENT_LENGTH;
@@ -221,9 +219,7 @@ Status VescMotor::handle() {
   }
   default: status = Status::ExecutionError("Unknown control mode"); return status;
   }
-  if(enabled) {
-    current_state.velocity = 0;
-  }
+  can->write(frame);
 
   return Status::OK();
 }
@@ -240,14 +236,12 @@ void inline VescMotor::can_callback_status_1(CanBase &can, CanDataFrame &msg, vo
     return;
   }
 
-  motor->vesc_params.current = static_cast<float>(status.current);
-  // TODO
-  // tutaj powinna być też konwersja z prądu na moment jaki jest odczytany. Nie ma jej
+  motor->vesc_params.current    = static_cast<float>(status.current);
   motor->vesc_params.duty_cycle = static_cast<float>(status.duty);
   motor->vesc_params.erpm = static_cast<float>(status.erpm) * motor->settings.gear_ratio * motor->settings.polar_pairs;
-
   motor->current_state.velocity = (static_cast<float>(status.erpm) / 60.0f) * (2.0f * static_cast<float>(M_PI)) /
                                   (motor->settings.gear_ratio * motor->settings.polar_pairs);
+  motor->current_state.torque = motor->vesc_params.current * motor->settings.current_to_torque;
 }
 
 void inline VescMotor::can_callback_status_2(CanBase &can, CanDataFrame &msg, void *args) {

@@ -34,7 +34,7 @@ struct VescParams {
 
 class VescMotor : public MotorBase, public DeviceThreadedBase {
 public:
-  static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can);
+  static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can, std::shared_ptr<Timer> timer);
   VescMotor &operator=(const VescMotor &) = delete;
 
   [[nodiscard]] float get_velocity() const override;
@@ -56,13 +56,10 @@ public:
   bool device_ok() override;
   Result<bool> device_is_connected() override;
   Status device_get_status() override;
-  // Status device_reset() override;
-  // Status device_start() override;
-  // Status device_stop() override;
   Status device_set_settings(const DeviceSettings &settings) override;
 
 private:
-  VescMotor(std::shared_ptr<CanBase> can);
+  VescMotor(std::shared_ptr<CanBase> can, std::shared_ptr<Timer> timer);
 
   Status do_device_task_start() override;
   Status do_device_task_stop() override;
@@ -76,6 +73,7 @@ private:
   Status handle();
 
   std::shared_ptr<CanBase> can;
+  std::shared_ptr<Timer> timer;
 
   VescMotorSettings settings;
 
@@ -90,8 +88,8 @@ private:
   Status status;
 
   movement::MovementState current_state;
+  movement::MovementState target_state;
   VescParams vesc_params;
-  std::shared_ptr<Timer> timer;
 
   static void inline can_callback_status_1(CanBase &can, CanDataFrame &msg, void *args);
   static void inline can_callback_status_2(CanBase &can, CanDataFrame &msg, void *args);
