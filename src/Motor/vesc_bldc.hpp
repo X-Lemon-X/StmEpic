@@ -91,13 +91,14 @@ private:
 
   movement::MovementState current_state;
   VescParams vesc_params;
+  std::shared_ptr<Timer> timer;
 
-  static void can_callback_status_1(CanBase &can, CanDataFrame &msg, void *args);
-  static void can_callback_status_2(CanBase &can, CanDataFrame &msg, void *args);
-  static void can_callback_status_3(CanBase &can, CanDataFrame &msg, void *args);
-  static void can_callback_status_4(CanBase &can, CanDataFrame &msg, void *args);
-  static void can_callback_status_5(CanBase &can, CanDataFrame &msg, void *args);
-  static void can_callback_status_6(CanBase &can, CanDataFrame &msg, void *args);
+  static void inline can_callback_status_1(CanBase &can, CanDataFrame &msg, void *args);
+  static void inline can_callback_status_2(CanBase &can, CanDataFrame &msg, void *args);
+  static void inline can_callback_status_3(CanBase &can, CanDataFrame &msg, void *args);
+  static void inline can_callback_status_4(CanBase &can, CanDataFrame &msg, void *args);
+  static void inline can_callback_status_5(CanBase &can, CanDataFrame &msg, void *args);
+  static void inline can_callback_status_6(CanBase &can, CanDataFrame &msg, void *args);
 
   static constexpr uint32_t CAN_VESC_FLEFT_STATUS_1_FRAME_ID       = 0x914u;
   static constexpr uint32_t CAN_VESC_FLEFT_STATUS_2_FRAME_ID       = 0xE14u;
@@ -114,7 +115,6 @@ private:
   static constexpr uint32_t CAN_VESC_FLEFT_SET_CURRENT_FRAME_ID    = 0x114u;
   static constexpr uint32_t CAN_VESC_FLEFT_SET_CURRENT_LENGTH      = 4u;
   static constexpr uint32_t CAN_VESC_FLEFT_SET_CURRENT_IS_EXTENDED = 1;
-
 
   struct can_vesc_fleft_status_1_t {
     int32_t erpm;
