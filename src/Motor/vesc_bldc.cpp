@@ -8,15 +8,16 @@ Result<std::shared_ptr<VescMotor>> VescMotor::Make(const std::shared_ptr<CanBase
   if(can == nullptr)
     return Status::Invalid("CAN is not nullptr");
   if(timer == nullptr)
-    return Status::Invalid("Timer is not nullptr");
-  STMEPIC_ASSING_TO_OR_RETURN(timer, Timer::Make(100000, false, nullptr, Ticker::get_instance()));
+    STMEPIC_ASSING_TO_OR_RETURN(timer, Timer::Make(100000, false, nullptr, Ticker::get_instance()));
   auto res = std::shared_ptr<VescMotor>(new VescMotor(can, timer));
   return Result<decltype(res)>::OK(res);
 }
 
-VescMotor::VescMotor(const std::shared_ptr<CanBase> can, const std::shared_ptr<Timer> timer)
-: can(can), timer(timer), steps_per_revolution(400), max_velocity(0), min_velocity(0), reverse(false),
-  enabled(false), status(Status::ExecutionError("VescMotor not initialized")) {
+VescMotor::VescMotor(const std::shared_ptr<CanBase> _can, const std::shared_ptr<Timer> _timer)
+: can(_can), timer(_timer), steps_per_revolution(400), max_velocity(0), min_velocity(0), reverse(false),
+  enabled(false), control_mode(movement::MovementControlMode::VELOCITY),
+  target_control_mode(movement::MovementControlMode::VELOCITY),
+  status(Status::ExecutionError("VescMotor not initialized")) {
   VescMotorSettings s;
   s.base_address      = 0x14;
   s.gear_ratio        = 1.0;
@@ -50,24 +51,27 @@ const VescParams &VescMotor::get_vesc_params() const {
 }
 
 void VescMotor::set_velocity(const float speed) {
-  control_mode = movement::MovementControlMode::VELOCITY;
-  // current_state.velocity = speed;
+  control_mode          = movement::MovementControlMode::VELOCITY;
   target_state.velocity = speed;
 }
 
 void VescMotor::set_torque(const float torque) {
-  control_mode = movement::MovementControlMode::TORQUE;
-  // current_state.torque = torque;
+  control_mode        = movement::MovementControlMode::TORQUE;
   target_state.torque = torque;
 }
 
 void VescMotor::set_position(const float position) {
-  control_mode = movement::MovementControlMode::POSITION;
-  // current_state.position = position;
+  control_mode          = movement::MovementControlMode::POSITION;
   target_state.position = position;
 }
 
 void VescMotor::set_enable(const bool enable) {
+  if(enable && !enabled) { // off -> on
+    control_mode = target_control_mode;
+  } else if(!enable && enabled) { // on -> off
+    target_control_mode = control_mode;
+    control_mode        = movement::MovementControlMode::VELOCITY;
+  }
   enabled = enable;
 }
 
@@ -179,8 +183,6 @@ Status VescMotor::task(SimpleTask &handler, void *arg) {
   return motor->handle();
 }
 
-// TODO
-// jak włacze silnik i będzie on w trybie innym niż velocity to nie to nie zrobi
 Status VescMotor::handle() {
   CanDataFrame frame;
   if(!enabled) {
