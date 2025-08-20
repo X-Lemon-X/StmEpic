@@ -123,8 +123,8 @@ target_link_libraries(stmepic INTERFACE ${LIBRARIES_INCLUDED})
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}" PARENT_SCOPE)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -u_printf_float -Wreturn-type -ffunction-sections -fdata-sections " PARENT_SCOPE)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -u_printf_float -Wreturn-type -ffunction-sections -fdata-sections -fno-exceptions " PARENT_SCOPE)
-
+## set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -u_printf_float -Wreturn-type -ffunction-sections -fdata-sections -fno-exceptions " PARENT_SCOPE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -u_printf_float -Wreturn-type -Werror=return-type -ffunction-sections -fdata-sections -fno-exceptions " PARENT_SCOPE)
 # additional linker flags
 
 set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS}  -u_printf_float -Wreturn-type -print-memory-usage -lrdimon --specs=rdimon.specs" PARENT_SCOPE)
