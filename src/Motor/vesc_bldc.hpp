@@ -34,7 +34,7 @@ struct VescParams {
 
 class VescMotor : public MotorBase, public DeviceThreadedBase {
 public:
-  static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can, std::shared_ptr<Timer> timer=nullptr);
+  static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can, std::shared_ptr<Timer> timer = nullptr);
   VescMotor &operator=(const VescMotor &) = delete;
 
   [[nodiscard]] float get_velocity() const override;
