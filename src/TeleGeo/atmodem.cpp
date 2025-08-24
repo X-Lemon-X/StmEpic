@@ -31,6 +31,7 @@ AtModem::AtModem(std::shared_ptr<UART> _huart)
 }
 
 Status AtModem::device_get_status() {
+  return Status::OK();
 }
 
 
