@@ -4,21 +4,45 @@
 #include <can.hpp>
 #include <movement_controler.hpp>
 
+/**
+ * @file vesc_bldc.hpp
+ * @brief Class definition for controlling VESC (Vedder Electronic Speed Controller) BLDC motors.
+ *
+ */
+
+/**
+ * @defgroup Motor
+ * @{
+ */
+
+/**
+ * @defgroup VescMotor
+ * @ingroup Motor
+ * @brief VescMotor driver
+ * @{
+ */
+
+/**
+ * @brief Settings for configuring a VESC motor.
+ */
 namespace stmepic::motor {
 struct VescMotorSettings : DeviceSettings {
-  uint32_t base_address;
-  float gear_ratio;
-  float current_to_torque;
-  uint16_t polar_pairs;
+  uint32_t base_address; ///< Base CAN frame address used to calculate the rest of CAN message frame addresses
+  float gear_ratio; ///< Gear ratio between motor shaft and output shaft. Used for calculating other attributes in CAN callbacks and the main task.
+  float current_to_torque; ///< Conversion factor from motor current to torque (Nm/A).
+  uint16_t polar_pairs;    ///< Number of pole pairs in the motor.
 };
 
-
+/**
+ * @brief Parameters unique to VESC BLDC motors that aren't present in MotorBase nor in DeviceThreadedBase
+ * but also wouldn't be considered settings
+ */
 struct VescParams {
   float current;
   float erpm;
   float duty_cycle;
-  float amd_hours;
-  float amd_hours_charged;
+  float amp_hours;
+  float amp_hours_charged;
   float watt_hours;
   float watt_hours_charged;
   float temperature_mosfet;
@@ -32,30 +56,99 @@ struct VescParams {
   float ppm;
 };
 
+/**
+ * @class VescMotor
+ * @brief Class for controlling the VESC BLDC motors.
+ *
+ * Includes callbacks for reading the current state, functions to modify and
+ * retrieve settings, and a main task responsible for transmitting parameters over CAN.
+ * Inherits from MotorBase and DeviceThreadedBase, which is why it uses device_start(),
+ * device_stop() and device_reset() methods from DeviceThreadedBase
+ */
+
 class VescMotor : public MotorBase, public DeviceThreadedBase {
 public:
+  /**
+   * @brief Makefactory which passes parameters to the VescMotor constructor
+   * @param can CAN interface used for communication between the devices both for read and write instructions. Can't be NULL.
+   * @param timer Timer mostly used to track timeouts. If not passed as a parameter, will default to a new global timer.
+   * @note Use it to initialize every instance of VescMotor, the constructor itself is private.
+   */
   static Result<std::shared_ptr<VescMotor>> Make(std::shared_ptr<CanBase> can, std::shared_ptr<Timer> timer = nullptr);
   VescMotor &operator=(const VescMotor &) = delete;
 
+  /// @brief Get the current speed of the VescMotor
+  /// @return The speed in radians per second
   [[nodiscard]] float get_velocity() const override;
+
+  /// @brief Get the current torque of the VescMotor
+  /// @return The torque in Nm
   [[nodiscard]] float get_torque() const override;
+
+  /// @brief Get the current position of the VescMotor
+  /// @return The position in radians
   [[nodiscard]] float get_position() const override;
+
+  /// @brief Get the absolute position of the VescMotor. In this case, equivalent to get_position()
+  /// @return The position in radians
   [[nodiscard]] float get_absolute_position() const override;
+
+  /// @brief Get the gear ratio of the VescMotor
+  /// @return The gear rato - a floating point number.
   [[nodiscard]] float get_gear_ratio() const override;
+
+  /// @brief Get all the parameters unique to VescMotor.
+  /// @return An lvalue reference to the structure which holds all the parameters.
   [[nodiscard]] const VescParams &get_vesc_params() const;
 
+  /// @brief Sets the target velocity of the VescMotor. Additionally, it switches the control mode to VELOCITY,
+  /// enabling the main task to send CAN messages that regulate the motor speed toward the target value.
+  /// @param speed The velocity in radians per second, can be negative or positive to change the direction.
   void set_velocity(float speed) override;
+
+  /// @brief Sets the target torque of the VescMotor. Additionally, it switches the control mode to TORQUE,
+  /// enabling the main task to send CAN messages that regulate the torque toward the target value.
+  /// @param torque The torque in Nm, can be negative or positive to change the direction.
   void set_torque(float torque) override;
+
+  /// @brief Set the target position of the VescMotor. Additionally, it switches the control mode to POSITION,
+  /// enabling the main task to send CAN messages that regulate the position toward the target value.
+  /// @param position The position in radians
   void set_position(float position) override;
+
+  /// @brief Enable or disable the VescMotor - it sets the target velocity to 0 in order to
+  /// stop unnecessary movement but also prevent a timeout.
+  /// @param enable True to enable the Motor, false to disable it.
   void set_enable(bool enable) override;
+
+  /// @brief Set the gear ratio of the VescMotor, which means that motor will have to rotate N times more to rotate the output once.
   void set_gear_ratio(float gear_ratio) override;
+
+  /// @brief Set the max velocity of the VescMotor
   void set_max_velocity(float max_velocity) override;
+
+  /// @brief Set the min velocity of the VescMotor
   void set_min_velocity(float min_velocity) override;
+
+  /// @brief Set the reverse of the VescMotor
   void set_reverse(bool reverse) override;
 
+  /// @brief Check if the device is operating normally.
+  /// @return bool True if the device is operating normally, false otherwise.
   bool device_ok() override;
+
+  /// @brief Check if the device is connected using timeout triggers.
+  /// @return Result<bool> True if the device is connected, false otherwise (that is if the timeout timer has triggered).
   Result<bool> device_is_connected() override;
+
+  /// @brief Get the status of the device, for example, if the device is connected, powered on,
+  /// or if there is an error. Private status class member is set by other functions.
+  /// @return Status Device status.
   Status device_get_status() override;
+
+  /// @brief Set the settings for the device. DeviceSettings is cast to VescMotorSettings and validated.
+  /// @param settings settings for the device passed as a reference to DeviceSettings struct.
+  /// @return Status OK if settings were set.
   Status device_set_settings(const DeviceSettings &settings) override;
 
 private:
@@ -127,8 +220,8 @@ private:
   };
 
   struct can_vesc_fleft_status_3_t {
-    int32_t wat_hours;
-    int32_t wat_hours_chg;
+    int32_t watt_hours;
+    int32_t watt_hours_chg;
   };
 
   struct can_vesc_fleft_status_4_t {
@@ -183,3 +276,6 @@ private:
 };
 
 } // namespace stmepic::motor
+
+/** @} */
+/** @} */

@@ -255,8 +255,8 @@ void inline VescMotor::can_callback_status_2(CanBase &can, CanDataFrame &msg, vo
     motor->status = Status::ExecutionError("Failed to unpack VESC status 2");
     return;
   }
-  motor->vesc_params.amd_hours         = (double)status.amp_hours * 1000;
-  motor->vesc_params.amd_hours_charged = (double)status.amp_hours_chg * 1000;
+  motor->vesc_params.amp_hours         = (double)status.amp_hours * 1000;
+  motor->vesc_params.amp_hours_charged = (double)status.amp_hours_chg * 1000;
 }
 
 void inline VescMotor::can_callback_status_3(CanBase &can, CanDataFrame &msg, void *args) {
@@ -268,8 +268,8 @@ void inline VescMotor::can_callback_status_3(CanBase &can, CanDataFrame &msg, vo
     motor->status = Status::ExecutionError("Failed to unpack VESC status 3");
     return;
   }
-  motor->vesc_params.watt_hours         = (double)status.wat_hours * 1000;
-  motor->vesc_params.watt_hours_charged = (double)status.wat_hours_chg * 1000;
+  motor->vesc_params.watt_hours         = (double)status.watt_hours * 1000;
+  motor->vesc_params.watt_hours_charged = (double)status.watt_hours_chg * 1000;
 }
 
 void inline VescMotor::can_callback_status_4(CanBase &can, CanDataFrame &msg, void *args) {
@@ -387,23 +387,23 @@ int VescMotor::can_vesc_fleft_status_2_unpack(struct can_vesc_fleft_status_2_t *
 }
 
 int VescMotor::can_vesc_fleft_status_3_unpack(struct can_vesc_fleft_status_3_t *dst_p, const uint8_t *src_p, size_t size) {
-  uint32_t wat_hours;
-  uint32_t wat_hours_chg;
+  uint32_t watt_hours;
+  uint32_t watt_hours_chg;
 
   if(size < 8u) {
     return (-EINVAL);
   }
 
-  wat_hours = unpack_left_shift_u32(src_p[0], 24u, 0xffu);
-  wat_hours |= unpack_left_shift_u32(src_p[1], 16u, 0xffu);
-  wat_hours |= unpack_left_shift_u32(src_p[2], 8u, 0xffu);
-  wat_hours |= unpack_right_shift_u32(src_p[3], 0u, 0xffu);
-  dst_p->wat_hours = (int32_t)wat_hours;
-  wat_hours_chg    = unpack_left_shift_u32(src_p[4], 24u, 0xffu);
-  wat_hours_chg |= unpack_left_shift_u32(src_p[5], 16u, 0xffu);
-  wat_hours_chg |= unpack_left_shift_u32(src_p[6], 8u, 0xffu);
-  wat_hours_chg |= unpack_right_shift_u32(src_p[7], 0u, 0xffu);
-  dst_p->wat_hours_chg = (int32_t)wat_hours_chg;
+  watt_hours = unpack_left_shift_u32(src_p[0], 24u, 0xffu);
+  watt_hours |= unpack_left_shift_u32(src_p[1], 16u, 0xffu);
+  watt_hours |= unpack_left_shift_u32(src_p[2], 8u, 0xffu);
+  watt_hours |= unpack_right_shift_u32(src_p[3], 0u, 0xffu);
+  dst_p->watt_hours = (int32_t)watt_hours;
+  watt_hours_chg    = unpack_left_shift_u32(src_p[4], 24u, 0xffu);
+  watt_hours_chg |= unpack_left_shift_u32(src_p[5], 16u, 0xffu);
+  watt_hours_chg |= unpack_left_shift_u32(src_p[6], 8u, 0xffu);
+  watt_hours_chg |= unpack_right_shift_u32(src_p[7], 0u, 0xffu);
+  dst_p->watt_hours_chg = (int32_t)watt_hours_chg;
 
   return (0);
 }
