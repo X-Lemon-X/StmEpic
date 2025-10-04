@@ -1,5 +1,5 @@
 #include "movement_controler.hpp"
-
+#include "pid.hpp"
 
 /**
  * @file controler_pid.hpp
@@ -29,48 +29,30 @@ namespace stmepic::movement {
 
 /**
  * @class PIDController
- * @brief Class representing the PID controller.
+ * @brief MiniPID-like controller adapted to MovementState (position control).
  *
- * PID controler.
- *
+ * This implements the MiniPID API adapted for position control where the "actual"
+ * value is `current_state.position` and the setpoint is `target_state.position`.
  */
-class PIDControler : public MovementEquation {
-private:
-  float Kp;
-  float Kd;
-  float Ki;
-  MovementState previous_state;
-  float previous_time;
+class PIDController : public MovementEquation {
+
 
 public:
-  PIDControler();
+  PIDController();
 
   void begin_state(MovementState current_state, float current_time) override;
   MovementState calculate(MovementState current_state, MovementState target_state) override;
 
-  /**
-   * @brief Set the Kp value for the PID controler
-   * @param Kp Kp value
-   */
-  void set_Kp(float Kp) {
-    this->Kp = Kp;
-  };
+  void set_velocity_pid_config(const stmepic::controller::PidConfig &cfg);
+  void set_position_pid_config(const stmepic::controller::PidConfig &cfg);
+  void set_torque_pid_config(const stmepic::controller::PidConfig &cfg);
 
-  /**
-   * @brief Set the Kd value for the PID controler
-   * @param Kd Kd value
-   */
-  void set_Kd(float Kd) {
-    this->Kd = Kd;
-  };
-
-  /**
-   * @brief Set the Ki value for the PID controler
-   * @param Ki Ki value
-   */
-  void set_Ki(float Ki) {
-    this->Ki = Ki;
-  };
+private:
+  MovementState previous_state;
+  float previous_time;
+  stmepic::controller::Pid velocity_pid;
+  stmepic::controller::Pid position_pid;
+  stmepic::controller::Pid torque_pid;
 };
 
 } // namespace stmepic::movement

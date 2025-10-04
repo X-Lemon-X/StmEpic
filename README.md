@@ -44,7 +44,8 @@ The library is written in C++ and is designed to be used with the code generatio
 Disclaimer: The library will most likely work with other STM32 series, but it wasn't tested.
 
 - **STM32F4**
-- **STM32H7** (in progress)
+- **STM32H7**
+- **STM32H5**
 - **STM32U5** (in progress)
 
 ## How to add the library to your project
