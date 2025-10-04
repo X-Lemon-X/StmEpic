@@ -40,6 +40,7 @@ add_subdirectory(src/Device)
 add_subdirectory(src/Algorithm)
 add_subdirectory(src/Hardware)
 add_subdirectory(src/TeleGeo)
+add_subdirectory(src/Display)
 add_subdirectory(src/Controllers)
 
 
