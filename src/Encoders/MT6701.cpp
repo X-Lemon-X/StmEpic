@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Timing.hpp"
 #include "encoder.hpp"
 #include "filter.hpp"
