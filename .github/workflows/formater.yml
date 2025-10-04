@@ -1,5 +1,9 @@
 name: clang-format-versioning
 
+permissions:
+  contents: write
+
+
 on: [push]
 
 jobs:
