@@ -8,9 +8,9 @@ using namespace stmepic;
 namespace stmepic {
 
 struct Color {
-  uint8_t red = 0;
+  uint8_t red   = 0;
   uint8_t green = 0;
-  uint8_t blue = 0;
+  uint8_t blue  = 0;
   uint8_t white = 0;
 };
 
@@ -34,22 +34,24 @@ public:
   Status update_pixels(const std::vector<Color> &pixels);
 
   Status device_set_settings(const DeviceSettings &settings) override;
-  Status do_device_task_start() override;
-  Status do_device_task_stop() override;
-  Status device_start() override;
-  Status device_stop() override;
-  Status device_reset() override;
+
+
   Result<bool> device_is_connected() override;
   bool device_ok() override;
   Status device_get_status() override;
 
 protected:
-  uint16_t t0h_ns; // bit 0 HIGH time in nanoseconds
-  uint16_t t1h_ns; // bit 1 HIGH time in nanoseconds
-  uint16_t t0l_ns; // bit 0 LOW time in nanoseconds
-  uint16_t t1l_ns; // bit 1 LOW time in nanoseconds
+  uint16_t t0h_ns;        // bit 0 HIGH time in nanoseconds
+  uint16_t t1h_ns;        // bit 1 HIGH time in nanoseconds
+  uint16_t t0l_ns;        // bit 0 LOW time in nanoseconds
+  uint16_t t1l_ns;        // bit 1 LOW time in nanoseconds
   uint16_t reset_time_ns; // reset time in nanoseconds
-  bool is_RGBW; // does this specific ws28 have a RGBW system (false by deafult)
+  bool is_RGBW;           // does this specific ws28 have a RGBW system (false by deafult)
+
+  Status do_device_task_start() override;
+  Status do_device_task_stop() override;
+
+  Status do_device_task_reset() override;
 
 private:
   WS28Settings settings;
@@ -58,8 +60,8 @@ private:
   unsigned int timer_channel;
   TIM_HandleTypeDef &htim;
 
-  uint16_t pwm_bit_0; // duty cycle of bit 0
-  uint16_t pwm_bit_1; // duty cycle of bit 1
+  uint16_t pwm_bit_0;           // duty cycle of bit 0
+  uint16_t pwm_bit_1;           // duty cycle of bit 1
   uint16_t reset_cycles_number; // number of cycles for the reset time
 
   std::vector<uint8_t> ledColors; // contains led colors in format {R1, G1, B1, R2, G2, ... , GN, BN} where N is piexelCount
@@ -72,4 +74,4 @@ private:
   void pwm_buffor_fill();                                // fills buffor based on ledColors vector
 };
 
-}
+} // namespace stmepic
