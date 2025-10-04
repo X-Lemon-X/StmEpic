@@ -12,9 +12,10 @@ using namespace stmepic::movement;
 MovementEquation::MovementEquation() {
 }
 
+
 MovementControler::MovementControler()
-: initialized(false), current_state({ 0, 0, 0 }), target_state({ 0, 0, 0 }), dont_override_limit_position(true),
-  motor(nullptr), movement_equation(nullptr), control_mode(MovementControlMode::POSITION), enable(false),
+: initialized(false), current_state({ 0, 0, 0 }), target_state({ 0, 0, 0 }),
+  dont_override_limit_position(true), motor(nullptr), movement_equation(nullptr), enable(false),
   limit_positon_achieved(false), max_position(0), min_position(0), max_torque(0), max_velocity(0) {
   task.task_init(handle, this, 1, nullptr, 300, tskIDLE_PRIORITY + 2, "MovementControler");
 };
@@ -35,8 +36,8 @@ void MovementControler::init(std::shared_ptr<motor::MotorBase> _motor,
   (void)task.task_stop();
   motor                  = _motor;
   movement_equation      = _movement_equation;
-  control_mode           = _control_mode;
   initialized            = true;
+  current_state.mode     = _control_mode;
   current_state.position = motor->get_absolute_position();
   current_state.velocity = motor->get_velocity();
   current_state.torque   = motor->get_torque();
@@ -82,7 +83,7 @@ Status MovementControler::handle(SimpleTask &task, void *args) {
 }
 
 void MovementControler::set_motor_state(MovementState state) {
-  switch(control_mode) {
+  switch(current_state.mode) {
   case MovementControlMode::VELOCITY: motor->set_velocity(state.velocity); break;
   case MovementControlMode::TORQUE: motor->set_torque(state.torque); break;
   case MovementControlMode::POSITION: motor->set_position(state.position); break;

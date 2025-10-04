@@ -7,34 +7,55 @@ using namespace stmepic;
 using namespace stmepic::movement;
 
 
-PIDControler::PIDControler() : MovementEquation() {
-  Kp             = 0;
-  Kd             = 0;
-  Ki             = 0;
-  previous_state = MovementState{ 0, 0, 0 };
-  previous_time  = 0;
+PIDController::PIDController() : MovementEquation() {
 }
 
-MovementState PIDControler::calculate(MovementState current_state, MovementState target_state) {
+void PIDController::set_velocity_pid_config(const stmepic::controller::PidConfig &cfg) {
+  velocity_pid.setConfig(cfg);
+}
+
+void PIDController::set_position_pid_config(const stmepic::controller::PidConfig &cfg) {
+  position_pid.setConfig(cfg);
+}
+
+void PIDController::set_torque_pid_config(const stmepic::controller::PidConfig &cfg) {
+  torque_pid.setConfig(cfg);
+}
+
+
+MovementState PIDController::calculate(MovementState current_state, MovementState target_state) {
   const float current_time = Ticker::get_instance().get_seconds();
-  // const float state_velocity = (previous_position-current_position) / (current_time - previous_time);
-  float dt      = current_time - previous_time;
+  float dt                 = current_time - previous_time;
+  if(dt <= 0)
+    dt = 1e-6f;
   previous_time = current_time;
-  // return Kp * (target_position - current_position) + Kd * (target_velocity -
-  // state_velocity); float error = target_velocity - current_velocity; add inertia to the
-  // system float error_position= target_position - current_position; float error_velocity
-  // = target_velocity - current_velocity; float velocity =  (Kp * error_position) + (Kd *
-  // error_position/dt); float error_velocity = target_velocity - current_velocity; float
-  // error_i = ; float velocity =  (Kp * previous_velocity) + (Kd * target_velocity);
-  float next_position     = (Kd * current_state.position) + (target_state.position * Ki);
-  float velocity          = (next_position - previous_state.position) / dt;
-  previous_state.position = next_position;
-  previous_state.velocity = velocity;
-  return previous_state;
+
+  MovementState out_state = current_state;
+  switch(target_state.mode) {
+  case MovementControlMode::POSITION:
+    // position control
+    position_pid.setSetpoint(target_state.position);
+    out_state.velocity = position_pid.getOutput(current_state.position, dt);
+    velocity_pid.setSetpoint(out_state.velocity);
+    out_state.torque = velocity_pid.getOutput(current_state.velocity, dt);
+    break;
+  case MovementControlMode::VELOCITY:
+    // velocity control
+    velocity_pid.setSetpoint(target_state.velocity);
+    out_state.torque = velocity_pid.getOutput(current_state.velocity, dt);
+    break;
+  case MovementControlMode::TORQUE:
+    // torque control
+    out_state.torque = target_state.torque;
+    break;
+  default:
+    // handle unknown mode if needed
+    break;
+  }
+  return out_state;
 }
 
-
-void PIDControler::begin_state(MovementState current_state, float current_time) {
+void PIDController::begin_state(MovementState current_state, float current_time) {
   previous_state = current_state;
   previous_time  = current_time;
 }

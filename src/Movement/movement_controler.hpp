@@ -45,6 +45,7 @@ struct MovementState {
   float position;
   float velocity;
   float torque;
+  MovementControlMode mode;
 };
 
 /**
@@ -81,8 +82,8 @@ public:
   [[nodiscard]] virtual MovementState calculate(MovementState current_state, MovementState target_state) {
     (void)current_state;
     (void)target_state;
-    return MovementState{ 0, 0, 0 };
-  };
+    return MovementState{ 0, 0, 0, MovementControlMode::POSITION };
+  }
 };
 
 /**
@@ -184,7 +185,6 @@ private:
   // motor::MotorBase *motor;
   std::shared_ptr<motor::MotorBase> motor;
   std::shared_ptr<MovementEquation> movement_equation;
-  MovementControlMode control_mode;
   bool initialized;
   SimpleTask task;
 
