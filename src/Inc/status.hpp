@@ -385,8 +385,9 @@ public:
 
   /// @brief Return a new Result with value and status OK.
   static auto OK(const T &value) -> Result<T> {
-    return Result<T>(value, Status::OK());
+    return Result<T>(std::move(value), Status::OK());
   }
+
 
   static auto Propagate(const T &value, const Status &status) -> Result<T> {
     return Result<T>(value, status);
@@ -413,7 +414,9 @@ public:
   }
 
 private:
-  Result(T value, Status status) : _value(value), _status(status){};
+  Result(const T &value, Status status) : _value(std::move(value)), _status(status){};
+
+
   T _value;
   Status _status;
 };

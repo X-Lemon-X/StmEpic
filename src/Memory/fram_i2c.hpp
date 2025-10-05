@@ -39,12 +39,12 @@ public:
   /// @brief Write data to the FRAM device
   /// @param address the address where the data will be written
   /// @param data the data that will be written
-  virtual Status write(uint32_t address, const std::vector<uint8_t> &data) override;
+  virtual Status write_raw(uint32_t address, uint8_t *data, size_t length) override;
 
   /// @brief Read data from the FRAM device
   /// @param address the address where the data will be read
   /// @return the data that was read or error if the data was not read
-  virtual Result<std::vector<uint8_t>> read(uint32_t address) override;
+  virtual Status read_raw(uint32_t address, uint8_t *data, size_t length) override;
 
 
   Result<bool> device_is_connected() override final;
@@ -79,8 +79,8 @@ class FramI2CFM24CLxx : public FramI2C {
 public:
   static Result<std::shared_ptr<FramI2CFM24CLxx>>
   Make(std::shared_ptr<I2C> hi2c, uint16_t begin_address = 0, uint32_t fram_size = 16000);
-  Status write(uint32_t address, const std::vector<uint8_t> &data) override;
-  Result<std::vector<uint8_t>> read(uint32_t address) override;
+  virtual Status write_raw(uint32_t address, uint8_t *data, size_t length) override;
+  virtual Status read_raw(uint32_t address, uint8_t *data, size_t length) override;
 
 protected:
   FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size);

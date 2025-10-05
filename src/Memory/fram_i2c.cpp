@@ -64,22 +64,12 @@ Status FramI2C::device_set_settings(const DeviceSettings &settings) {
 }
 
 
-Status FramI2C::write(uint32_t address, const std::vector<uint8_t> &data) {
-  STMEPIC_ASSING_OR_RETURN(encoded_data, FRAM::encode_data(data));
-  if(encoded_data.size() > fram_size)
-    return Status::CapacityError("Data is too big for the FRAM");
-  return hi2c->write(device_address, begin_address + address, encoded_data.data(), encoded_data.size());
+Status FramI2C::write_raw(uint32_t address, uint8_t *data, size_t length) {
+  return hi2c->write(device_address, begin_address + address, data, length);
 }
 
-
-Result<std::vector<uint8_t>> FramI2C::read(uint32_t address) {
-  std::vector<uint8_t> data;
-  uint8_t data_size[2];
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(device_address, begin_address + address + 7, data_size, 2));
-  uint16_t size = data_size[0] | (data_size[1] << 8);
-  data.resize(size + frame_size);
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(device_address, begin_address + address, data.data(), size + frame_size));
-  return FRAM::decode_data(data);
+Status FramI2C::read_raw(uint32_t address, uint8_t *data, size_t length) {
+  return hi2c->read(device_address, begin_address + address, data, length);
 }
 
 Result<std::shared_ptr<FramI2CFM24CLxx>>
@@ -98,27 +88,14 @@ FramI2CFM24CLxx::FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_addre
 : FramI2C(hi2c, 0x50, begin_address, fram_size) {
 }
 
-Status FramI2CFM24CLxx::write(uint32_t address, const std::vector<uint8_t> &data) {
-  // auto mayby_encoded_data = FRAM::encode_data(data);
-  // if(!mayby_encoded_data.ok())
-  // return mayby_encoded_data.status();
-  STMEPIC_ASSING_OR_RETURN(encoded_data, FRAM::encode_data(data));
-  // auto encoded_data = mayby_encoded_data.valueOrDie();
-  if(encoded_data.size() > fram_size)
-    return Status::CapacityError("Data is too big for the FRAM");
+Status FramI2CFM24CLxx::write_raw(uint32_t address, uint8_t *data, size_t length) {
   uint32_t memory_address = begin_address + address;
   uint16_t dev_address    = device_address | ((memory_address >> 8) & 0x0E);
-  return hi2c->write(dev_address, memory_address, encoded_data.data(), encoded_data.size(), 1, 1000);
+  return hi2c->write(dev_address, memory_address, data, length, 1, 1000);
 }
 
-Result<std::vector<uint8_t>> FramI2CFM24CLxx::read(uint32_t address) {
-  std::vector<uint8_t> data;
-  uint8_t data_size[2];
+Status FramI2CFM24CLxx::read_raw(uint32_t address, uint8_t *data, size_t length) {
   uint32_t memory_address = begin_address + address;
   uint16_t dev_address    = device_address | ((memory_address >> 8) & 0x0E);
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(dev_address, memory_address + 7, data_size, 2));
-  uint16_t size = (data_size[0] << 8) | data_size[1];
-  data.resize(size + frame_size);
-  STMEPIC_RETURN_ON_ERROR(hi2c->read(dev_address, memory_address, data.data(), size + frame_size));
-  return FRAM::decode_data(data);
+  return hi2c->read(dev_address, memory_address, data, length);
 }

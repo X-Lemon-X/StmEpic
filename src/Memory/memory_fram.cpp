@@ -9,110 +9,119 @@
 using namespace stmepic::memory;
 using namespace stmepic;
 
-// What is it hardcoding the encryption key?
-const std::string FRAM::base_encryption_key = "stmepic";
-const uint16_t FRAM::frame_size;
-const uint8_t FRAM::magic_number_1;
-const uint8_t FRAM::magic_number_2;
 
-FRAM::FRAM() {
-  encryption_key = base_encryption_key;
+Status FRAM::write(uint32_t address, uint8_t *data, size_t length) {
+  if(data == nullptr)
+    return Status::Invalid("FRAM, Data to write is null");
+  if(length == 0)
+    return Status::CapacityError("FRAM, length of data to write is 0");
+
+  std::unique_ptr<uint8_t[]> data_ptr(new uint8_t[length + data_frame_size]);
+  if(data_ptr == nullptr)
+    return Status::OutOfMemory("FRAM, Could not allocate memory for encoding of data ");
+
+  STMEPIC_RETURN_ON_ERROR(encode_data(data, length, data_ptr.get()));
+  return write_raw(address, data_ptr.get(), length + data_frame_size);
 }
 
-Result<std::vector<uint8_t>> FRAM::encode_data(const std::vector<uint8_t> &data) {
-  if(data.size() == 0)
+Result<std::pair<std::shared_ptr<uint8_t[]>, size_t>> FRAM::read(uint32_t address) {
+  // read the frame size first to know how much data to read
+  uint8_t frame_data_ptr[data_frame_size];
+  // read size of the data
+  STMEPIC_RETURN_ON_ERROR(read_raw(address, frame_data_ptr, data_frame_size));
+  size_t size = frame_data_ptr[frame_offset_size] | (frame_data_ptr[frame_offset_size + 1] << 8);
+  if(size == 0)
+    return Status::CapacityError("FRAM, Size of the data to read is 0");
+  std::shared_ptr<uint8_t[]> data_ptr(new uint8_t[size]);
+  if(data_ptr == nullptr)
+    return Status::OutOfMemory("FRAM, Could not allocate memory for decoding of data ");
+  // read the data
+  STMEPIC_RETURN_ON_ERROR(read_raw(address, data_ptr.get(), size));
+  // decode the data
+  STMEPIC_RETURN_ON_ERROR(decode_data(frame_data_ptr, data_ptr.get(), size));
+  return Result<std::pair<std::shared_ptr<uint8_t[]>, size_t>>::OK(std::make_pair(std::move(data_ptr), size));
+}
+
+
+Status FRAM::encode_data(const uint8_t *data_src, size_t length, uint8_t *data_dest) {
+  if(length == 0)
     return Status::CapacityError("Size of the data is 0");
+  if(data_dest == nullptr)
+    return Status::Invalid("Destination data pointer is null");
+  if(data_src == nullptr)
+    return Status::Invalid("Data to encode is null");
 
-  uint32_t encres = stmepic::Ticker::get_instance().get_micros();
-  std::vector<uint8_t> encres_data;
-  encres_data.resize(4);
-  encres_data[0] = (encres >> 24) & 0xFF;
-  encres_data[1] = (encres >> 16) & 0xFF;
-  encres_data[2] = (encres >> 8) & 0xFF;
-  encres_data[3] = encres & 0xFF;
 
-  uint16_t checksum = calculate_checksum(data);
-  std::vector<uint8_t> da;
-  da.resize(data.size() + frame_size);
-  da[0] = magic_number_1;
-  da[1] = (checksum >> 8) & 0xFF;
-  da[2] = checksum & 0xFF;
-  da[9] = magic_number_2;
+  uint16_t checksum = calculate_checksum(data_src, length);
+  data_dest[0]      = magic_number_1;
+  data_dest[1]      = (checksum >> 8) & 0xFF;
+  data_dest[2]      = checksum & 0xFF;
+  data_dest[7]      = (length >> 8) & 0xFF;
+  data_dest[8]      = length & 0xFF;
+  data_dest[9]      = magic_number_2;
 
   // if encryption is disabled
   if(encryption_key == FRAM::base_encryption_key) {
-    da[3] = 0;
-    da[4] = 0;
-    da[5] = 0;
-    da[6] = 0;
-    da[7] = (data.size() >> 8) & 0xFF;
-    da[8] = data.size() & 0xFF;
-    for(size_t i = 0; i < data.size(); i++)
-      da[i + 10] = data[i];
-  } else {
-    STMEPIC_ASSING_OR_RETURN(encres_encrypted, encrypt_data(encres_data, encryption_key));
-    std::string key = std::to_string(encres) + encryption_key;
-    STMEPIC_ASSING_OR_RETURN(encrypted_data, encrypt_data(data, key));
-
-    da[3] = encres_encrypted[0];
-    da[4] = encres_encrypted[1];
-    da[5] = encres_encrypted[2];
-    da[6] = encres_encrypted[3];
-    da[7] = (encrypted_data.size() >> 8) & 0xFF;
-    da[8] = encrypted_data.size() & 0xFF;
-    for(size_t i = 0; i < encrypted_data.size(); i++)
-      da[i + 10] = encrypted_data[i];
+    data_dest[3] = 0;
+    data_dest[4] = 0;
+    data_dest[5] = 0;
+    data_dest[6] = 0;
+    std::memcpy(data_dest + data_frame_size, data_src, length);
+    return Status::OK();
   }
-  return Result<std::vector<uint8_t>>::OK(da);
+
+  uint32_t encres = stmepic::Ticker::get_instance().get_micros();
+  data_dest[3]    = (encres >> 24) & 0xFF;
+  data_dest[4]    = (encres >> 16) & 0xFF;
+  data_dest[5]    = (encres >> 8) & 0xFF;
+  data_dest[6]    = encres & 0xFF;
+  STMEPIC_RETURN_ON_ERROR(encrypt_data(data_dest + 3, 4, encryption_key));
+  std::string key = std::to_string(encres) + encryption_key;
+  std::memcpy(data_dest + data_frame_size, data_src, length);
+  STMEPIC_RETURN_ON_ERROR(encrypt_data(data_dest + data_frame_size, length, key));
+  return Status::OK();
 }
 
-Result<std::vector<uint8_t>> FRAM::decode_data(const std::vector<uint8_t> &data) {
-  if(data.size() == 0)
+Status FRAM::decode_data(uint8_t *frame_data_ptr, uint8_t *data_src, size_t length) {
+  if(length == 0)
     return Status::CapacityError("Size of the data is 0");
+  if(frame_data_ptr == nullptr)
+    return Status::Invalid("Frame data pointer is null");
+  if(data_src == nullptr)
+    return Status::Invalid("Data to decode is null");
 
-  uint8_t mg1       = data[0];
-  uint16_t checksum = (uint16_t)(data[1] << 8) | data[2];
-  uint16_t size     = (uint16_t)(data[7] << 8) | data[8];
-  uint8_t mg2       = data[9];
+  uint8_t mg1       = frame_data_ptr[0];
+  uint16_t checksum = (uint16_t)(frame_data_ptr[1] << 8) | frame_data_ptr[2];
+  uint16_t size     = (uint16_t)(frame_data_ptr[7] << 8) | frame_data_ptr[8];
+  uint8_t mg2       = frame_data_ptr[9];
   if(mg1 != magic_number_1)
     return Status::Invalid("Magic number 1 is not correct");
   if(mg2 != magic_number_2)
     return Status::Invalid("Magic number 2 is not correct");
-  if(size != data.size() - frame_size)
+  if(size != length)
     return Status::Invalid("Size is not correct");
 
   // if encryption is disabled
   if(encryption_key == FRAM::base_encryption_key) {
-    auto data_data = std::vector<uint8_t>(data.begin() + frame_size, data.end());
-    if(calculate_checksum(data_data) != checksum)
+    if(calculate_checksum(data_src, length) != checksum)
       return Status::Invalid("Checksum is not correct");
-    return Result<decltype(data_data)>::OK(data_data);
-
-  } else {
-    std::vector<uint8_t> encrypted_encres;
-    encrypted_encres.resize(4);
-    encrypted_encres[0] = data[3];
-    encrypted_encres[1] = data[4];
-    encrypted_encres[2] = data[5];
-    encrypted_encres[3] = data[6];
-    STMEPIC_ASSING_OR_RETURN(decrypted_encres, decrypt_data(encrypted_encres, encryption_key));
-    uint32_t encres = (decrypted_encres[0] << 24) | (decrypted_encres[1] << 16) | (decrypted_encres[2] << 8) |
-                      decrypted_encres[3];
-    std::string key = std::to_string(encres) + encryption_key;
-
-    auto data_data = std::vector<uint8_t>(data.begin() + frame_size, data.end());
-    STMEPIC_ASSING_OR_RETURN(decrypted_data, decrypt_data(data_data, key));
-    if(calculate_checksum(decrypted_data) != checksum)
-      return Status::Invalid("Checksum is not correct");
-    return Result<decltype(decrypted_data)>::OK(decrypted_data);
+    return Status::OK();
   }
+
+  STMEPIC_RETURN_ON_ERROR(decrypt_data(frame_data_ptr + 3, 4, encryption_key));
+  uint32_t encres =
+  (frame_data_ptr[3] << 24) | (frame_data_ptr[4] << 16) | (frame_data_ptr[5] << 8) | frame_data_ptr[6];
+  std::string key = std::to_string(encres) + encryption_key;
+  STMEPIC_RETURN_ON_ERROR(decrypt_data(data_src, length, key));
+  if(calculate_checksum(data_src, length) != checksum)
+    return Status::Invalid("Checksum is not correct");
+  return Status::OK();
 }
 
-
-uint16_t FRAM::calculate_checksum(const std::vector<uint8_t> &data) {
+uint16_t FRAM::calculate_checksum(const uint8_t *data_src, size_t length) {
   uint16_t crc = 0xFFFF;
-  for(uint8_t byte : data) {
-    crc ^= (uint16_t)byte << 8;
+  for(size_t i = 0; i < length; i++) {
+    crc ^= (uint16_t)data_src[i] << 8;
     for(int i = 0; i < 8; ++i) {
       if(crc & 0x8000)
         crc = (crc << 1) ^ 0x1021;
@@ -123,32 +132,20 @@ uint16_t FRAM::calculate_checksum(const std::vector<uint8_t> &data) {
   return crc;
 }
 
-Result<std::vector<uint8_t>> FRAM::encrypt_data(const std::vector<uint8_t> &data, std::string key) {
-  if(data.size() == 0)
+Status FRAM::encrypt_data(uint8_t *data_src, size_t length, std::string key) {
+  if(length == 0)
     return Status::CapacityError("Size of the data is 0");
   if(key == FRAM::base_encryption_key)
-    return Result<std::vector<uint8_t>>::OK(data);
-  std::vector<uint8_t> encrypted_data;
+    return Status::OK();
   uint8_t shaout[algorithm::SHA256::SHA256_OUTPUT_SIZE];
-  // uint32_t key_data[] = {key, encres};
-  algorithm::SHA256::sha256((uint8_t *)(key.c_str()), key.size(), shaout);
-  for(size_t i = 0; i < data.size(); i++)
-    encrypted_data.push_back(data[i] ^ shaout[i % algorithm::SHA256::SHA256_OUTPUT_SIZE]);
-  return Result<std::vector<uint8_t>>::OK(encrypted_data);
+  algorithm::SHA256::get_instance().sha256((uint8_t *)(key.c_str()), key.size(), shaout);
+  for(size_t i = 0; i < length; i++)
+    data_src[i] = data_src[i] ^ shaout[i % algorithm::SHA256::SHA256_OUTPUT_SIZE];
+  return Status::OK();
 }
 
-Result<std::vector<uint8_t>> FRAM::decrypt_data(const std::vector<uint8_t> &data, std::string key) {
-  if(data.size() == 0)
-    return Status::CapacityError("Size of the data is 0");
-  if(key == FRAM::base_encryption_key)
-    return Result<std::vector<uint8_t>>::OK(data);
-  std::vector<uint8_t> decrypted_data;
-  uint8_t shaout[algorithm::SHA256::SHA256_OUTPUT_SIZE];
-  // uint32_t key_data[] = {key, encres};
-  algorithm::SHA256::sha256((uint8_t *)(key.c_str()), key.size(), shaout);
-  for(size_t i = 0; i < data.size(); i++)
-    decrypted_data.push_back(data[i] ^ shaout[i % algorithm::SHA256::SHA256_OUTPUT_SIZE]);
-  return Result<std::vector<uint8_t>>::OK(decrypted_data);
+Status FRAM::decrypt_data(uint8_t *data_src, size_t length, std::string key) {
+  return encrypt_data(data_src, length, key);
 }
 
 void FRAM::set_encryption_key(const std::string &key) {

@@ -8,4 +8,5 @@ target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
 
 target_sources(${UPPER_PROJECT_NAME} PRIVATE
   sha256.cpp
+  random_number_generator.cpp
 )

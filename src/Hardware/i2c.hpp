@@ -79,6 +79,8 @@ public:
    * @param mem_size the size of the memory address
    * @param data the data that will be written to the I2C device
    * @param size the size of the data that will be written
+   * @param mem_size the size of the memory address
+   * @param timeout_ms the timeout for the write operation
    * @return Status
    */
   Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300);

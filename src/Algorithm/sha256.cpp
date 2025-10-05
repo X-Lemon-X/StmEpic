@@ -13,6 +13,13 @@
 #include <stmepic.hpp>
 
 using namespace stmepic::algorithm;
+using namespace stmepic;
+
+SHA256::SHA256() {
+#ifdef HAL_HASH_MODULE_ENABLED
+  hhash = nullptr;
+#endif
+}
 
 
 const uint32_t SHA256::sha256_initial_h[8] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -61,7 +68,7 @@ uint32_t SHA256::sha256_ror(uint32_t input, uint32_t by) {
   return (input >> by) | (((input & ((1 << by) - 1))) << (32 - by));
 }
 
-void SHA256::sha256(const void *data, uint64_t len, void *output) {
+void SHA256::sha256_software(const void *data, uint64_t len, void *output) {
   uint8_t padding[80];
   uint64_t current = (len + 1) % 64;
   // want to be == 56 % 64.
@@ -135,4 +142,41 @@ void SHA256::sha256(const void *data, uint64_t len, void *output) {
 
   for(int i = 0; i < 8; i++)
     sha256_endian_reverse32(v[i], (uint8_t *)output + i * 4);
+}
+
+
+#ifdef HAL_HASH_MODULE_ENABLED
+Status SHA256::init(HASH_HandleTypeDef &hhash) {
+  this->hhash          = &hhash;
+  hhash.Init.Algorithm = HASH_ALGOSELECTION_SHA256;
+  hhash.Init.DataType  = HASH_BYTE_SWAP;
+  if(HAL_HASH_Init(this->hhash) != HAL_OK) {
+    this->hhash = nullptr;
+    return Status::HalError("Failed to initialize HASH peripheral");
+  }
+  return Status::OK();
+}
+#endif
+
+
+SHA256 &SHA256::get_instance() {
+  static SHA256 instance;
+  return instance;
+}
+
+Status SHA256::init() {
+  return Status::OK();
+}
+
+void SHA256::sha256(const void *data, uint64_t len, void *output) {
+
+#ifdef HAL_HASH_MODULE_ENABLED
+  if(hhash != nullptr)
+    (void)HAL_HASH_Start(hhash, (uint8_t *)data, (uint32_t)len, (uint8_t *)output, HAL_MAX_DELAY);
+  else
+    sha256_software(data, len, output);
+
+#else
+  sha256_software(data, len, output);
+#endif
 }
