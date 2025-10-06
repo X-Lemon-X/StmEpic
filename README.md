@@ -12,41 +12,40 @@
   <img src="https://github.com/X-Lemon-X/StmEpic/actions/workflows/build_gnu_arm11.yml/badge.svg?branch=main" alt="gnu11"/>
 </p>
 
-This library is a collection of algorithms and interfaces to be used in robotics projects. The library is designed to be used with the STM32 series of microcontrollers, C++ and Cmake.
+This library provides a collection of proven algorithms and well‑defined interfaces targeting robotics applications. It is implemented in modern C++ (C++20) and is intended for use with STM32 microcontrollers and CMake‑based build systems.
 
-The library provides a set of classes and interfaces that can be used to quickly combine bunch of sensors, engines, servos and communication protocols in a meaningful way. The library aims to provide elements that can work with each other out of the box with little to none configuration.
+StmEpic supplies a cohesive set of components—drivers, sensor and motor abstractions, control algorithms, memory utilities and logging—that are designed to interoperate with minimal configuration. Components are organized to simplify integration of sensors, actuators and communication peripherals into real-time systems.
 
-All is glued together with the FreeRTOS system. Most of the devices run tasks in the background to handle trafic.
-The library is written in C++ and is designed to be used with the code generation tool STM32CubeMX for super quick startup and changes.
+The framework integrates with FreeRTOS for task scheduling and is compatible with STM32CubeMX generated projects to accelerate development and hardware configuration.
 
 ## Features
-
-- **FreeRTOS** embedded FreeRTOS as task scheduler.
-- **ETL** Included **Embedded Template Library** library for containers and so on [link](https://github.com/ETLCPP/etl).
-- **Device**: Interface to handle device status, reset or connection, Allow to handle devices like ICs to other Boards or drivers with unified interface.
-- **Dfu**: Class that can be used to enable the USB as programming using DFU [hardware support required].
-- **Drivers**: Set of drivers that enable usage of interfaces like I2C, SPI, UART, CAN with FreeRtos with ease out of the box, adding few useful features in using them.
-  Interfaces drivers allows multiple tasks to use them without blocking the CPU while simultaneously reading and writing data for the interacting thread, as well as add handy interfaces to interact with specific protocols in a simple way.
-- **Encoders**: Interface to read data from different types of encoders.
-- **Filters**: Set of filters that can be used to filter data.
-- **Gpio**: Warper for the GPIO pins on the microcontroller.
-- **Hash**: Hashing algorithms, hardware support Coming soon.
-- **Logger**: Log data to the console via USB in json format with useful fields like current time or software version and so on (debug,info,warning,and error).
-- **Memory**: Set of classes that can be used to read and write data to FRAM or FLASH memory.
-- **Motors**: Interface that can be used to control different type of engines STEPERS, BLDC, DC motors. With the same control algorithms and interfaces.
-- **Movement**: Interface and algorithms that can be used to control different motors, usually with closed loop control.
-- **Sensors**: Set of classes that can be used to read data from different sensors.
-- **Status** Return types for proper error handling.
-- **Timing**: Interface to create software timers for some stuff.
+- **C++20** — Modern C++ language features and idioms.
+- **CMake** — Cross‑platform build and configuration system.
+- **STM32CubeMX integration** — Project generation and peripheral configuration.
+- **FreeRTOS** — Real‑time task scheduler for embedded applications.
+- **ETL (Embedded Template Library)** — Lightweight, header‑only containers and utilities. [link](https://github.com/ETLCPP/etl)
+- **Device** — Unified device abstraction for status, reset and connection management.
+- **DFU** — USB Device Firmware Upgrade support (hardware dependent).
+- **Drivers** — RTOS‑aware, thread‑safe drivers for I2C, SPI, UART and CAN; designed for concurrent, non‑blocking access.
+- **Encoders** — Interfaces for common encoder types.
+- **Filters** — Signal processing primitives and filter implementations.
+- **GPIO** — Portable GPIO abstraction layer.
+- **Hash** — Hashing utilities with planned hardware acceleration support.
+- **Logger** — Structured JSON logging over USB, with timestamps, levels and metadata.
+- **Memory** — Utilities for FRAM and FLASH access and data framing.
+- **Motors** — Common control interfaces and implementations for stepper, BLDC and DC motors.
+- **Movement** — Motion control algorithms and closed‑loop controllers.
+- **Sensors** — Drivers and interfaces for a variety of sensors.
+- **Status** — Consistent result and error handling types.
+- **Timing** — Software timers and scheduling helpers.
 
 ## Tested STM32 microcontrollers series
-
+- **STM32F1** - 103
+- **STM32F4** - 405, 412, 446
+- **STM32H5** - 563
+- **STM32H7** - 750
+- **STM32U5** - 585
 Disclaimer: The library will most likely work with other STM32 series, but it wasn't tested.
-
-- **STM32F4**
-- **STM32H7**
-- **STM32H5**
-- **STM32U5** (in progress)
 
 ## How to add the library to your project
 
