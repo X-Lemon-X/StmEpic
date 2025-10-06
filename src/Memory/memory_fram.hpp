@@ -93,7 +93,9 @@ public:
     STMEPIC_ASSING_OR_RETURN(decoded_data, read(address));
     if(decoded_data.second != sizeof(T))
       return Status::CapacityError("Data size is not the same as the struct size");
-    return Result<T>::OK(reinterpret_cast<T>(decoded_data.first));
+    T value;
+    std::memcpy(&value, decoded_data.first.get(), sizeof(T));
+    return Result<T>::OK(value);
   }
 
   /// @brief Write a struct to the FRAM
@@ -102,7 +104,9 @@ public:
   /// @param address the address where the struct will be written
   /// @param data the struct that will be written
   template <typename T> Status writeStruct(uint32_t address, T &data) {
-    return write(address, static_cast<uint8_t *>(&data), sizeof(T));
+    uint8_t data_temp[sizeof(T)];
+    std::memcpy(data_temp, &data, sizeof(T));
+    return write(address, data_temp, sizeof(T));
   }
 
   /// @brief Write a vector of structs to the FRAM

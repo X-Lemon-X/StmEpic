@@ -6,23 +6,22 @@
 using namespace stmepic;
 using namespace stmepic::controller;
 
+Pid::Pid() {
+  init();
+}
+
 
 Pid::Pid(double p, double i, double d) {
   init();
-  conf.p = p;
-  conf.i = i;
-  conf.d = d;
+  setPID(p, i, d);
 }
 Pid::Pid(double p, double i, double d, double f) {
   init();
-  conf.p = p;
-  conf.i = i;
-  conf.d = d;
-  conf.f = f;
+  setPID(p, i, d, f);
 }
 Pid::Pid(const PidConfig &config) {
   init();
-  conf = config;
+  setConfig(config);
 }
 void Pid::init() {
   // default configuration
