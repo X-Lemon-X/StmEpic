@@ -7,4 +7,4 @@ public:
   WS2812B(TIM_HandleTypeDef &htim, unsigned int timer_channel);
 };
 
-}
+} // namespace stmepic
