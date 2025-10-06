@@ -8,6 +8,7 @@
     No guarantees as to the correctness of the implementation are provided.
 */
 #include "stmepic.hpp"
+#include <limits>
 
 
 /**
