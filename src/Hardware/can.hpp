@@ -5,7 +5,7 @@
 #include "device.hpp"
 #include <unordered_map>
 #include <cstring>
-
+#include <functional>
 
 /**
  * @defgroup hardware Hardware
@@ -66,7 +66,7 @@ namespace internall {
 /// @brief Callback function for the CAN interface
 /// @param CanDataFrame the data of the incoming CAN frame
 /// @param void* args provided by the user
-using hardware_can_function_pointer = void (*)(CanBase &, CanDataFrame &, void *);
+using hardware_can_function_pointer = std::function<void(CanBase &, CanDataFrame &, void *)>;
 
 struct CanCallbackTask {
   void *args;

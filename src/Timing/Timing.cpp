@@ -87,7 +87,7 @@ Timer::Timer(Ticker &_ticker) : ticker(_ticker) {
   triggered_flag = false;
 }
 
-Result<std::shared_ptr<Timer>> Timer::Make(uint32_t period, bool repeat, void (*function)(Timer &), Ticker &ticker) {
+Result<std::shared_ptr<Timer>> Timer::Make(uint32_t period, bool repeat, callback_funciton function, Ticker &ticker) {
   auto new_timer = new Timer(ticker);
   new_timer->set_behaviour(period, repeat);
   new_timer->function = function;

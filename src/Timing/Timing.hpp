@@ -5,6 +5,7 @@
 #include "status.hpp"
 #include <memory>
 #include <vector>
+#include <functional>
 
 /**
  * @file Timing.hpp
@@ -99,15 +100,9 @@ private:
  */
 
 class Timer {
-private:
-  Ticker &ticker;
-  uint32_t period;
-  bool repeat, triggered_flag;
-  bool timer_enabled;
-  void (*function)(Timer &);
 
 public:
-  using callback_funciton = void (*)(Timer &);
+  using callback_funciton = std::function<void(Timer &)>;
   uint32_t last_time;
   uint32_t difference_d;
   uint32_t current_time_d;
@@ -138,6 +133,13 @@ public:
 
   /// @brief allows to disbale and enabel timer freely
   void enable(bool timer_enabled);
+
+private:
+  Ticker &ticker;
+  uint32_t period;
+  bool repeat, triggered_flag;
+  bool timer_enabled;
+  callback_funciton function;
 };
 
 } // namespace stmepic

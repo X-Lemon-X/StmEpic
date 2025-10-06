@@ -1,6 +1,6 @@
 #pragma once
 #include "stmepic.hpp"
-
+#include <functional>
 
 #define FREQUENCY_TO_PERIOD_MS(frequency) (uint32_t)(1000.0f / (float)frequency)
 
@@ -14,7 +14,7 @@ class SimpleTask {
 private:
   /* data */
 public:
-  using simple_task_function_pointer = Status (*)(SimpleTask &, void *);
+  using simple_task_function_pointer = std::function<Status(SimpleTask &, void *)>;
 
   SimpleTask();
   ~SimpleTask();
