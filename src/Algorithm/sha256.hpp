@@ -25,8 +25,13 @@
 namespace stmepic::algorithm {
 
 /// @brief Generate sha256 from provided data
+///
+/// With Hardware acceleration if available
 class SHA256 {
 public:
+  /// @brief Generate sha256 from provided data
+  ///
+  /// With Hardware acceleration if available
   SHA256();
 
   /// @brief The size of the output of the sha256
