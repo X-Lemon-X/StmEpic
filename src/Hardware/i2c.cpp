@@ -354,7 +354,7 @@ I2cMultiplexerGpioID::I2cMultiplexerGpioID(std::shared_ptr<I2C> i2c,
                                            std::optional<GpioPin> address_pin_4,
                                            uint8_t switch_delay_us)
 : _i2c(i2c), _address_pin_1(address_pin_1), _address_pin_2(address_pin_2), _address_pin_3(address_pin_3),
-  _address_pin_4(address_pin_4), _channels(0), _selected_channel(1), _switch_delay_us(switch_delay_us), {
+  _address_pin_4(address_pin_4), _channels(0), _selected_channel(1), _switch_delay_us(switch_delay_us) {
   _channels = 0;
   if(address_pin_2.has_value())
     _channels += 2;
