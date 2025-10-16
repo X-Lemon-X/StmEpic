@@ -258,6 +258,72 @@ Result<std::vector<uint16_t>> I2C::scan_for_devices() {
 }
 
 
+I2cMultiplexerBase::I2cMultiplexerBase() {
+  _mutex = xSemaphoreCreateMutex();
+}
+
+void I2cMultiplexerBase::lock() {
+  xSemaphoreTake(_mutex, portMAX_DELAY);
+}
+
+void I2cMultiplexerBase::unlock() {
+  xSemaphoreGive(_mutex);
+}
+
+Status I2cMultiplexerIdNode::hardware_start() {
+  _multiplexer.lock();
+  auto ret = _i2c->hardware_start();
+  _multiplexer.unlock();
+  return ret;
+}
+
+Status I2cMultiplexerIdNode::hardware_stop() {
+  _multiplexer.lock();
+  auto ret = _i2c->hardware_stop();
+  _multiplexer.unlock();
+  return ret;
+}
+
+Status I2cMultiplexerIdNode::hardware_reset() {
+  _multiplexer.lock();
+  auto ret = _i2c->hardware_reset();
+  _multiplexer.unlock();
+  return ret;
+}
+
+Status I2cMultiplexerIdNode::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
+  _multiplexer.lock();
+  (void)_multiplexer.select_channel(channel);
+  auto ret = _i2c->read(address, mem_address, data, size, mem_size, timeout_ms);
+  _multiplexer.unlock();
+  return ret;
+}
+
+Status I2cMultiplexerIdNode::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
+  _multiplexer.lock();
+  (void)_multiplexer.select_channel(channel);
+  auto ret = _i2c->write(address, mem_address, data, size, mem_size, timeout_ms);
+  _multiplexer.unlock();
+  return ret;
+}
+
+Status I2cMultiplexerIdNode::is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) {
+  _multiplexer.lock();
+  (void)_multiplexer.select_channel(channel);
+  auto ret = _i2c->is_device_ready(address, trials, timeout);
+  _multiplexer.unlock();
+  return ret;
+}
+
+Result<std::vector<uint16_t>> I2cMultiplexerIdNode::scan_for_devices() {
+  _multiplexer.lock();
+  (void)_multiplexer.select_channel(channel);
+  auto ret = _i2c->scan_for_devices();
+  _multiplexer.unlock();
+  return ret;
+}
+
+
 Result<std::shared_ptr<I2cMultiplexerGpioID>> I2cMultiplexerGpioID::Make(std::shared_ptr<I2C> i2c,
                                                                          uint8_t channels,
                                                                          GpioPin address_pin_1,
@@ -288,7 +354,7 @@ I2cMultiplexerGpioID::I2cMultiplexerGpioID(std::shared_ptr<I2C> i2c,
                                            std::optional<GpioPin> address_pin_4,
                                            uint8_t switch_delay_us)
 : _i2c(i2c), _address_pin_1(address_pin_1), _address_pin_2(address_pin_2), _address_pin_3(address_pin_3),
-  _address_pin_4(address_pin_4), _channels(0), _selected_channel(1), _switch_delay_us(switch_delay_us) {
+  _address_pin_4(address_pin_4), _channels(0), _selected_channel(1), _switch_delay_us(switch_delay_us), {
   _channels = 0;
   if(address_pin_2.has_value())
     _channels += 2;
@@ -300,7 +366,7 @@ I2cMultiplexerGpioID::I2cMultiplexerGpioID(std::shared_ptr<I2C> i2c,
 
   _i2c_channels.resize(_channels + 1);
   for(uint8_t channel = 0; channel < _channels; channel++) {
-    _i2c_channels[channel] = std::make_shared<I2cMultiplexerGpioIdNode>(i2c, channel, *this);
+    _i2c_channels[channel] = std::make_shared<I2cMultiplexerIdNode>(i2c, channel, *this);
   }
   select_channel(0);
 }
@@ -330,46 +396,4 @@ Result<std::shared_ptr<I2cBase>> I2cMultiplexerGpioID::get_i2c_interface_for_cha
   if(channel >= _channels)
     return Status::Invalid("Channel out of range");
   return Result<std::shared_ptr<I2cBase>>::OK(_i2c_channels[channel]);
-}
-
-Status I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::hardware_start() {
-  return _i2c->hardware_start();
-}
-
-Status I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::hardware_stop() {
-  return _i2c->hardware_stop();
-}
-
-Status I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::hardware_reset() {
-  return _i2c->hardware_reset();
-}
-
-Status I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::read(uint16_t address,
-                                                            uint16_t mem_address,
-                                                            uint8_t *data,
-                                                            uint16_t size,
-                                                            uint16_t mem_size,
-                                                            uint16_t timeout_ms) {
-  (void)_multiplexer.select_channel(channel);
-  return _i2c->read(address, mem_address, data, size, mem_size, timeout_ms);
-}
-
-Status I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::write(uint16_t address,
-                                                             uint16_t mem_address,
-                                                             uint8_t *data,
-                                                             uint16_t size,
-                                                             uint16_t mem_size,
-                                                             uint16_t timeout_ms) {
-  (void)_multiplexer.select_channel(channel);
-  return _i2c->write(address, mem_address, data, size, mem_size, timeout_ms);
-}
-
-Status I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) {
-  (void)_multiplexer.select_channel(channel);
-  return _i2c->is_device_ready(address, trials, timeout);
-}
-
-Result<std::vector<uint16_t>> I2cMultiplexerGpioID::I2cMultiplexerGpioIdNode::scan_for_devices() {
-  (void)_multiplexer.select_channel(channel);
-  return _i2c->scan_for_devices();
 }

@@ -189,11 +189,53 @@ private:
   Status _write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms = 300);
 };
 
+class I2cMultiplexerIdNode;
+
+class I2cMultiplexerBase {
+public:
+  I2cMultiplexerBase();
+  virtual ~I2cMultiplexerBase() = default;
+
+  /// @brief Select the channel of the multiplexer
+  /// @param channel the channel to select
+  /// @return
+  virtual Status select_channel(uint8_t channel) = 0;
+
+  /// @brief Get the currently selected channel of the multiplexer
+  /// @return the currently selected channel of the multiplexer
+  virtual uint8_t get_selected_channel() const = 0;
+
+  /// @brief Lock the multiplexer for exclusive access
+  void lock();
+
+  /// @brief Unlock the multiplexer for exclusive access
+  void unlock();
+
+private:
+  SemaphoreHandle_t _mutex;
+};
+
+class I2cMultiplexerIdNode : public I2cBase {
+public:
+  I2cMultiplexerIdNode(std::shared_ptr<I2C> i2c, uint8_t channel, I2cMultiplexerBase &multiplexer)
+  : _i2c(i2c), channel(channel), _multiplexer(multiplexer){};
+  Status hardware_start() override;
+  Status hardware_stop() override;
+  Status hardware_reset() override;
+  Status read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300) override;
+  Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300) override;
+  Status is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) override;
+  Result<std::vector<uint16_t>> scan_for_devices() override;
+
+private:
+  uint8_t channel;
+  std::shared_ptr<I2C> _i2c;
+  I2cMultiplexerBase &_multiplexer;
+};
+
 /// @brief Class for using an I2C with a multiplexer with selectable address pins
 /// with auto handling of the channel switching depending on the requested channel by the driver using the I2C interface.
-class I2cMultiplexerGpioID {
-
-
+class I2cMultiplexerGpioID : public I2cMultiplexerBase {
 public:
   /// @brief Make new I2C multiplexer interface with selectable address pins
   ///
@@ -225,26 +267,10 @@ private:
                        std::optional<GpioPin> address_pin_3 = std::nullopt,
                        std::optional<GpioPin> address_pin_4 = std::nullopt,
                        uint8_t switch_delay_us              = 10);
-  class I2cMultiplexerGpioIdNode : public I2cBase {
-  public:
-    I2cMultiplexerGpioIdNode(std::shared_ptr<I2C> i2c, uint8_t channel, I2cMultiplexerGpioID &multiplexer)
-    : _i2c(i2c), channel(channel), _multiplexer(multiplexer){};
-    Status hardware_start() override;
-    Status hardware_stop() override;
-    Status hardware_reset() override;
-    Status read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300) override;
-    Status write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size = 1, uint16_t timeout_ms = 300) override;
-    Status is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) override;
-    Result<std::vector<uint16_t>> scan_for_devices() override;
 
-  private:
-    uint8_t channel;
-    std::shared_ptr<I2C> _i2c;
-    I2cMultiplexerGpioID &_multiplexer;
-  };
 
-  Status select_channel(uint8_t channel);
-  uint8_t get_selected_channel() const;
+  virtual Status select_channel(uint8_t channel) override;
+  virtual uint8_t get_selected_channel() const override;
 
   std::shared_ptr<I2C> _i2c;
   std::vector<std::shared_ptr<I2cBase>> _i2c_channels;
