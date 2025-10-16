@@ -14,7 +14,7 @@
 /**
  * @file hardware.hpp
  * @brief This file contains the HardwareInterface base class definition.
- * HardwareInterface is used to provide a common interface for hardware control. Like I2C, SPI, UART, etc.
+ * HardwareInterface is used to provide a common interface for hardware control. Like I2cBase, SPI, UART, etc.
  */
 
 

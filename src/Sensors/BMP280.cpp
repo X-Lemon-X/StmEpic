@@ -9,18 +9,18 @@ using namespace stmepic::sensors::barometer::internal;
 using namespace stmepic;
 
 
-Result<std::shared_ptr<BMP280>> BMP280::Make(std::shared_ptr<I2C> hi2c, uint8_t address) {
+Result<std::shared_ptr<BMP280>> BMP280::Make(std::shared_ptr<I2cBase> hi2c, uint8_t address) {
   if(hi2c == nullptr)
-    return Status::ExecutionError("I2C is nullpointer");
+    return Status::ExecutionError("I2cBase is nullpointer");
   auto a = std::shared_ptr<BMP280>(new BMP280(hi2c, address));
   return Result<std::shared_ptr<BMP280>>::OK(a);
 }
 
-BMP280::BMP280(std::shared_ptr<I2C> hi2c, uint8_t _address)
+BMP280::BMP280(std::shared_ptr<I2cBase> hi2c, uint8_t _address)
 
 : hi2c(hi2c), _device_status(Status::Disconnected("not started")), reading_status(Status::OK()), address(_address) {
   if(hi2c == nullptr)
-    _device_status = Status::ExecutionError("I2C is nullpointer");
+    _device_status = Status::ExecutionError("I2cBase is nullpointer");
   else
     _device_status = Status::OK();
 }
@@ -128,8 +128,8 @@ Status BMP280::handle() {
 
 float BMP280::bmp280_compensate_T_int32(int32_t adc_T) {
   int32_t var1, var2, T;
-  var1   = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
-  var2   = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
+  var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
+  var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
   t_fine = var1 + var2;
   T      = (t_fine * 5 + 128) >> 8;
   return (float)T / 100.0f;

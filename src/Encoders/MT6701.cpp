@@ -16,7 +16,7 @@ using namespace stmepic;
 //********************************************************************************************************************
 // Magnatek MT6701 Encoder
 
-EncoderAbsoluteMagneticMT6701::EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2C> hi2c,
+EncoderAbsoluteMagneticMT6701::EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2cBase> hi2c,
                                                              uint16_t _address,
                                                              uint32_t resolution,
                                                              std::shared_ptr<filters::FilterBase> filter_angle,
@@ -24,12 +24,12 @@ EncoderAbsoluteMagneticMT6701::EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2C
 : EncoderAbsoluteMagnetic(hi2c, resolution, filter_angle, filter_velocity), address(_address) {
 }
 Result<std::shared_ptr<EncoderAbsoluteMagneticMT6701>>
-EncoderAbsoluteMagneticMT6701::Make(std::shared_ptr<I2C> hi2c,
+EncoderAbsoluteMagneticMT6701::Make(std::shared_ptr<I2cBase> hi2c,
                                     encoder_MT6701_addresses address,
                                     std::shared_ptr<filters::FilterBase> filter_angle,
                                     std::shared_ptr<filters::FilterBase> filter_velocity) {
   if(hi2c == nullptr)
-    return Status::Invalid("I2C is not initialized");
+    return Status::Invalid("I2cBase is not initialized");
   auto encoder = std::shared_ptr<EncoderAbsoluteMagneticMT6701>(
   new EncoderAbsoluteMagneticMT6701(hi2c, (uint16_t)address, 16384, filter_angle, filter_velocity));
   return Result<decltype(encoder)>::OK(encoder);

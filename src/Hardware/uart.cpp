@@ -3,7 +3,7 @@
 
 using namespace stmepic;
 
-// @brief I2C callback for DMA and IRQ
+// @brief I2cBase callback for DMA and IRQ
 extern "C" {
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *hi2c) {
   UART::run_tx_callbacks_from_isr(hi2c, false);

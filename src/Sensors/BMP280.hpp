@@ -69,11 +69,11 @@ public:
   /**
    * @brief Make new BMP280 barometer sensor
    *
-   * @param hi2c the I2C handle that will be used to communicate with the BMP280 device
+   * @param hi2c the I2cBase handle that will be used to communicate with the BMP280 device
    * @param address the address of the BMP280 device one of two possible addresses
    * @return Brand new BMP280 object
    */
-  static Result<std::shared_ptr<BMP280>> Make(std::shared_ptr<I2C> hi2c, uint8_t address = internal::BMP280_I2C_ADDRESS_1);
+  static Result<std::shared_ptr<BMP280>> Make(std::shared_ptr<I2cBase> hi2c, uint8_t address = internal::BMP280_I2C_ADDRESS_1);
 
   Result<bool> device_is_connected() override;
   bool device_ok() override;
@@ -91,7 +91,7 @@ public:
 
 
 private:
-  BMP280(std::shared_ptr<I2C> hi2c, uint8_t address);
+  BMP280(std::shared_ptr<I2cBase> hi2c, uint8_t address);
 
   Status do_device_task_start() override;
   Status do_device_task_stop() override;
@@ -148,7 +148,7 @@ private:
 
 
   BMP280_Data_t bar_data;
-  std::shared_ptr<I2C> hi2c;
+  std::shared_ptr<I2cBase> hi2c;
   Status _device_status;
   Status reading_status;
   uint8_t address;

@@ -42,7 +42,7 @@ enum class encoder_MT6701_addresses : uint16_t { MT6701_I2C_ADDRESS_1 = 0x06, MT
 class EncoderAbsoluteMagneticMT6701 : public EncoderAbsoluteMagnetic {
 public:
   static Result<std::shared_ptr<EncoderAbsoluteMagneticMT6701>>
-  Make(std::shared_ptr<I2C> hi2c,
+  Make(std::shared_ptr<I2cBase> hi2c,
        encoder_MT6701_addresses address                     = encoder_MT6701_addresses::MT6701_I2C_ADDRESS_1,
        std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
        std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
@@ -51,7 +51,7 @@ public:
 
 private:
   uint16_t address;
-  EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2C> hi2c,
+  EncoderAbsoluteMagneticMT6701(std::shared_ptr<I2cBase> hi2c,
                                 uint16_t address,
                                 uint32_t resolution,
                                 std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,

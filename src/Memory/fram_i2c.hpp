@@ -11,7 +11,7 @@
 
 /**
  * @file fram_i2c.hpp
- * @brief Base interface class for reading and writing data to FRAM ICs sonnected using I2C.
+ * @brief Base interface class for reading and writing data to FRAM ICs sonnected using I2cBase.
  */
 
 /**
@@ -21,18 +21,18 @@
 
 namespace stmepic::memory {
 
-/// @brief The FRAM class for I2C FRAM ICs
+/// @brief The FRAM class for I2cBase FRAM ICs
 class FramI2C : public FRAM {
 public:
   /**
    * @brief Make a new FramI2C driver
-   * @param hi2c the I2C handle that will be used to communicate with the FRAM device
+   * @param hi2c the I2cBase handle that will be used to communicate with the FRAM device
    * @param device_address the address of the FRAM device
    * @param begin_address the begining address from which the memory will be used
    * @param fram_size the size of the memory of the FRAM device to avoid out of bounds errors
    */
   static Result<std::shared_ptr<FramI2C>>
-  Make(std::shared_ptr<I2C> hi2c, uint8_t device_address, uint16_t begin_address = 0, uint32_t fram_size = 16000);
+  Make(std::shared_ptr<I2cBase> hi2c, uint8_t device_address, uint16_t begin_address = 0, uint32_t fram_size = 16000);
 
   virtual ~FramI2C();
 
@@ -56,19 +56,19 @@ public:
   Status device_set_settings(const DeviceSettings &settings) override final;
 
 protected:
-  std::shared_ptr<I2C> hi2c;
+  std::shared_ptr<I2cBase> hi2c;
   uint16_t begin_address;
   uint32_t fram_size;
   uint8_t device_address;
 
   /**
    * @brief Construct a new FramI2C driver
-   * @param hi2c the I2C handle that will be used to communicate with the FRAM device
+   * @param hi2c the I2cBase handle that will be used to communicate with the FRAM device
    * @param device_address the address of the FRAM device
    * @param begin_address the begining address from which the memory will be used
    * @param fram_size the size of the memory of the FRAM device to avoid out of bounds errors
    */
-  FramI2C(std::shared_ptr<I2C> hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
+  FramI2C(std::shared_ptr<I2cBase> hi2c, uint8_t device_address, uint16_t begin_address, uint32_t fram_size);
 };
 
 /**
@@ -78,12 +78,12 @@ protected:
 class FramI2CFM24CLxx : public FramI2C {
 public:
   static Result<std::shared_ptr<FramI2CFM24CLxx>>
-  Make(std::shared_ptr<I2C> hi2c, uint16_t begin_address = 0, uint32_t fram_size = 16000);
+  Make(std::shared_ptr<I2cBase> hi2c, uint16_t begin_address = 0, uint32_t fram_size = 16000);
   virtual Status write_raw(uint32_t address, uint8_t *data, size_t length) override;
   virtual Status read_raw(uint32_t address, uint8_t *data, size_t length) override;
 
 protected:
-  FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size);
+  FramI2CFM24CLxx(std::shared_ptr<I2cBase> hi2c, uint16_t begin_address, uint32_t fram_size);
 };
 
 } // namespace stmepic::memory

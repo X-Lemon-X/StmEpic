@@ -60,15 +60,15 @@ void Ticker::delay(uint32_t miliseconds) {
   }
 }
 
-void Ticker::delay_nop(uint32_t miliseconds) {
+void Ticker::delay_nop(uint32_t microseconds) {
   // whats this magic K number?
-  // this is the number of cycles that the CPU will run in 1ms
-  // why K=12000 one might ask?
-  // because the CPU is at some Fk frequency when divided by 1000 we get the number of cycles in fill 1ms
+  // this is the number of cycles that the CPU will run in 1us
+  // why K=12 000 000 one might ask?
+  // because the CPU is at some Fk frequency when divided by 1000000 we get the number of cycles in fill 1us
   // then the number 12 is approximate number of cycles that the CPU will run to iterate the through the loop.
-  // so then K = 1000 * 12 = 12000
-  miliseconds *= HAL_RCC_GetHCLKFreq() / 12000; // magic K number
-  for(uint32_t i = 0; i < miliseconds; i++) {
+  // so then K = 1000000 * 12 = 12000
+  microseconds *= HAL_RCC_GetHCLKFreq() / 12000000; // magic K number
+  for(uint32_t i = 0; i < microseconds; i++) {
     __NOP();
   }
 }

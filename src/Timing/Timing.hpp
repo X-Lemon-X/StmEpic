@@ -75,8 +75,8 @@ public:
   void delay(uint32_t miliseconds);
 
   /// @brief Delay for a specified amount of time in more less miliseconds
-  /// @param delay time to delay in miliseconds [ms]
-  void delay_nop(uint32_t miliseconds);
+  /// @param delay time to delay in microseconds [us]
+  void delay_nop(uint32_t microseconds);
 
 
 private:

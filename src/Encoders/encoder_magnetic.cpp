@@ -14,7 +14,7 @@ using namespace stmepic;
 #define PI_m2 6.28318530717958647692f
 
 
-EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
+EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2cBase> _hi2c,
                                                  uint32_t _resolution,
                                                  std::shared_ptr<filters::FilterBase> _filter_angle,
                                                  std::shared_ptr<filters::FilterBase> _filter_velocity)
@@ -121,7 +121,7 @@ stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected() {
 
 stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {
   if(hi2c == nullptr)
-    return Status::Invalid("I2C is not initialized");
+    return Status::Invalid("I2cBase is not initialized");
   return device_status;
 }
 

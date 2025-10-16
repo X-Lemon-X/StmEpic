@@ -16,7 +16,7 @@ using namespace stmepic;
 //********************************************************************************************************************
 // AS5600 Encoder
 
-EncoderAbsoluteMagneticAS5600::EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2C> hi2c,
+EncoderAbsoluteMagneticAS5600::EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2cBase> hi2c,
                                                              uint16_t _address,
                                                              uint32_t resolution,
                                                              std::shared_ptr<filters::FilterBase> filter_angle,
@@ -25,12 +25,12 @@ EncoderAbsoluteMagneticAS5600::EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2C
 }
 
 Result<std::shared_ptr<EncoderAbsoluteMagneticAS5600>>
-EncoderAbsoluteMagneticAS5600::Make(std::shared_ptr<I2C> hi2c,
+EncoderAbsoluteMagneticAS5600::Make(std::shared_ptr<I2cBase> hi2c,
                                     encoder_AS5600_addresses _address,
                                     std::shared_ptr<filters::FilterBase> filter_angle,
                                     std::shared_ptr<filters::FilterBase> filter_velocity) {
   if(hi2c == nullptr)
-    return Status::Invalid("I2C is not nullptr");
+    return Status::Invalid("I2cBase is not nullptr");
   auto encoder = std::shared_ptr<EncoderAbsoluteMagneticAS5600>(
   new EncoderAbsoluteMagneticAS5600(hi2c, (uint16_t)_address, 4096, filter_angle, filter_velocity));
   return Result<decltype(encoder)>::OK(encoder);

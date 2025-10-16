@@ -24,7 +24,7 @@
 namespace stmepic::encoders {
 
 /**
- * @brief Interface for I2C absolute magnetic encoders.
+ * @brief Interface for I2cBase absolute magnetic encoders.
  *
  */
 class EncoderAbsoluteMagnetic : public EncoderBase {
@@ -84,7 +84,7 @@ public:
 
 protected:
   /// @brief Init fucnion of the encoder
-  EncoderAbsoluteMagnetic(std::shared_ptr<I2C> hi2c,
+  EncoderAbsoluteMagnetic(std::shared_ptr<I2cBase> hi2c,
                           uint32_t resolution,
                           std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
                           std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
@@ -94,7 +94,7 @@ protected:
   /// @return the raw angle in uint32_t
   virtual Result<uint32_t> read_raw_angle() = 0;
 
-  std::shared_ptr<I2C> hi2c;
+  std::shared_ptr<I2cBase> hi2c;
   /// @brief Should be set to true if the encoder is connected
   bool encoder_connected;
   Status device_status;

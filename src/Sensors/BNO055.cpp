@@ -13,15 +13,16 @@ using namespace stmepic::sensors::imu;
 using namespace stmepic::sensors::imu::internal;
 
 
-Result<std::shared_ptr<BNO055>> BNO055::Make(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *nreset, GpioPin *interrupt) {
+Result<std::shared_ptr<BNO055>>
+BNO055::Make(std::shared_ptr<I2cBase> hi2c, uint8_t address, GpioPin *nreset, GpioPin *interrupt) {
 
   if(hi2c == nullptr)
-    return Status::ExecutionError("I2C is nullpointer");
+    return Status::ExecutionError("I2cBase is nullpointer");
   auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, address, nreset, interrupt));
   return Result<std::shared_ptr<BNO055>>::OK(a);
 }
 
-BNO055::BNO055(std::shared_ptr<I2C> hi2c, uint8_t _address, GpioPin *nreset, GpioPin *interrupt)
+BNO055::BNO055(std::shared_ptr<I2cBase> hi2c, uint8_t _address, GpioPin *nreset, GpioPin *interrupt)
 
 : hi2c(hi2c), interrupt(interrupt), nreset(nreset), _device_status(Status::Disconnected("not started")),
   reading_status(Status::OK()), address(_address), imu_data({}),
@@ -51,7 +52,7 @@ Status BNO055::stop() {
     STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
     reg |= BNO055_SYS_TRIGGER_RESET;
     STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
-    Ticker::get_instance().delay_nop(650);
+    Ticker::get_instance().delay_nop(650000);
   }
   return Status::OK();
 }
@@ -60,7 +61,7 @@ Status BNO055::stop() {
 Status BNO055::init() {
   if(nreset != nullptr) {
     nreset->write(1);
-    Ticker::get_instance().delay_nop(650);
+    Ticker::get_instance().delay_nop(650000);
   }
 
   STMEPIC_RETURN_ON_ERROR(hi2c->is_device_ready(address, 1, 500));
@@ -80,7 +81,7 @@ Status BNO055::init() {
   uint8_t reg;
   reg = BNO055_SYS_TRIGGER_RESET | BNO055_SYS_TRIGGER_EXT_CRYSTAL;
   STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_SYS_TRIGGER, &reg, 1));
-  Ticker::get_instance().delay_nop(650);
+  Ticker::get_instance().delay_nop(650000);
 
   STMEPIC_RETURN_ON_ERROR(set_page(BNO055_PAGE_0));
 
@@ -99,7 +100,7 @@ Status BNO055::init() {
   STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
 
   // wait for the device to be ready
-  Ticker::get_instance().delay_nop(25);
+  Ticker::get_instance().delay_nop(25000);
 
   // at this point the imu should be ready to use and be in NDOF mode ready to read data from it
   return Status::OK();
@@ -209,12 +210,12 @@ Result<BNO055_Data_t> BNO055::read_data() {
     uint8_t cal_reg[BNO055_CALIBRATION_DATA_LENGTH] = {};
     uint8_t reg                                     = BNO055_OPR_MODE_CONFIGMODE;
     STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
-    Ticker::get_instance().delay_nop(10);
+    Ticker::get_instance().delay_nop(10000);
     STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_CALIBRATION_DATA, imu_settings->calibration_data.data,
                                        sizeof(imu_settings->calibration_data.data)));
     reg = BNO055_OPR_MODE_NDOF;
     STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
-    Ticker::get_instance().delay_nop(25);
+    Ticker::get_instance().delay_nop(25000);
   }
   return Result<BNO055_Data_t>::OK(data);
 }

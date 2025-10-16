@@ -82,12 +82,12 @@ public:
   /**
    * @brief Make new ICM20948 imu sensor
    *
-   * @param hi2c the I2C handle that will be used to communicate with the ICM20948 device
+   * @param hi2c the I2cBase handle that will be used to communicate with the ICM20948 device
    * @param address the address of the ICM20948 device one of two possible addresses
    * @return Brand new ICM20948 object
    */
   static Result<std::shared_ptr<ICM20948>>
-  Make(std::shared_ptr<I2C> hi2c, uint8_t address = internal::ICM20948_I2C_ADDRESS_1, GpioPin *gpio_int = nullptr);
+  Make(std::shared_ptr<I2cBase> hi2c, uint8_t address = internal::ICM20948_I2C_ADDRESS_1, GpioPin *gpio_int = nullptr);
 
   Result<bool> device_is_connected() override;
   bool device_ok() override;
@@ -102,7 +102,7 @@ public:
 
 
 private:
-  ICM20948(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *gpio_int = nullptr);
+  ICM20948(std::shared_ptr<I2cBase> hi2c, uint8_t address, GpioPin *gpio_int = nullptr);
 
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
@@ -118,7 +118,7 @@ private:
   Status handle();
 
   ICM20948_Data_t bar_data;
-  std::shared_ptr<I2C> hi2c;
+  std::shared_ptr<I2cBase> hi2c;
   Status _device_status;
   Status reading_status;
   uint8_t address;

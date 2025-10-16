@@ -119,13 +119,13 @@ public:
   /**
    * @brief Make new BNO055 IMU sensor object
    *
-   * @param hi2c the I2C handle that will be used to communicate with the BNO055 device
+   * @param hi2c the I2cBase handle that will be used to communicate with the BNO055 device
    * @param address the address of the BNO055 device one of two possible addresses
    * @param nreset the reset pin of the BNO055 device
    * @param interrupt the interrupt pin of the BNO055 device
    * @return Brand new BNO055 object
    */
-  static Result<std::shared_ptr<BNO055>> Make(std::shared_ptr<I2C> hi2c,
+  static Result<std::shared_ptr<BNO055>> Make(std::shared_ptr<I2cBase> hi2c,
                                               uint8_t address    = internal::BNO055_I2C_ADDRESS_1,
                                               GpioPin *nreset    = nullptr,
                                               GpioPin *interrupt = nullptr);
@@ -146,7 +146,7 @@ public:
 
 
 private:
-  BNO055(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
+  BNO055(std::shared_ptr<I2cBase> hi2c, uint8_t address, GpioPin *nreset = nullptr, GpioPin *interrupt = nullptr);
   Status do_device_task_start() override;
   Status do_device_task_stop() override;
   Status do_device_task_reset() override;
@@ -166,7 +166,7 @@ private:
   Status device_init();
 
   BNO055_Data_t imu_data;
-  std::shared_ptr<I2C> hi2c;
+  std::shared_ptr<I2cBase> hi2c;
   GpioPin *interrupt;
   GpioPin *nreset;
 

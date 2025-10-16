@@ -9,14 +9,14 @@ using namespace stmepic::sensors::imu::internal;
 using namespace stmepic;
 
 
-Result<std::shared_ptr<ICM20948>> ICM20948::Make(std::shared_ptr<I2C> hi2c, uint8_t address, GpioPin *gpio_int) {
+Result<std::shared_ptr<ICM20948>> ICM20948::Make(std::shared_ptr<I2cBase> hi2c, uint8_t address, GpioPin *gpio_int) {
   if(hi2c == nullptr)
-    return Status::ExecutionError("I2C is nullpointer");
+    return Status::ExecutionError("I2cBase is nullpointer");
   auto a = std::shared_ptr<ICM20948>(new ICM20948(hi2c, address, gpio_int));
   return Result<std::shared_ptr<ICM20948>>::OK(a);
 }
 
-ICM20948::ICM20948(std::shared_ptr<I2C> hi2c, uint8_t _address, GpioPin *_gpio_int)
+ICM20948::ICM20948(std::shared_ptr<I2cBase> hi2c, uint8_t _address, GpioPin *_gpio_int)
 
 : hi2c(hi2c), _device_status(Status::Disconnected("not started")), reading_status(Status::OK()),
   address(_address), gpio_int(_gpio_int) {

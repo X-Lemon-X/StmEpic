@@ -40,7 +40,7 @@ enum class encoder_AS5600_addresses : uint16_t { AS5600_I2C_ADDRESS_1 = 0x36 };
 class EncoderAbsoluteMagneticAS5600 : public EncoderAbsoluteMagnetic {
 public:
   static Result<std::shared_ptr<EncoderAbsoluteMagneticAS5600>>
-  Make(std::shared_ptr<I2C> hi2c,
+  Make(std::shared_ptr<I2cBase> hi2c,
        encoder_AS5600_addresses address                     = encoder_AS5600_addresses::AS5600_I2C_ADDRESS_1,
        std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,
        std::shared_ptr<filters::FilterBase> filter_velocity = nullptr);
@@ -48,7 +48,7 @@ public:
 
 private:
   uint16_t address;
-  EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2C> hi2c,
+  EncoderAbsoluteMagneticAS5600(std::shared_ptr<I2cBase> hi2c,
                                 uint16_t address,
                                 uint32_t resolution,
                                 std::shared_ptr<filters::FilterBase> filter_angle    = nullptr,

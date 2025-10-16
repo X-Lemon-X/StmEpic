@@ -9,9 +9,9 @@ using namespace stmepic;
 
 
 Result<std::shared_ptr<FramI2C>>
-FramI2C::Make(std::shared_ptr<I2C> _hi2c, uint8_t _device_address, uint16_t _begin_address, uint32_t _fram_size) {
+FramI2C::Make(std::shared_ptr<I2cBase> _hi2c, uint8_t _device_address, uint16_t _begin_address, uint32_t _fram_size) {
   if(_hi2c == nullptr)
-    return Status::Invalid("I2C is not initialized");
+    return Status::Invalid("I2cBase is not initialized");
   if(_device_address == 0)
     return Status::Invalid("Device address is not valid");
   if(_begin_address > _fram_size)
@@ -20,7 +20,7 @@ FramI2C::Make(std::shared_ptr<I2C> _hi2c, uint8_t _device_address, uint16_t _beg
   return Result<decltype(fram)>::OK(fram);
 }
 
-FramI2C::FramI2C(std::shared_ptr<I2C> _hi2c, uint8_t _device_address, uint16_t _begin_address, uint32_t _fram_size)
+FramI2C::FramI2C(std::shared_ptr<I2cBase> _hi2c, uint8_t _device_address, uint16_t _begin_address, uint32_t _fram_size)
 : hi2c(_hi2c), device_address(_device_address), begin_address(_begin_address), fram_size(_fram_size) {
 }
 
@@ -30,7 +30,7 @@ FramI2C::~FramI2C() {
 
 Status FramI2C::device_get_status() {
   if(hi2c == nullptr)
-    return Status::Invalid("I2C is not initialized");
+    return Status::Invalid("I2cBase is not initialized");
   return hi2c->is_device_ready(device_address, 1, 100);
 }
 
@@ -73,9 +73,9 @@ Status FramI2C::read_raw(uint32_t address, uint8_t *data, size_t length) {
 }
 
 Result<std::shared_ptr<FramI2CFM24CLxx>>
-FramI2CFM24CLxx::Make(std::shared_ptr<I2C> _hi2c, uint16_t _begin_address, uint32_t _fram_size) {
+FramI2CFM24CLxx::Make(std::shared_ptr<I2cBase> _hi2c, uint16_t _begin_address, uint32_t _fram_size) {
   if(_hi2c == nullptr)
-    return Status::Invalid("I2C is not initialized");
+    return Status::Invalid("I2cBase is not initialized");
   if(_begin_address > _fram_size)
     return Status::Invalid("Begin address is not valid");
   if(_fram_size == 0)
@@ -84,7 +84,7 @@ FramI2CFM24CLxx::Make(std::shared_ptr<I2C> _hi2c, uint16_t _begin_address, uint3
   return Result<decltype(fram)>::OK(fram);
 }
 
-FramI2CFM24CLxx::FramI2CFM24CLxx(std::shared_ptr<I2C> hi2c, uint16_t begin_address, uint32_t fram_size)
+FramI2CFM24CLxx::FramI2CFM24CLxx(std::shared_ptr<I2cBase> hi2c, uint16_t begin_address, uint32_t fram_size)
 : FramI2C(hi2c, 0x50, begin_address, fram_size) {
 }
 
