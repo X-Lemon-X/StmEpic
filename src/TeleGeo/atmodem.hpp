@@ -37,7 +37,7 @@ struct AtModemSettings : public DeviceSettings {
 
 class AtModem : public stmepic::DeviceThreadedBase {
 public:
-  static Result<std::shared_ptr<AtModem>> Make(std::shared_ptr<UART> huart);
+  static Result<std::shared_ptr<AtModem>> Make(std::shared_ptr<UartBase> huart);
 
   Result<bool> device_is_connected() override;
   bool device_ok() override;
@@ -48,7 +48,7 @@ public:
 
 
 private:
-  AtModem(std::shared_ptr<UART> huart);
+  AtModem(std::shared_ptr<UartBase> huart);
 
   stmepic::Status do_device_task_start() override;
   stmepic::Status do_device_task_stop() override;
@@ -68,7 +68,7 @@ private:
   gps::NmeaParser nmea_parser;
   Status nmea_status;
 
-  std::shared_ptr<UART> huart;
+  std::shared_ptr<UartBase> huart;
   Status _device_status;
 };
 

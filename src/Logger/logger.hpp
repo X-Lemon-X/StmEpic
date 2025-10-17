@@ -81,7 +81,7 @@ public:
   ///
   /// If set to true then the message will be printed in json format with fields like: the message,
   /// time stamp, function name, file name, software version, log level.
-  /// @param transmi_function - function pointer to the function that will be used to transmit the data for example if we wont to use UART or USB to print data
+  /// @param transmi_function - function pointer to the function that will be used to transmit the data for example if we wont to use UartBase or USB to print data
   /// @param use_semihosting - if set to true the logger will use Semihosting to print data do the debugger console , No extra hadware is needed only the debugger.
   /// if used with OpenOCD you have to add argument to enable it: "init; arm semihosting enable"
   /// You can't use Semihosting on when using st-link-gdb server only OpenOCD.
