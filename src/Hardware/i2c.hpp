@@ -229,7 +229,7 @@ public:
                                                             std::optional<GpioPin> address_pin_2 = std::nullopt,
                                                             std::optional<GpioPin> address_pin_3 = std::nullopt,
                                                             std::optional<GpioPin> address_pin_4 = std::nullopt,
-                                                            uint8_t switch_delay_us = 1);
+                                                            uint8_t switch_delay_us              = 1);
 
   /// @brief Get the I2C interface for the specific channel,
   /// Which should be passed to the device driver which is connected to the multiplexer on this specific channel.
