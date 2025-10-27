@@ -27,7 +27,7 @@ namespace stmepic::filters {
 class FilterMovingAvarage : public FilterBase {
 
 public:
-  FilterMovingAvarage();
+  FilterMovingAvarage(uint16_t filter_size = 20, uint16_t samples_to_skip = 5);
   float calculate(float calculate) override;
   void set_size(uint16_t size);
   void set_samples_to_skip(uint16_t sample_amount) override;
