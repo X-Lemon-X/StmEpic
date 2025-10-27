@@ -26,7 +26,7 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2cBase> _hi2c,
 
   DeviceThreadedSettings settings;
   settings.period       = 1;
-  settings.uxPriority   = 2;
+  settings.uxPriority   = tskIDLE_PRIORITY + 2;
   settings.uxStackDepth = 1024;
   device_task_set_settings(settings);
 }
