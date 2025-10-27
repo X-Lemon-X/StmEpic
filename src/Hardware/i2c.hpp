@@ -194,7 +194,7 @@ class I2cMultiplexerChannel;
 
 class I2cMultiplexerChannel : public I2cBase {
 public:
-  I2cMultiplexerChannel(std::shared_ptr<I2C> i2c, uint8_t channel, MultiplexerBase &multiplexer)
+  I2cMultiplexerChannel(std::shared_ptr<I2cBase> i2c, uint8_t channel, MultiplexerBase &multiplexer)
   : _i2c(i2c), channel(channel), _multiplexer(multiplexer){};
   Status hardware_start() override;
   Status hardware_stop() override;
@@ -206,7 +206,7 @@ public:
 
 private:
   uint8_t channel;
-  std::shared_ptr<I2C> _i2c;
+  std::shared_ptr<I2cBase> _i2c;
   MultiplexerBase &_multiplexer;
 };
 
@@ -223,13 +223,13 @@ public:
   /// @param address_pin_3 the third address pin of the multiplexer
   /// @param address_pin_4 the fourth address pin of the multiplexer
   /// @param pin_reset optional reset pin for the multiplexer
-  Result<std::shared_ptr<I2cMultiplexerGpioID>> Make(std::shared_ptr<I2C> i2c,
-                                                     uint8_t channels,
-                                                     GpioPin address_pin_1,
-                                                     std::optional<GpioPin> address_pin_2 = std::nullopt,
-                                                     std::optional<GpioPin> address_pin_3 = std::nullopt,
-                                                     std::optional<GpioPin> address_pin_4 = std::nullopt,
-                                                     uint8_t switch_delay_us              = 1);
+  static Result<std::shared_ptr<I2cMultiplexerGpioID>> Make(std::shared_ptr<I2cBase> i2c,
+                                                            uint8_t channels,
+                                                            GpioPin address_pin_1,
+                                                            std::optional<GpioPin> address_pin_2 = std::nullopt,
+                                                            std::optional<GpioPin> address_pin_3 = std::nullopt,
+                                                            std::optional<GpioPin> address_pin_4 = std::nullopt,
+                                                            uint8_t switch_delay_us = 1);
 
   /// @brief Get the I2C interface for the specific channel,
   /// Which should be passed to the device driver which is connected to the multiplexer on this specific channel.
@@ -238,7 +238,7 @@ public:
   Result<std::shared_ptr<I2cBase>> get_i2c_interface_for_channel(uint8_t channel);
 
 private:
-  I2cMultiplexerGpioID(std::shared_ptr<I2C> i2c,
+  I2cMultiplexerGpioID(std::shared_ptr<I2cBase> i2c,
                        GpioPin address_pin_1,
                        std::optional<GpioPin> address_pin_2 = std::nullopt,
                        std::optional<GpioPin> address_pin_3 = std::nullopt,
@@ -250,7 +250,7 @@ private:
   virtual uint8_t get_selected_channel() const override;
   virtual uint8_t get_total_channels() const override;
 
-  std::shared_ptr<I2C> _i2c;
+  std::shared_ptr<I2cBase> _i2c;
   std::vector<std::shared_ptr<I2cBase>> _i2c_channels;
   uint8_t _channels;
   uint8_t _selected_channel;

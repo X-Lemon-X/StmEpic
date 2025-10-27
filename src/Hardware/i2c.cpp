@@ -311,7 +311,7 @@ Result<std::vector<uint16_t>> I2cMultiplexerChannel::scan_for_devices() {
 }
 
 
-Result<std::shared_ptr<I2cMultiplexerGpioID>> I2cMultiplexerGpioID::Make(std::shared_ptr<I2C> i2c,
+Result<std::shared_ptr<I2cMultiplexerGpioID>> I2cMultiplexerGpioID::Make(std::shared_ptr<I2cBase> i2c,
                                                                          uint8_t channels,
                                                                          GpioPin address_pin_1,
                                                                          std::optional<GpioPin> address_pin_2,
@@ -334,7 +334,7 @@ Result<std::shared_ptr<I2cMultiplexerGpioID>> I2cMultiplexerGpioID::Make(std::sh
   return Result<decltype(mux)>::OK(mux);
 }
 
-I2cMultiplexerGpioID::I2cMultiplexerGpioID(std::shared_ptr<I2C> i2c,
+I2cMultiplexerGpioID::I2cMultiplexerGpioID(std::shared_ptr<I2cBase> i2c,
                                            GpioPin address_pin_1,
                                            std::optional<GpioPin> address_pin_2,
                                            std::optional<GpioPin> address_pin_3,
