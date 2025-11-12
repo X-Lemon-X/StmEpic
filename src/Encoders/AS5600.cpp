@@ -33,7 +33,7 @@ EncoderAbsoluteMagneticAS5600::Make(std::shared_ptr<I2cBase> hi2c,
     return Status::Invalid("I2cBase is not nullptr");
   auto encoder = std::shared_ptr<EncoderAbsoluteMagneticAS5600>(
   new EncoderAbsoluteMagneticAS5600(hi2c, (uint16_t)_address, 4096, filter_angle, filter_velocity));
-  return Result<decltype(encoder)>::OK(encoder);
+  return Result<decltype(encoder)>::OK(std::move(encoder));
 }
 
 Result<uint32_t> EncoderAbsoluteMagneticAS5600::read_raw_angle() {
@@ -44,5 +44,5 @@ Result<uint32_t> EncoderAbsoluteMagneticAS5600::read_raw_angle() {
   STMEPIC_RETURN_ON_ERROR(status);
   uint32_t reg = (uint32_t)(data[0] & 0x0F) << 8;
   reg |= (uint32_t)(data[1]);
-  return Result<uint32_t>::OK(reg);
+  return Result<uint32_t>::OK(std::move(reg));
 }

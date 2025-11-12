@@ -43,7 +43,7 @@ Result<std::shared_ptr<I2C>> I2C::Make(I2C_HandleTypeDef &hi2c, GpioPin &sda, Gp
   std::shared_ptr<I2C> i2c(new I2C(hi2c, sda, scl, type));
   i2c_instances.push_back(i2c);
   vPortExitCritical();
-  return Result<decltype(i2c)>::OK(i2c);
+  return Result<decltype(i2c)>::OK(std::move(i2c));
 }
 
 void I2C::run_tx_callbacks_from_isr(I2C_HandleTypeDef *hi2c) {
@@ -254,7 +254,7 @@ Result<std::vector<uint16_t>> I2C::scan_for_devices() {
       devices.push_back(address);
     }
   }
-  return Result<std::vector<uint16_t>>::OK(devices);
+  return Result<std::vector<uint16_t>>::OK(std::move(devices));
 }
 
 
@@ -342,9 +342,8 @@ Result<std::shared_ptr<I2cMultiplexerGpioID>> I2cMultiplexerGpioID::Make(std::sh
   if(channels > 7 && !address_pin_4.has_value())
     return Status::Invalid("Address pin 4 must be provided for more than 7 channels");
 
-  std::shared_ptr<I2cMultiplexerGpioID> mux(
-  new I2cMultiplexerGpioID(i2c, address_pin_1, address_pin_2, address_pin_3, address_pin_4, switch_delay_us));
-  return Result<decltype(mux)>::OK(mux);
+  return Result<std::shared_ptr<I2cMultiplexerGpioID>>::OK(std::shared_ptr<I2cMultiplexerGpioID>(
+  new I2cMultiplexerGpioID(i2c, address_pin_1, address_pin_2, address_pin_3, address_pin_4, switch_delay_us)));
 }
 
 I2cMultiplexerGpioID::I2cMultiplexerGpioID(std::shared_ptr<I2C> i2c,
@@ -395,5 +394,5 @@ uint8_t I2cMultiplexerGpioID::get_selected_channel() const {
 Result<std::shared_ptr<I2cBase>> I2cMultiplexerGpioID::get_i2c_interface_for_channel(uint8_t channel) {
   if(channel >= _channels)
     return Status::Invalid("Channel out of range");
-  return Result<std::shared_ptr<I2cBase>>::OK(_i2c_channels[channel]);
+  return Result<std::shared_ptr<I2cBase>>::OK(std::move(_i2c_channels[channel]));
 }

@@ -18,8 +18,8 @@ BNO055::Make(std::shared_ptr<I2cBase> hi2c, uint8_t address, GpioPin *nreset, Gp
 
   if(hi2c == nullptr)
     return Status::ExecutionError("I2cBase is nullpointer");
-  auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, address, nreset, interrupt));
-  return Result<std::shared_ptr<BNO055>>::OK(a);
+  // auto a = std::shared_ptr<BNO055>(new BNO055(hi2c, address, nreset, interrupt));
+  return Result<std::shared_ptr<BNO055>>::OK(std::shared_ptr<BNO055>(new BNO055(hi2c, address, nreset, interrupt)));
 }
 
 BNO055::BNO055(std::shared_ptr<I2cBase> hi2c, uint8_t _address, GpioPin *nreset, GpioPin *interrupt)
@@ -154,47 +154,47 @@ Status BNO055::handle() {
   return _device_status;
 }
 
-Result<BNO055_Data_t> BNO055::read_data() {
+Result<ImuData> BNO055::read_data() {
   uint8_t regs[BNO055_REG_ACC_DATA_LENGTH + 1] = { 0 };
 
   STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_ACC_DATA_BEGIN, regs, sizeof(regs)));
 
-  BNO055_Data_t data = {};
+  ImuData data = {};
 
-  data.acc.x = ((uint16_t)regs[1] << 8) | regs[0];
-  data.acc.y = ((uint16_t)regs[3] << 8) | regs[2];
-  data.acc.z = ((uint16_t)regs[5] << 8) | regs[4];
+  data.acceleration.x = ((uint16_t)regs[1] << 8) | regs[0];
+  data.acceleration.y = ((uint16_t)regs[3] << 8) | regs[2];
+  data.acceleration.z = ((uint16_t)regs[5] << 8) | regs[4];
 
-  data.mag.x = ((uint16_t)regs[7] << 8) | regs[6];
-  data.mag.y = ((uint16_t)regs[9] << 8) | regs[8];
-  data.mag.z = ((uint16_t)regs[11] << 8) | regs[10];
+  data.magnetic_field.x = ((uint16_t)regs[7] << 8) | regs[6];
+  data.magnetic_field.y = ((uint16_t)regs[9] << 8) | regs[8];
+  data.magnetic_field.z = ((uint16_t)regs[11] << 8) | regs[10];
 
-  data.gyr.x = ((uint16_t)regs[13] << 8) | regs[12];
-  data.gyr.y = ((uint16_t)regs[15] << 8) | regs[14];
-  data.gyr.z = ((uint16_t)regs[17] << 8) | regs[16];
+  data.gyration.x = ((uint16_t)regs[13] << 8) | regs[12];
+  data.gyration.y = ((uint16_t)regs[15] << 8) | regs[14];
+  data.gyration.z = ((uint16_t)regs[17] << 8) | regs[16];
 
-  data.eul.x = ((uint16_t)regs[19] << 8) | regs[18];
-  data.eul.y = ((uint16_t)regs[21] << 8) | regs[20];
-  data.eul.z = ((uint16_t)regs[23] << 8) | regs[22];
+  data.euler_angles.x = ((uint16_t)regs[19] << 8) | regs[18];
+  data.euler_angles.y = ((uint16_t)regs[21] << 8) | regs[20];
+  data.euler_angles.z = ((uint16_t)regs[23] << 8) | regs[22];
 
-  data.qua.w = ((uint16_t)regs[25] << 8) | regs[24];
-  data.qua.x = ((uint16_t)regs[27] << 8) | regs[26];
-  data.qua.y = ((uint16_t)regs[29] << 8) | regs[28];
-  data.qua.z = ((uint16_t)regs[31] << 8) | regs[30];
+  data.quaternion.w = ((uint16_t)regs[25] << 8) | regs[24];
+  data.quaternion.x = ((uint16_t)regs[27] << 8) | regs[26];
+  data.quaternion.y = ((uint16_t)regs[29] << 8) | regs[28];
+  data.quaternion.z = ((uint16_t)regs[31] << 8) | regs[30];
 
-  data.lia.x = ((uint16_t)regs[33] << 8) | regs[32];
-  data.lia.y = ((uint16_t)regs[35] << 8) | regs[34];
-  data.lia.z = ((uint16_t)regs[37] << 8) | regs[36];
+  data.linear_acceleration.x = ((uint16_t)regs[33] << 8) | regs[32];
+  data.linear_acceleration.y = ((uint16_t)regs[35] << 8) | regs[34];
+  data.linear_acceleration.z = ((uint16_t)regs[37] << 8) | regs[36];
 
-  data.grv.x = ((uint16_t)regs[39] << 8) | regs[38];
-  data.grv.y = ((uint16_t)regs[41] << 8) | regs[40];
-  data.grv.z = ((uint16_t)regs[43] << 8) | regs[42];
+  data.gravity.x = ((uint16_t)regs[39] << 8) | regs[38];
+  data.gravity.y = ((uint16_t)regs[41] << 8) | regs[40];
+  data.gravity.z = ((uint16_t)regs[43] << 8) | regs[42];
 
   data.temp = regs[44];
 
   // if sensor is calibrated we simply return the data
   if(imu_settings->calibration_data.calibrated)
-    return Result<BNO055_Data_t>::OK(data);
+    return Result<ImuData>::OK(std::move(data));
 
   // if sensor is not calibrated we need to check the calibration status
   bool calib_stat_gyro = ((regs[45] >> 6) & 0x03) == 3;
@@ -217,11 +217,11 @@ Result<BNO055_Data_t> BNO055::read_data() {
     STMEPIC_RETURN_ON_ERROR(hi2c->write(address, BNO055_REG_OPR_MODE, &reg, 1));
     Ticker::get_instance().delay_nop(25000);
   }
-  return Result<BNO055_Data_t>::OK(data);
+  return Result<ImuData>::OK(std::move(data));
 }
 
-Result<BNO055_Data_t> BNO055::get_data() {
-  return Result<BNO055_Data_t>::Propagate(imu_data, _device_status);
+Result<ImuData> BNO055::get_data() {
+  return Result<ImuData>::Propagate(std::move(imu_data), std::move(_device_status));
 }
 
 Result<bool> BNO055::device_is_connected() {

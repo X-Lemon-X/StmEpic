@@ -13,7 +13,7 @@ Result<std::shared_ptr<ICM20948>> ICM20948::Make(std::shared_ptr<I2cBase> hi2c, 
   if(hi2c == nullptr)
     return Status::ExecutionError("I2cBase is nullpointer");
   auto a = std::shared_ptr<ICM20948>(new ICM20948(hi2c, address, gpio_int));
-  return Result<std::shared_ptr<ICM20948>>::OK(a);
+  return Result<std::shared_ptr<ICM20948>>::OK(std::move(a));
 }
 
 ICM20948::ICM20948(std::shared_ptr<I2cBase> hi2c, uint8_t _address, GpioPin *_gpio_int)
@@ -73,7 +73,7 @@ bool ICM20948::device_ok() {
 }
 
 Result<bool> ICM20948::device_is_connected() {
-  return Result<bool>::Propagate(_device_status.ok(), _device_status);
+  return Result<bool>::Propagate(_device_status.ok(), std::move(_device_status));
 }
 
 
@@ -100,9 +100,9 @@ Result<ICM20948_Data_t> ICM20948::read_data() {
   uint8_t regs[6]      = {};
   ICM20948_Data_t data = {};
 
-  return Result<ICM20948_Data_t>::OK(data);
+  return Result<ICM20948_Data_t>::OK(std::move(data));
 }
 
 Result<ICM20948_Data_t> ICM20948::get_data() {
-  return Result<ICM20948_Data_t>::Propagate(bar_data, _device_status);
+  return Result<ICM20948_Data_t>::Propagate(std::move(bar_data), std::move(_device_status));
 }

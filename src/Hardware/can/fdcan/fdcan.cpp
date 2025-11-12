@@ -180,7 +180,7 @@ FDCAN::Make(FDCAN_HandleTypeDef &hcan, const FDcanFilterConfig &filter, GpioPin 
   std::shared_ptr<FDCAN> can(new FDCAN(hcan, filter, tx_led, rx_led));
   can_instances.push_back(can);
   vPortExitCritical();
-  return Result<decltype(can)>::OK(can);
+  return Result<decltype(can)>::OK(std::move(can));
 }
 
 void FDCAN::run_tx_callbacks_from_irq(FDCAN_HandleTypeDef *hcan, uint32_t BufferIndexes) {

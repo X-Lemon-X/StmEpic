@@ -116,7 +116,7 @@ bool EncoderAbsoluteMagnetic::device_ok() {
 }
 
 stmepic::Result<bool> EncoderAbsoluteMagnetic::device_is_connected() {
-  return Result<bool>::OK(encoder_connected);
+  return Result<bool>::OK(std::move(encoder_connected));
 }
 
 stmepic::Status EncoderAbsoluteMagnetic::device_get_status() {

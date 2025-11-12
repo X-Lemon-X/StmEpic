@@ -52,7 +52,7 @@ UART::Make(UART_HandleTypeDef &huart, const HardwareType type, uint16_t buffer_l
   std::shared_ptr<UART> uart(new UART(huart, type, buffer_length, queue_size));
   uart_instances.push_back(uart);
   vPortExitCritical();
-  return Result<decltype(uart)>::OK(uart);
+  return Result<decltype(uart)>::OK(std::move(uart));
 }
 
 void UART::run_rx_callbacks_from_isr(UART_HandleTypeDef *huart, bool half) {

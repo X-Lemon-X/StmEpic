@@ -92,7 +92,7 @@ Result<std::shared_ptr<Timer>> Timer::Make(uint32_t period, bool repeat, callbac
   new_timer->set_behaviour(period, repeat);
   new_timer->function = function;
   auto timer          = std::shared_ptr<Timer>(new_timer);
-  return Result<decltype(timer)>::OK(timer);
+  return Result<decltype(timer)>::OK(std::move(timer));
 }
 
 void Timer::timer_reset() {

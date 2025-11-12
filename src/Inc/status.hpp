@@ -2,7 +2,7 @@
 
 #include "stmepic.hpp"
 #include <string>
-
+#include <optional>
 
 /**
  * @file status.hpp
@@ -381,16 +381,16 @@ private:
 template <typename T> struct Result {
 public:
   /// @brief Create a new Result from status for clean return from functions when error occurs.
-  Result(Status status) : _status(status){};
+  Result(const Status &status) : _status(std::move(status)){};
 
   /// @brief Return a new Result with value and status OK.
-  static auto OK(const T &value) -> Result<T> {
+  static Result<T> OK(T &&value) {
     return Result<T>(std::move(value), Status::OK());
   }
 
 
-  static auto Propagate(const T &value, const Status &status) -> Result<T> {
-    return Result<T>(value, status);
+  static Result<T> Propagate(T &&value, Status &&status) {
+    return Result<T>(std::move(value), std::move(status));
   }
 
   /// @brief Get the value of the result or weard error if the status is not OK.
@@ -414,9 +414,9 @@ public:
   }
 
 private:
-  Result(const T &value, Status status) : _value(std::move(value)), _status(status){};
+  Result(T &&value, Status &&status) : _value(std::move(value)), _status(std::move(status)){};
 
-
+  // std::optional<T> _value;
   T _value;
   Status _status;
 };

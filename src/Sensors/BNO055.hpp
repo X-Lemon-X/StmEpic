@@ -5,6 +5,7 @@
 #include "stmepic.hpp"
 #include "vectors3d.hpp"
 #include "i2c.hpp"
+#include "imu.hpp"
 #include <memory>
 
 using namespace stmepic;
@@ -95,16 +96,16 @@ struct BNO055_Calibration_Data_t {
   uint8_t data[internal::BNO055_CALIBRATION_DATA_LENGTH];
 };
 
-struct BNO055_Data_t {
-  int8_t temp;
-  Vector3d_t<int16_t> acc;
-  Vector3d_t<int16_t> gyr;
-  Vector3d_t<int16_t> mag;
-  Vector3d_t<int16_t> lia;
-  Vector3d_t<int16_t> grv;
-  Vector3d_t<int16_t> eul;
-  Vector4d_t<int16_t> qua;
-};
+// struct BNO055_Data_t {
+//   int8_t temp;
+//   Vector3d_t<int16_t> acc;
+//   Vector3d_t<int16_t> gyr;
+//   Vector3d_t<int16_t> mag;
+//   Vector3d_t<int16_t> lia;
+//   Vector3d_t<int16_t> grv;
+//   Vector3d_t<int16_t> eul;
+//   Vector4d_t<int16_t> qua;
+// };
 
 struct BNO0055_Settings : public DeviceSettings {
   BNO055_Calibration_Data_t calibration_data = {};
@@ -114,7 +115,7 @@ struct BNO0055_Settings : public DeviceSettings {
  * @brief BNO055 IMU sensor
  * BNO055 is a 9-axis IMU sensor with a built-in microcontroller that can perform sensor fusion
  */
-class BNO055 : public stmepic::DeviceThreadedBase {
+class BNO055 : public virtual stmepic::DeviceThreadedBase, public virtual IMU {
 public:
   /**
    * @brief Make new BNO055 IMU sensor object
@@ -139,7 +140,7 @@ public:
    * @brief Get the last read data from the BNO055 sensor
    * @return This function will return the last read data from the BNO055 sensor along with the status of the last operation
    */
-  Result<BNO055_Data_t> get_data();
+  Result<ImuData> get_data();
 
   BNO055_Calibration_Data_t get_calibration_data();
   // void set_calibration_data(BNO055_Calibration_Data_t &calibration_data);
@@ -155,7 +156,7 @@ private:
   Status stop();
 
 
-  Result<BNO055_Data_t> read_data();
+  Result<ImuData> read_data();
   static Status task_imu_before(SimpleTask &handler, void *arg);
   static Status task_imu(SimpleTask &handler, void *arg);
   Status handle();
@@ -165,7 +166,7 @@ private:
 
   Status device_init();
 
-  BNO055_Data_t imu_data;
+  ImuData imu_data;
   std::shared_ptr<I2cBase> hi2c;
   GpioPin *interrupt;
   GpioPin *nreset;

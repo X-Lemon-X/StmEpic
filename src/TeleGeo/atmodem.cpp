@@ -15,8 +15,7 @@ using namespace stmepic;
 Result<std::shared_ptr<AtModem>> AtModem::Make(std::shared_ptr<UART> huart) {
   if(huart == nullptr)
     return Status::ExecutionError("UART is nullpointer");
-  auto a = std::shared_ptr<AtModem>(new AtModem(huart));
-  return Result<std::shared_ptr<AtModem>>::OK(a);
+  return Result<std::shared_ptr<AtModem>>::OK(std::shared_ptr<AtModem>(new AtModem(huart)));
 }
 
 AtModem::AtModem(std::shared_ptr<UART> _huart)
@@ -139,7 +138,7 @@ bool AtModem::device_ok() {
 }
 
 Result<bool> AtModem::device_is_connected() {
-  return Result<bool>::Propagate(_device_status.ok(), _device_status);
+  return Result<bool>::Propagate(_device_status.ok(), std::move(_device_status));
 }
 
 
@@ -178,5 +177,5 @@ Status AtModem::handle() {
 }
 
 Result<const gps::NmeaParser &> AtModem::get_nmea_data() {
-  return Result<const gps::NmeaParser &>::Propagate(nmea_parser, nmea_status);
+  return Result<const gps::NmeaParser &>::Propagate(std::move(nmea_parser), std::move(nmea_status));
 }

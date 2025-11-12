@@ -32,7 +32,7 @@ EncoderAbsoluteMagneticMT6701::Make(std::shared_ptr<I2cBase> hi2c,
     return Status::Invalid("I2cBase is not initialized");
   auto encoder = std::shared_ptr<EncoderAbsoluteMagneticMT6701>(
   new EncoderAbsoluteMagneticMT6701(hi2c, (uint16_t)address, 16384, filter_angle, filter_velocity));
-  return Result<decltype(encoder)>::OK(encoder);
+  return Result<decltype(encoder)>::OK(std::move(encoder));
 }
 
 Result<uint32_t> EncoderAbsoluteMagneticMT6701::read_raw_angle() {
@@ -43,5 +43,5 @@ Result<uint32_t> EncoderAbsoluteMagneticMT6701::read_raw_angle() {
   STMEPIC_RETURN_ON_ERROR(status);
   uint32_t reg = (uint32_t)data[0] << 6;
   reg |= (uint32_t)(data[1] & 0xfc) >> 2;
-  return Result<uint32_t>::OK(reg);
+  return Result<uint32_t>::OK(std::move(reg));
 }

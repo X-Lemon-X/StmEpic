@@ -12,8 +12,8 @@ using namespace stmepic;
 Result<std::shared_ptr<BMP280>> BMP280::Make(std::shared_ptr<I2cBase> hi2c, uint8_t address) {
   if(hi2c == nullptr)
     return Status::ExecutionError("I2cBase is nullpointer");
-  auto a = std::shared_ptr<BMP280>(new BMP280(hi2c, address));
-  return Result<std::shared_ptr<BMP280>>::OK(a);
+  // auto a = std::shared_ptr<BMP280>(new BMP280(hi2c, address));
+  return Result<std::shared_ptr<BMP280>>::OK(std::shared_ptr<BMP280>(new BMP280(hi2c, address)));
 }
 
 BMP280::BMP280(std::shared_ptr<I2cBase> hi2c, uint8_t _address)
@@ -97,7 +97,7 @@ bool BMP280::device_ok() {
 }
 
 Result<bool> BMP280::device_is_connected() {
-  return Result<bool>::Propagate(_device_status.ok(), _device_status);
+  return Result<bool>::Propagate(_device_status.ok(), std::move(_device_status));
 }
 
 
@@ -128,8 +128,8 @@ Status BMP280::handle() {
 
 float BMP280::bmp280_compensate_T_int32(int32_t adc_T) {
   int32_t var1, var2, T;
-  var1   = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
-  var2   = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
+  var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
+  var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
   t_fine = var1 + var2;
   T      = (t_fine * 5 + 128) >> 8;
   return (float)T / 100.0f;
@@ -187,9 +187,9 @@ Result<BMP280_Data_t> BMP280::read_data() {
   BMP280_Data_t data;
   data.temp     = bmp280_compensate_T_int32(adc_T);
   data.pressure = bmp280_compensate_P_int32(adc_P);
-  return Result<BMP280_Data_t>::OK(data);
+  return Result<BMP280_Data_t>::OK(std::move(data));
 }
 
 Result<BMP280_Data_t> BMP280::get_data() {
-  return Result<BMP280_Data_t>::Propagate(bar_data, _device_status);
+  return Result<BMP280_Data_t>::Propagate(std::move(bar_data), std::move(_device_status));
 }
