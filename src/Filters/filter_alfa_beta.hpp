@@ -24,7 +24,7 @@ namespace stmepic::filters {
  */
 class FilterAlfaBeta : public FilterSampleSkip {
 public:
-  FilterAlfaBeta();
+  FilterAlfaBeta(float alfa = 0.9, float beta = 0.1);
 
   float calculate(float x) override;
 

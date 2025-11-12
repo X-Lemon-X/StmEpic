@@ -5,9 +5,9 @@
 
 using namespace stmepic::filters;
 
-FilterAlfaBeta::FilterAlfaBeta() {
-  alfa  = 0.2;
-  beta  = 0.1;
+FilterAlfaBeta::FilterAlfaBeta(float _alfa, float _beta) {
+  set_alfa(_alfa);
+  set_beta(_beta);
   ypri  = 0;
   ypost = 0;
   vpri  = 0;
@@ -33,4 +33,12 @@ void FilterAlfaBeta::set_init_value(float value) {
   ypost = value;
   vpri  = 0;
   vpost = 0;
+}
+
+void FilterAlfaBeta::set_alfa(float _alfa) {
+  alfa = _alfa;
+}
+
+void FilterAlfaBeta::set_beta(float _beta) {
+  beta = _beta;
 }

@@ -12,13 +12,13 @@ using namespace stmepic::modems;
 using namespace stmepic;
 
 
-Result<std::shared_ptr<AtModem>> AtModem::Make(std::shared_ptr<UART> huart) {
+Result<std::shared_ptr<AtModem>> AtModem::Make(std::shared_ptr<UartBase> huart) {
   if(huart == nullptr)
-    return Status::ExecutionError("UART is nullpointer");
+    return Status::ExecutionError("UartBase is nullpointer");
   return Result<std::shared_ptr<AtModem>>::OK(std::shared_ptr<AtModem>(new AtModem(huart)));
 }
 
-AtModem::AtModem(std::shared_ptr<UART> _huart)
+AtModem::AtModem(std::shared_ptr<UartBase> _huart)
 : huart(_huart), _device_status(Status::Disconnected("not started")),
   nmea_status(Status::Invalid("Nmea not enabled")), settings(std::make_unique<AtModemSettings>()) {
 

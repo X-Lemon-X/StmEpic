@@ -3,8 +3,10 @@
 using namespace stmepic::filters;
 
 
-FilterMovingAvarage::FilterMovingAvarage() {
+FilterMovingAvarage::FilterMovingAvarage(uint16_t filter_size, uint16_t samples_to_skip) {
   samples = std::deque<float>();
+  set_size(filter_size);
+  set_samples_to_skip(samples_to_skip);
 }
 
 float FilterMovingAvarage::calculate(float calculate) {
@@ -26,8 +28,7 @@ float FilterMovingAvarage::calculate(float calculate) {
 void FilterMovingAvarage::set_size(uint16_t size) {
   this->size = size;
   samples.clear();
-  for(uint16_t i = 0; i < size; ++i)
-    samples.push_back(0);
+  samples.resize(size, 0);
 }
 
 void FilterMovingAvarage::set_samples_to_skip(uint16_t sample_amount) {
