@@ -159,38 +159,37 @@ Result<ImuData> BNO055::read_data() {
 
   STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_ACC_DATA_BEGIN, regs, sizeof(regs)));
 
-  ImuData data = {};
+  ImuData data        = {};
+  data.acceleration.x = (float)(((uint16_t)regs[1] << 8) | regs[0]) / 100.0f;
+  data.acceleration.y = (float)(((uint16_t)regs[3] << 8) | regs[2]) / 100.0f;
+  data.acceleration.z = (float)(((uint16_t)regs[5] << 8) | regs[4]) / 100.0f;
 
-  data.acceleration.x = ((uint16_t)regs[1] << 8) | regs[0];
-  data.acceleration.y = ((uint16_t)regs[3] << 8) | regs[2];
-  data.acceleration.z = ((uint16_t)regs[5] << 8) | regs[4];
+  data.magnetic_field.x = (float)(((uint16_t)regs[7] << 8) | regs[6]) / 16.0f;
+  data.magnetic_field.y = (float)(((uint16_t)regs[9] << 8) | regs[8]) / 16.0f;
+  data.magnetic_field.z = (float)(((uint16_t)regs[11] << 8) | regs[10]) / 16.0f;
 
-  data.magnetic_field.x = ((uint16_t)regs[7] << 8) | regs[6];
-  data.magnetic_field.y = ((uint16_t)regs[9] << 8) | regs[8];
-  data.magnetic_field.z = ((uint16_t)regs[11] << 8) | regs[10];
+  data.gyration.x = (float)(((uint16_t)regs[13] << 8) | regs[12]) / 900.0f;
+  data.gyration.y = (float)(((uint16_t)regs[15] << 8) | regs[14]) / 900.0f;
+  data.gyration.z = (float)(((uint16_t)regs[17] << 8) | regs[16]) / 900.0f;
 
-  data.gyration.x = ((uint16_t)regs[13] << 8) | regs[12];
-  data.gyration.y = ((uint16_t)regs[15] << 8) | regs[14];
-  data.gyration.z = ((uint16_t)regs[17] << 8) | regs[16];
+  data.euler_angles.x = (float)(((uint16_t)regs[19] << 8) | regs[18]) / 900.0f;
+  data.euler_angles.y = (float)(((uint16_t)regs[21] << 8) | regs[20]) / 900.0f;
+  data.euler_angles.z = (float)(((uint16_t)regs[23] << 8) | regs[22]) / 900.0f;
 
-  data.euler_angles.x = ((uint16_t)regs[19] << 8) | regs[18];
-  data.euler_angles.y = ((uint16_t)regs[21] << 8) | regs[20];
-  data.euler_angles.z = ((uint16_t)regs[23] << 8) | regs[22];
+  data.quaternion.w = (float)(((uint16_t)regs[25] << 8) | regs[24]) / 16384.0f;
+  data.quaternion.x = (float)(((uint16_t)regs[27] << 8) | regs[26]) / 16384.0f;
+  data.quaternion.y = (float)(((uint16_t)regs[29] << 8) | regs[28]) / 16384.0f;
+  data.quaternion.z = (float)(((uint16_t)regs[31] << 8) | regs[30]) / 16384.0f;
 
-  data.quaternion.w = ((uint16_t)regs[25] << 8) | regs[24];
-  data.quaternion.x = ((uint16_t)regs[27] << 8) | regs[26];
-  data.quaternion.y = ((uint16_t)regs[29] << 8) | regs[28];
-  data.quaternion.z = ((uint16_t)regs[31] << 8) | regs[30];
+  data.linear_acceleration.x = (float)(((uint16_t)regs[33] << 8) | regs[32]) / 100.0f;
+  data.linear_acceleration.y = (float)(((uint16_t)regs[35] << 8) | regs[34]) / 100.0f;
+  data.linear_acceleration.z = (float)(((uint16_t)regs[37] << 8) | regs[36]) / 100.0f;
 
-  data.linear_acceleration.x = ((uint16_t)regs[33] << 8) | regs[32];
-  data.linear_acceleration.y = ((uint16_t)regs[35] << 8) | regs[34];
-  data.linear_acceleration.z = ((uint16_t)regs[37] << 8) | regs[36];
+  data.gravity.x = (float)(((uint16_t)regs[39] << 8) | regs[38]) / 100.0f;
+  data.gravity.y = (float)(((uint16_t)regs[41] << 8) | regs[40]) / 100.0f;
+  data.gravity.z = (float)(((uint16_t)regs[43] << 8) | regs[42]) / 100.0f;
 
-  data.gravity.x = ((uint16_t)regs[39] << 8) | regs[38];
-  data.gravity.y = ((uint16_t)regs[41] << 8) | regs[40];
-  data.gravity.z = ((uint16_t)regs[43] << 8) | regs[42];
-
-  data.temp = regs[44];
+  data.temp = (float)regs[44];
 
   // if sensor is calibrated we simply return the data
   if(imu_settings->calibration_data.calibrated)

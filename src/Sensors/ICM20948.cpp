@@ -93,16 +93,20 @@ Status ICM20948::task_bar(SimpleTask &handler, void *arg) {
 Status ICM20948::handle() {
   auto maybe_data = read_data();
   _device_status  = maybe_data.status();
+  if(maybe_data.ok()) {
+    bar_data = maybe_data.valueOrDie();
+  }
   return _device_status;
 }
 
-Result<ICM20948_Data_t> ICM20948::read_data() {
-  uint8_t regs[6]      = {};
-  ICM20948_Data_t data = {};
+Result<ImuData> ICM20948::read_data() {
+  uint8_t regs[6] = {};
+  ImuData data    = {};
+  // TOODO
 
-  return Result<ICM20948_Data_t>::OK(std::move(data));
+  return Result<ImuData>::OK(std::move(data));
 }
 
-Result<ICM20948_Data_t> ICM20948::get_data() {
-  return Result<ICM20948_Data_t>::Propagate(std::move(bar_data), std::move(_device_status));
+Result<ImuData> ICM20948::get_data() {
+  return Result<ImuData>::Propagate(std::move(bar_data), std::move(_device_status));
 }

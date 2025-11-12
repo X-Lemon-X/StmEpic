@@ -5,6 +5,7 @@
 #include "stmepic.hpp"
 #include "vectors3d.hpp"
 #include "i2c.hpp"
+#include "imu.hpp"
 #include <memory>
 
 using namespace stmepic;
@@ -77,7 +78,7 @@ struct ICM20948_Data_t {
  * BMP280 is a barometr and temperature sensor
  *
  */
-class ICM20948 : public stmepic::DeviceThreadedBase {
+class ICM20948 : public virtual stmepic::DeviceThreadedBase, public virtual IMU {
 public:
   /**
    * @brief Make new ICM20948 imu sensor
@@ -98,7 +99,7 @@ public:
    * @brief Get last read data from the ICM20948 sensor
    * @return ICM20948_Data_t data from the ICM20948 sensor
    */
-  Result<ICM20948_Data_t> get_data();
+  Result<ImuData> get_data();
 
 
 private:
@@ -111,13 +112,13 @@ private:
   Status init();
   Status stop();
 
-  Result<ICM20948_Data_t> read_data();
+  Result<ImuData> read_data();
 
   static Status task_bar_before(SimpleTask &handler, void *arg);
   static Status task_bar(SimpleTask &handler, void *arg);
   Status handle();
 
-  ICM20948_Data_t bar_data;
+  ImuData bar_data;
   std::shared_ptr<I2cBase> hi2c;
   Status _device_status;
   Status reading_status;

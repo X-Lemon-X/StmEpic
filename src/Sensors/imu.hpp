@@ -10,14 +10,14 @@ namespace stmepic::sensors::imu {
 
 struct ImuData {
   int8_t temp;
-  Vector3d_t<int16_t> acceleration; // acceleration in XYZ in m/s^2
-  Vector3d_t<int16_t> gyration;
-  Vector3d_t<int16_t> magnetic_field;
+  Vector3d_t<float> acceleration; // acceleration in XYZ in m/s^2
+  Vector3d_t<float> gyration;
+  Vector3d_t<float> magnetic_field;
 
-  Vector3d_t<int16_t> linear_acceleration;
-  Vector3d_t<int16_t> gravity;
-  Vector3d_t<int16_t> euler_angles;
-  Vector4d_t<int16_t> quaternion;
+  Vector3d_t<float> linear_acceleration;
+  Vector3d_t<float> gravity;
+  Vector3d_t<float> euler_angles;
+  Vector4d_t<float> quaternion;
 
   std::string to_string() const {
     using std::to_string;
