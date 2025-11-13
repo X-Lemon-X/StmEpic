@@ -21,7 +21,7 @@ struct ImuData {
 
   std::string to_string() const {
     using std::to_string;
-    auto i = [](auto v) { return to_string(static_cast<int>(v)); };
+    auto i = [](auto v) { return to_string(static_cast<float>(v)); };
     return "Temp: " + to_string(static_cast<int>(temp)) + " C, Acc: [" + i(acceleration.x) + ", " +
            i(acceleration.y) + ", " + i(acceleration.z) + "] m/s^2, Gyration: [" + i(gyration.x) + ", " +
            i(gyration.y) + ", " + i(gyration.z) + "] dps, Magnetic Field: [" + i(magnetic_field.x) + ", " +
