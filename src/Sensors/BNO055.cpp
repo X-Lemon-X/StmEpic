@@ -159,35 +159,36 @@ Result<ImuData> BNO055::read_data() {
 
   STMEPIC_RETURN_ON_ERROR(hi2c->read(address, BNO055_REG_ACC_DATA_BEGIN, regs, sizeof(regs)));
 
-  ImuData data        = {};
-  data.acceleration.x = (float)(((uint16_t)regs[1] << 8) | regs[0]) / 100.0f;
-  data.acceleration.y = (float)(((uint16_t)regs[3] << 8) | regs[2]) / 100.0f;
-  data.acceleration.z = (float)(((uint16_t)regs[5] << 8) | regs[4]) / 100.0f;
+  ImuData data = {};
 
-  data.magnetic_field.x = (float)(((uint16_t)regs[7] << 8) | regs[6]) / 16.0f;
-  data.magnetic_field.y = (float)(((uint16_t)regs[9] << 8) | regs[8]) / 16.0f;
-  data.magnetic_field.z = (float)(((uint16_t)regs[11] << 8) | regs[10]) / 16.0f;
+  data.acceleration.x = (float)(int16_t)((regs[1] << 8) | regs[0]) / 100.0f;
+  data.acceleration.y = (float)(int16_t)((regs[3] << 8) | regs[2]) / 100.0f;
+  data.acceleration.z = (float)(int16_t)((regs[5] << 8) | regs[4]) / 100.0f;
 
-  data.gyration.x = (float)(((uint16_t)regs[13] << 8) | regs[12]) / 900.0f;
-  data.gyration.y = (float)(((uint16_t)regs[15] << 8) | regs[14]) / 900.0f;
-  data.gyration.z = (float)(((uint16_t)regs[17] << 8) | regs[16]) / 900.0f;
+  data.magnetic_field.x = (float)(int16_t)((regs[7] << 8) | regs[6]) / 16.0f;
+  data.magnetic_field.y = (float)(int16_t)((regs[9] << 8) | regs[8]) / 16.0f;
+  data.magnetic_field.z = (float)(int16_t)((regs[11] << 8) | regs[10]) / 16.0f;
 
-  data.euler_angles.x = (float)(((uint16_t)regs[19] << 8) | regs[18]) / 900.0f;
-  data.euler_angles.y = (float)(((uint16_t)regs[21] << 8) | regs[20]) / 900.0f;
-  data.euler_angles.z = (float)(((uint16_t)regs[23] << 8) | regs[22]) / 900.0f;
+  data.gyration.x = (float)(int16_t)((regs[13] << 8) | regs[12]) / 900.0f;
+  data.gyration.y = (float)(int16_t)((regs[15] << 8) | regs[14]) / 900.0f;
+  data.gyration.z = (float)(int16_t)((regs[17] << 8) | regs[16]) / 900.0f;
 
-  data.quaternion.w = (float)(((uint16_t)regs[25] << 8) | regs[24]) / 16384.0f;
-  data.quaternion.x = (float)(((uint16_t)regs[27] << 8) | regs[26]) / 16384.0f;
-  data.quaternion.y = (float)(((uint16_t)regs[29] << 8) | regs[28]) / 16384.0f;
-  data.quaternion.z = (float)(((uint16_t)regs[31] << 8) | regs[30]) / 16384.0f;
+  data.euler_angles.x = (float)(int16_t)((regs[19] << 8) | regs[18]) / 900.0f;
+  data.euler_angles.y = (float)(int16_t)((regs[21] << 8) | regs[20]) / 900.0f;
+  data.euler_angles.z = (float)(int16_t)((regs[23] << 8) | regs[22]) / 900.0f;
 
-  data.linear_acceleration.x = (float)(((uint16_t)regs[33] << 8) | regs[32]) / 100.0f;
-  data.linear_acceleration.y = (float)(((uint16_t)regs[35] << 8) | regs[34]) / 100.0f;
-  data.linear_acceleration.z = (float)(((uint16_t)regs[37] << 8) | regs[36]) / 100.0f;
+  data.quaternion.w = (float)(int16_t)((regs[25] << 8) | regs[24]) / 16384.0f;
+  data.quaternion.x = (float)(int16_t)((regs[27] << 8) | regs[26]) / 16384.0f;
+  data.quaternion.y = (float)(int16_t)((regs[29] << 8) | regs[28]) / 16384.0f;
+  data.quaternion.z = (float)(int16_t)((regs[31] << 8) | regs[30]) / 16384.0f;
 
-  data.gravity.x = (float)(((uint16_t)regs[39] << 8) | regs[38]) / 100.0f;
-  data.gravity.y = (float)(((uint16_t)regs[41] << 8) | regs[40]) / 100.0f;
-  data.gravity.z = (float)(((uint16_t)regs[43] << 8) | regs[42]) / 100.0f;
+  data.linear_acceleration.x = (float)(int16_t)((regs[33] << 8) | regs[32]) / 100.0f;
+  data.linear_acceleration.y = (float)(int16_t)((regs[35] << 8) | regs[34]) / 100.0f;
+  data.linear_acceleration.z = (float)(int16_t)((regs[37] << 8) | regs[36]) / 100.0f;
+
+  data.gravity.x = (float)(int16_t)((regs[39] << 8) | regs[38]) / 100.0f;
+  data.gravity.y = (float)(int16_t)((regs[41] << 8) | regs[40]) / 100.0f;
+  data.gravity.z = (float)(int16_t)((regs[43] << 8) | regs[42]) / 100.0f;
 
   data.temp = (float)regs[44];
 
