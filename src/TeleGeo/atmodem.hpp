@@ -44,7 +44,7 @@ public:
   Status device_get_status() override;
   Status device_set_settings(const DeviceSettings &settings) override;
 
-  Result<const gps::NmeaParser &> get_nmea_data();
+  const gps::NmeaParser &get_nmea_data();
 
 
 private:

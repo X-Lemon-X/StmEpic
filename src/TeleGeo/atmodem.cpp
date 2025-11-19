@@ -176,6 +176,6 @@ Status AtModem::handle() {
   return Status::OK();
 }
 
-Result<const gps::NmeaParser &> AtModem::get_nmea_data() {
-  return Result<const gps::NmeaParser &>::Propagate(std::move(nmea_parser), std::move(nmea_status));
+const gps::NmeaParser &AtModem::get_nmea_data() {
+  return nmea_parser;
 }

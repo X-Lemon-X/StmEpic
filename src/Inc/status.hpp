@@ -396,7 +396,7 @@ public:
   /// @brief Get the value of the result or weard error if the status is not OK.
   /// You should check if the status is ok before calling this function.
   [[nodiscard]] T &valueOrDie() {
-    return _value;
+    return _value.value();
   }
 
   /// @brief Get the status of the result.
@@ -416,8 +416,8 @@ public:
 private:
   Result(T &&value, Status &&status) : _value(std::move(value)), _status(std::move(status)){};
 
-  // std::optional<T> _value;
-  T _value;
+  std::optional<T> _value;
+  // T _value;
   Status _status;
 };
 

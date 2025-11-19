@@ -86,6 +86,7 @@ set(LIBRARIES_INCLUDED "")
 # Embedded Template Library (ETL)
 add_subdirectory(etl)
 list(APPEND LIBRARIES_INCLUDED etl::etl)
+list(APPEND LIBRARIES_INCLUDED lwgps)  # LwGPS
 
 ############################################
 # FREE RTOS CONFIGURATION
