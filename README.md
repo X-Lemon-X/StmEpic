@@ -45,6 +45,7 @@ The framework integrates with FreeRTOS for task scheduling and is compatible wit
 - **STM32H5** - 563
 - **STM32H7** - 750
 - **STM32U5** - 585
+
 Disclaimer: The library will most likely work with other STM32 series, but it wasn't tested.
 
 ## How to add the library to your project
