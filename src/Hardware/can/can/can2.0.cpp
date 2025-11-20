@@ -46,7 +46,7 @@ CAN::Make(CAN_HandleTypeDef &hcan, const CAN_FilterTypeDef &filter, GpioPin *tx_
   std::shared_ptr<CAN> can(new CAN(hcan, filter, tx_led, rx_led));
   can_instances.push_back(can);
   vPortExitCritical();
-  return Result<decltype(can)>::OK(can);
+  return Result<decltype(can)>::OK(std::move(can));
 }
 
 void CAN::run_tx_callbacks_from_irq(CAN_HandleTypeDef *hcan) {
