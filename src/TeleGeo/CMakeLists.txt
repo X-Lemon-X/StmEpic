@@ -9,6 +9,3 @@ target_sources(${UPPER_PROJECT_NAME} PRIVATE
   nmea.cpp
   atmodem.cpp
 )
-
-
-add_subdirectory(lwgps)
