@@ -1,6 +1,6 @@
 [submodule "etl"]
-	path = etl
+	path = submodules/etl
 	url = https://github.com/ETLCPP/etl.git
 [submodule "src/TeleGeo/lwgps"]
-	path = src/TeleGeo/lwgps
+	path = submodules/lwgps
 	url = git@github.com:MaJerle/lwgps.git
