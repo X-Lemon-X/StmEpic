@@ -81,10 +81,10 @@ endif()
 
 set(LIBRARIES_INCLUDED "")
 
-
 ############################################
-# Embedded Template Library (ETL)
-add_subdirectory(etl)
+# Add the submodules
+add_subdirectory(submodules/etl)
+add_subdirectory(submodules/lwgps)
 list(APPEND LIBRARIES_INCLUDED etl::etl)
 list(APPEND LIBRARIES_INCLUDED lwgps)  # LwGPS
 
