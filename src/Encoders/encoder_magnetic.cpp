@@ -23,6 +23,12 @@ EncoderAbsoluteMagnetic::EncoderAbsoluteMagnetic(std::shared_ptr<I2C> _hi2c,
   filter_velocity(_filter_velocity), last_time(stmepic::Ticker::get_instance().get_seconds()), prev_angle(0),
   current_angle(0), current_velocity(0), prev_angle_rad_raw(0), prev_angle_velocity(0), over_drive_angle(0),
   absolute_angle(0), ratio(1), offset(0), dead_zone_correction_angle(0), reverse(false), resolution(_resolution) {
+
+  DeviceThreadedSettings enc_device_settings;
+  enc_device_settings.period       = 20;
+  enc_device_settings.uxPriority   = 3;
+  enc_device_settings.uxStackDepth = 1054;
+  (void)device_task_set_settings(enc_device_settings);
 }
 
 float EncoderAbsoluteMagnetic::calculate_velocity(float angle) {
