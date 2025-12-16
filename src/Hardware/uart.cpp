@@ -74,7 +74,7 @@ void UART::run_tx_callbacks_from_isr(UART_HandleTypeDef *huart, bool half) {
 }
 
 void UART::tx_callback(UART_HandleTypeDef *huart, bool half) {
-  if(huart == nullptr || huart->Instance != huart->Instance)
+  if(huart == nullptr || huart->Instance != _huart->Instance)
     return;
 
   if(task_handle == nullptr) {
