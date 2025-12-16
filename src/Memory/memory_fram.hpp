@@ -95,7 +95,7 @@ public:
       return Status::CapacityError("Data size is not the same as the struct size");
     T value;
     std::memcpy(&value, decoded_data.first.get(), sizeof(T));
-    return Result<T>::OK(value);
+    return Result<T>::OK(std::move(value));
   }
 
   /// @brief Write a struct to the FRAM

@@ -39,7 +39,7 @@ EncoderAbsoluteMagneticAS5600::Make(std::shared_ptr<I2cBase> hi2c,
 Result<uint32_t> EncoderAbsoluteMagneticAS5600::read_raw_angle() {
   uint8_t data[2];
   auto status       = hi2c->read(address, 0x0C, data, 2);
-  encoder_connected = status.ok() || status.status_code() != StatusCode::TimeOut;
+  encoder_connected = status.ok();
   device_status     = status;
   STMEPIC_RETURN_ON_ERROR(status);
   uint32_t reg = (uint32_t)(data[0] & 0x0F) << 8;
