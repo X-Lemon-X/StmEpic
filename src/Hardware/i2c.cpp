@@ -280,7 +280,7 @@ Status I2cMultiplexerChannel::hardware_reset() {
 
 Status I2cMultiplexerChannel::read(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   _multiplexer.lock();
-  (void)_multiplexer.select_channel(channel);
+  (void)_multiplexer.select_channel(_channel);
   auto ret = _i2c->read(address, mem_address, data, size, mem_size, timeout_ms);
   _multiplexer.unlock();
   return ret;
@@ -288,7 +288,7 @@ Status I2cMultiplexerChannel::read(uint16_t address, uint16_t mem_address, uint8
 
 Status I2cMultiplexerChannel::write(uint16_t address, uint16_t mem_address, uint8_t *data, uint16_t size, uint16_t mem_size, uint16_t timeout_ms) {
   _multiplexer.lock();
-  (void)_multiplexer.select_channel(channel);
+  (void)_multiplexer.select_channel(_channel);
   auto ret = _i2c->write(address, mem_address, data, size, mem_size, timeout_ms);
   _multiplexer.unlock();
   return ret;
@@ -296,7 +296,7 @@ Status I2cMultiplexerChannel::write(uint16_t address, uint16_t mem_address, uint
 
 Status I2cMultiplexerChannel::is_device_ready(uint16_t address, uint32_t trials, uint32_t timeout) {
   _multiplexer.lock();
-  (void)_multiplexer.select_channel(channel);
+  (void)_multiplexer.select_channel(_channel);
   auto ret = _i2c->is_device_ready(address, trials, timeout);
   _multiplexer.unlock();
   return ret;
@@ -304,7 +304,7 @@ Status I2cMultiplexerChannel::is_device_ready(uint16_t address, uint32_t trials,
 
 Result<std::vector<uint16_t>> I2cMultiplexerChannel::scan_for_devices() {
   _multiplexer.lock();
-  (void)_multiplexer.select_channel(channel);
+  (void)_multiplexer.select_channel(_channel);
   auto ret = _i2c->scan_for_devices();
   _multiplexer.unlock();
   return ret;

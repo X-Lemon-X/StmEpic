@@ -195,7 +195,7 @@ class I2cMultiplexerChannel;
 class I2cMultiplexerChannel : public I2cBase {
 public:
   I2cMultiplexerChannel(std::shared_ptr<I2cBase> i2c, uint8_t channel, MultiplexerBase &multiplexer)
-  : _i2c(i2c), channel(channel), _multiplexer(multiplexer){};
+  : _channel(channel), _i2c(i2c), _multiplexer(multiplexer){};
   Status hardware_start() override;
   Status hardware_stop() override;
   Status hardware_reset() override;
@@ -205,7 +205,7 @@ public:
   Result<std::vector<uint16_t>> scan_for_devices() override;
 
 private:
-  uint8_t channel;
+  uint8_t _channel;
   std::shared_ptr<I2cBase> _i2c;
   MultiplexerBase &_multiplexer;
 };
@@ -229,7 +229,7 @@ public:
                                                             std::optional<GpioPin> address_pin_2 = std::nullopt,
                                                             std::optional<GpioPin> address_pin_3 = std::nullopt,
                                                             std::optional<GpioPin> address_pin_4 = std::nullopt,
-                                                            uint8_t switch_delay_us              = 1);
+                                                            uint8_t switch_delay_us = 1);
 
   /// @brief Get the I2C interface for the specific channel,
   /// Which should be passed to the device driver which is connected to the multiplexer on this specific channel.
