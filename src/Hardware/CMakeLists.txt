@@ -11,6 +11,7 @@ target_sources(${UPPER_PROJECT_NAME} PRIVATE
   uart.cpp
 )
 
+if(STMEPIC_ENABLE_CAN)
 
 if(STMEPIC_FDCAN)
   target_include_directories(${UPPER_PROJECT_NAME} PUBLIC
@@ -30,5 +31,7 @@ if(NOT STMEPIC_FDCAN)
   target_sources(${UPPER_PROJECT_NAME} PRIVATE
   can/can/can2.0.cpp
   ) 
+
+endif()
 
 endif()
