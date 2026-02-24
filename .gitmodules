@@ -1,0 +1,9 @@
+[submodule "arx_gui"]
+	path = arx_gui
+	url = git@github.com:X-Lemon-X/arx_gui.git
+[submodule "arx_mini"]
+	path = arx_mini
+	url = git@github.com:X-Lemon-X/arx_mini.git
+[submodule "arx_software"]
+	path = arx_software
+	url = git@github.com:X-Lemon-X/arx_software.git
