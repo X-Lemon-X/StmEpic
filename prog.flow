@@ -1,0 +1,92 @@
+{
+    "connections": [
+        {
+            "inPortIndex": 0,
+            "intNodeId": 0,
+            "outNodeId": 3,
+            "outPortIndex": 0
+        },
+        {
+            "inPortIndex": 3,
+            "intNodeId": 0,
+            "outNodeId": 2,
+            "outPortIndex": 0
+        },
+        {
+            "inPortIndex": 0,
+            "intNodeId": 1,
+            "outNodeId": 0,
+            "outPortIndex": 0
+        }
+    ],
+    "nodes": [
+        {
+            "id": 0,
+            "internal-data": {
+                "arx_node_id": 281474976710676,
+                "model-name": "Generator",
+                "options": [
+                    {
+                        "name": "Animation Type",
+                        "value": "Ag=="
+                    }
+                ]
+            },
+            "position": {
+                "x": -62,
+                "y": -181
+            }
+        },
+        {
+            "id": 1,
+            "internal-data": {
+                "arx_node_id": 281474976710677,
+                "model-name": "Animation View",
+                "options": [
+                    {
+                        "name": "Color",
+                        "value": "TmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASTmASAAAAAAAAAAAAgD8="
+                    }
+                ]
+            },
+            "position": {
+                "x": 271,
+                "y": -99
+            }
+        },
+        {
+            "id": 2,
+            "internal-data": {
+                "arx_node_id": 281474976710678,
+                "model-name": "RGB Const",
+                "options": [
+                    {
+                        "name": "Color",
+                        "value": "z/8w"
+                    }
+                ]
+            },
+            "position": {
+                "x": -282,
+                "y": -93
+            }
+        },
+        {
+            "id": 3,
+            "internal-data": {
+                "arx_node_id": 281474976710679,
+                "model-name": "Value",
+                "options": [
+                    {
+                        "name": "value",
+                        "value": "AACAPw=="
+                    }
+                ]
+            },
+            "position": {
+                "x": -360,
+                "y": -206
+            }
+        }
+    ]
+}
