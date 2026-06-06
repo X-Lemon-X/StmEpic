@@ -4,3 +4,7 @@
 [submodule "src/TeleGeo/lwgps"]
 	path = submodules/lwgps
 	url = git@github.com:MaJerle/lwgps.git
+
+[submodule "stmepic_base"]
+	path = submodules/stmepic_base
+	url = git@github.com:X-Lemon-X/stmepic_base.git
